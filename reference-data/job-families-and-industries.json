@@ -1,0 +1,1103 @@
+{
+ "version": "2.0",
+ "notes": "v2.0 (2026-07-19): Full job-family restructuring. Rebuilt the family list (21 -> 34 families) anchored on O*NET-SOC's 23 major groups (US Dept of Labor, public domain classification standard) plus LinkedIn's public job-function taxonomy, to close major coverage gaps the v1.1 list had for healthcare, skilled trades, manufacturing, protective services, arts, agriculture-as-work, and more. Merged four v1.1 near-duplicate pairs into single families: sales + sales_business_development -> sales; administrative_office + office_administration -> administrative_office; customer_support + customer_service -> customer_support_service; operations_program_mgmt + program_management -> split cleanly into operations and program_project_management. Split finance_accounting into finance and accounting (forward-looking financial planning vs. transactional record-keeping), per user request. Added 14 new families for coverage: engineering_technical, science_research, community_social_services, arts_design_media_entertainment, healthcare_clinical, healthcare_support, protective_service, supply_chain_procurement, building_grounds_maintenance, farming_fishing_forestry, construction_extraction, installation_maintenance_repair, production_manufacturing, transportation_material_moving, military. All existing v1.1 job_types were preserved and carried over into their new/merged family; a handful of new job_types were added under merged families for continuity (e.g. executive_assistant, technical_support). BREAKING CHANGE from v1.1: family IDs sales_business_development, office_administration, customer_support, customer_service, and finance_accounting no longer exist -- any stored structured.json referencing them under schema v1.0 should be treated as legacy and re-tagged against v2.0 on next parse; the JSON schema (v1.0) itself is unaffected since family_id is a free-text-matched field, not a schema-enforced enum. human_resources and talent_acquisition remain untouched, unmerged sibling families, since that distinction predates and is independent of this restructuring. Industries list (v1.1, unaffected by this change) still has agriculture_food_manufacturing added from a real-world test parse on 2026-07-18/19. This remains a living taxonomy, not exhaustive -- extend as new roles surface, per the existing v1.1 policy.",
+ "job_families": [
+  {
+   "id": "human_resources",
+   "name": "Human Resources & People Operations",
+   "description": "HR & People Operations, employee lifecycle ownership from hire-acceptance onward: onboarding, HR operations, HRIS, payroll, comp & benefits, performance management, employee relations, policy & compliance, L&D, OD, DEI, engagement, offboarding. Excludes the talent-acquisition function (sibling family talent_acquisition).",
+   "job_types": [
+    {
+     "id": "hr_generalist",
+     "name": "HR Generalist"
+    },
+    {
+     "id": "hr_business_partner",
+     "name": "HR Business Partner (HRBP)"
+    },
+    {
+     "id": "hr_manager",
+     "name": "HR Manager"
+    },
+    {
+     "id": "hr_operations",
+     "name": "HR Operations"
+    },
+    {
+     "id": "hr_administration",
+     "name": "HR Administration"
+    },
+    {
+     "id": "hr_assistant",
+     "name": "HR Assistant"
+    },
+    {
+     "id": "hr_systems_analyst",
+     "name": "HR Systems Analyst / HRIS Business Analyst"
+    },
+    {
+     "id": "hris",
+     "name": "HRIS"
+    },
+    {
+     "id": "compensation_benefits",
+     "name": "Compensation & Benefits"
+    },
+    {
+     "id": "compensation",
+     "name": "Compensation Specialist"
+    },
+    {
+     "id": "employee_relations",
+     "name": "Employee Relations"
+    },
+    {
+     "id": "learning_development",
+     "name": "Learning & Development"
+    },
+    {
+     "id": "organizational_development",
+     "name": "Organizational Development"
+    },
+    {
+     "id": "immigration_mobility",
+     "name": "Immigration & Global Mobility"
+    },
+    {
+     "id": "job_architecture",
+     "name": "Job Architecture / Career Framework"
+    },
+    {
+     "id": "people_analytics",
+     "name": "People Analytics"
+    },
+    {
+     "id": "talent_management",
+     "name": "Talent Management (post-hire development)"
+    }
+   ]
+  },
+  {
+   "id": "talent_acquisition",
+   "name": "Talent Acquisition & Recruitment",
+   "description": "Pre-hire pipeline ownership: sourcing, recruiting, interviewing, offer, employer branding, candidate experience. Sibling family to human_resources.",
+   "job_types": [
+    {
+     "id": "recruiter",
+     "name": "Recruiter / Tech Recruiter"
+    },
+    {
+     "id": "sourcer",
+     "name": "Sourcer / Talent Sourcer"
+    },
+    {
+     "id": "ta_partner",
+     "name": "TA Partner / Talent Acquisition Partner"
+    },
+    {
+     "id": "ta_operations",
+     "name": "TA Operations / Recruitment Operations"
+    },
+    {
+     "id": "ta_manager",
+     "name": "TA Manager / Recruitment Manager"
+    },
+    {
+     "id": "ta_director",
+     "name": "TA Director / Head of Talent Acquisition"
+    },
+    {
+     "id": "rpo_recruiter",
+     "name": "RPO Recruiter"
+    },
+    {
+     "id": "employer_branding",
+     "name": "Employer Branding (recruitment)"
+    },
+    {
+     "id": "candidate_experience",
+     "name": "Candidate Experience"
+    }
+   ]
+  },
+  {
+   "id": "general_management_executive",
+   "name": "General Management & Executive Leadership",
+   "description": "Executive Officers and general managers with full P&L, entity, or company-wide ownership.",
+   "job_types": [
+    {
+     "id": "founder_ceo",
+     "name": "Founder / CEO"
+    },
+    {
+     "id": "cto",
+     "name": "CTO"
+    },
+    {
+     "id": "coo",
+     "name": "COO"
+    },
+    {
+     "id": "cfo",
+     "name": "CFO"
+    },
+    {
+     "id": "general_manager",
+     "name": "General Manager"
+    },
+    {
+     "id": "country_regional_manager",
+     "name": "Country / Regional Manager"
+    }
+   ]
+  },
+  {
+   "id": "operations",
+   "name": "Operations",
+   "description": "Cross-functional business operations, not tied to a single project/program lifecycle.",
+   "job_types": [
+    {
+     "id": "office_operations_mgmt",
+     "name": "Office Operations Management"
+    },
+    {
+     "id": "event_management",
+     "name": "Event Management"
+    },
+    {
+     "id": "business_operations",
+     "name": "Business Operations"
+    },
+    {
+     "id": "project_administration",
+     "name": "Project Administration"
+    }
+   ]
+  },
+  {
+   "id": "program_project_management",
+   "name": "Program & Project Management",
+   "description": "Structured delivery of programs and projects, often cross-functional, with defined milestones and scope.",
+   "job_types": [
+    {
+     "id": "program_management",
+     "name": "Program Management"
+    },
+    {
+     "id": "technical_program_management",
+     "name": "Technical Program Management (TPM)"
+    },
+    {
+     "id": "project_coordinator",
+     "name": "Project Coordinator"
+    }
+   ]
+  },
+  {
+   "id": "supply_chain_procurement",
+   "name": "Supply Chain & Procurement",
+   "description": "Sourcing, purchasing, logistics planning, and vendor/supplier management.",
+   "job_types": [
+    {
+     "id": "buyer",
+     "name": "Buyer"
+    },
+    {
+     "id": "procurement_manager",
+     "name": "Procurement Manager"
+    },
+    {
+     "id": "logistics_coordinator",
+     "name": "Logistics Coordinator"
+    },
+    {
+     "id": "supply_planner",
+     "name": "Supply Planner"
+    },
+    {
+     "id": "vendor_management",
+     "name": "Vendor Management"
+    }
+   ]
+  },
+  {
+   "id": "administrative_office",
+   "name": "Administrative & Office Support",
+   "description": "General administrative and office-support work. Merges the former administrative_office and office_administration families (v1.1), which were duplicates.",
+   "job_types": [
+    {
+     "id": "office_admin",
+     "name": "Office Administration"
+    },
+    {
+     "id": "administrative_support",
+     "name": "Administrative Support"
+    },
+    {
+     "id": "executive_assistant",
+     "name": "Executive Assistant"
+    },
+    {
+     "id": "supplier_coordination",
+     "name": "Supplier Coordination"
+    }
+   ]
+  },
+  {
+   "id": "customer_support_service",
+   "name": "Customer Support & Service",
+   "description": "Post-sale customer-facing support and service work. Merges the former customer_support and customer_service families (v1.1), which were duplicates.",
+   "job_types": [
+    {
+     "id": "customer_relations",
+     "name": "Customer Relations"
+    },
+    {
+     "id": "customer_support_rep",
+     "name": "Customer Support Representative"
+    },
+    {
+     "id": "technical_support",
+     "name": "Technical Support"
+    },
+    {
+     "id": "client_success",
+     "name": "Client Success"
+    }
+   ]
+  },
+  {
+   "id": "finance",
+   "name": "Finance",
+   "description": "Forward-looking financial planning, strategy, and capital management. Split out of the former finance_accounting family (v1.1) to separate from accounting.",
+   "job_types": [
+    {
+     "id": "financial_reporting",
+     "name": "Financial Reporting"
+    },
+    {
+     "id": "fpa",
+     "name": "FP&A"
+    },
+    {
+     "id": "financial_planning",
+     "name": "Financial Planning"
+    },
+    {
+     "id": "corporate_finance",
+     "name": "Corporate Finance"
+    },
+    {
+     "id": "treasury",
+     "name": "Treasury"
+    },
+    {
+     "id": "investor_relations",
+     "name": "Investor Relations"
+    }
+   ]
+  },
+  {
+   "id": "accounting",
+   "name": "Accounting",
+   "description": "Transactional and historical financial record-keeping and reporting. Split out of the former finance_accounting family (v1.1) to separate from finance.",
+   "job_types": [
+    {
+     "id": "accounts_payable",
+     "name": "Accounts Payable"
+    },
+    {
+     "id": "accounts_receivable",
+     "name": "Accounts Receivable"
+    },
+    {
+     "id": "bookkeeping",
+     "name": "Bookkeeping"
+    },
+    {
+     "id": "payment_administration",
+     "name": "Payment Administration"
+    },
+    {
+     "id": "audit_liaison",
+     "name": "Audit Liaison"
+    },
+    {
+     "id": "tax_accounting",
+     "name": "Tax Accounting"
+    },
+    {
+     "id": "controller",
+     "name": "Controller"
+    }
+   ]
+  },
+  {
+   "id": "legal_compliance",
+   "name": "Legal & Compliance",
+   "description": "Legal, regulatory, and compliance work.",
+   "job_types": [
+    {
+     "id": "contract_administration",
+     "name": "Contract Administration"
+    },
+    {
+     "id": "regulatory_affairs",
+     "name": "Regulatory Affairs"
+    },
+    {
+     "id": "paralegal",
+     "name": "Paralegal"
+    },
+    {
+     "id": "attorney_counsel",
+     "name": "Attorney / Counsel"
+    },
+    {
+     "id": "compliance_officer",
+     "name": "Compliance Officer"
+    }
+   ]
+  },
+  {
+   "id": "sales",
+   "name": "Sales",
+   "description": "Revenue-generating sales work, direct and channel. Merges the former sales and sales_business_development families (v1.1), which were duplicates.",
+   "job_types": [
+    {
+     "id": "enterprise_sales",
+     "name": "Enterprise Sales"
+    },
+    {
+     "id": "account_management",
+     "name": "Account Management"
+    },
+    {
+     "id": "channel_partner_sales",
+     "name": "Channel / Partner Sales"
+    },
+    {
+     "id": "business_development",
+     "name": "Business Development"
+    },
+    {
+     "id": "consumer_retail_sales",
+     "name": "Consumer / Retail Sales"
+    },
+    {
+     "id": "sales_support",
+     "name": "Sales Support"
+    }
+   ]
+  },
+  {
+   "id": "marketing",
+   "name": "Marketing",
+   "description": "Brand, demand-generation, and go-to-market marketing work.",
+   "job_types": [
+    {
+     "id": "marketing_generalist",
+     "name": "Marketing Generalist"
+    },
+    {
+     "id": "brand_marketing",
+     "name": "Brand Marketing"
+    },
+    {
+     "id": "content_marketing",
+     "name": "Content Marketing"
+    },
+    {
+     "id": "digital_marketing",
+     "name": "Digital Marketing"
+    },
+    {
+     "id": "social_media",
+     "name": "Social Media"
+    },
+    {
+     "id": "events_marketing",
+     "name": "Events Marketing"
+    },
+    {
+     "id": "market_research",
+     "name": "Market Research"
+    },
+    {
+     "id": "graphic_design_marketing",
+     "name": "Graphic Design (marketing context)"
+    }
+   ]
+  },
+  {
+   "id": "communications_pr",
+   "name": "Communications & Public Relations",
+   "description": "External and internal communications, public relations, translation.",
+   "job_types": [
+    {
+     "id": "stakeholder_communications",
+     "name": "Stakeholder Communications"
+    },
+    {
+     "id": "community_relations",
+     "name": "Community Relations"
+    },
+    {
+     "id": "translation_interpretation",
+     "name": "Translation / Interpretation"
+    },
+    {
+     "id": "media_relations",
+     "name": "Media Relations"
+    }
+   ]
+  },
+  {
+   "id": "engineering_software",
+   "name": "Software Engineering",
+   "description": "Software, platform, and infrastructure engineering. Renamed from the former em-dash-styled 'Engineering - Software' for wording consistency.",
+   "job_types": [
+    {
+     "id": "software_development",
+     "name": "Software Development"
+    },
+    {
+     "id": "platform_engineering",
+     "name": "Platform Engineering"
+    },
+    {
+     "id": "cloud_infrastructure",
+     "name": "Cloud & Infrastructure"
+    },
+    {
+     "id": "data_engineering",
+     "name": "Data Engineering"
+    },
+    {
+     "id": "embedded_systems",
+     "name": "Embedded Systems"
+    },
+    {
+     "id": "safety_critical_software",
+     "name": "Safety-Critical Software"
+    },
+    {
+     "id": "performance_engineering",
+     "name": "Performance Engineering"
+    },
+    {
+     "id": "engineering_management",
+     "name": "Engineering Management"
+    }
+   ]
+  },
+  {
+   "id": "data_science_ai_ml",
+   "name": "Data Science / AI / ML",
+   "description": "Applied data science, machine learning, and AI work.",
+   "job_types": [
+    {
+     "id": "applied_ml",
+     "name": "Applied ML Engineer"
+    },
+    {
+     "id": "ml_engineering",
+     "name": "ML Engineering"
+    },
+    {
+     "id": "nlp",
+     "name": "NLP / Natural Language Processing"
+    },
+    {
+     "id": "computer_vision",
+     "name": "Computer Vision"
+    },
+    {
+     "id": "quant_research",
+     "name": "Quantitative Research"
+    },
+    {
+     "id": "risk_modeling",
+     "name": "Risk Modeling"
+    },
+    {
+     "id": "ds_leadership",
+     "name": "Data Science Leadership"
+    }
+   ]
+  },
+  {
+   "id": "product_management",
+   "name": "Product Management",
+   "description": "Product strategy, ownership, and product marketing.",
+   "job_types": [
+    {
+     "id": "product_strategy",
+     "name": "Product Strategy"
+    },
+    {
+     "id": "product_owner",
+     "name": "Product Owner"
+    },
+    {
+     "id": "product_marketing",
+     "name": "Product Marketing"
+    }
+   ]
+  },
+  {
+   "id": "engineering_technical",
+   "name": "Engineering (Non-Software)",
+   "description": "New family (v2.0): physical/technical engineering disciplines outside software, mapped from O*NET's Architecture & Engineering major group.",
+   "job_types": [
+    {
+     "id": "civil_engineer",
+     "name": "Civil Engineer"
+    },
+    {
+     "id": "mechanical_engineer",
+     "name": "Mechanical Engineer"
+    },
+    {
+     "id": "electrical_engineer",
+     "name": "Electrical Engineer"
+    },
+    {
+     "id": "aerospace_engineer",
+     "name": "Aerospace Engineer"
+    },
+    {
+     "id": "industrial_engineer",
+     "name": "Industrial Engineer"
+    },
+    {
+     "id": "chemical_engineer",
+     "name": "Chemical Engineer"
+    }
+   ]
+  },
+  {
+   "id": "science_research",
+   "name": "Life, Physical & Social Science",
+   "description": "New family (v2.0): scientific research and lab work, mapped from O*NET's Life, Physical, and Social Science major group.",
+   "job_types": [
+    {
+     "id": "research_scientist",
+     "name": "Research Scientist"
+    },
+    {
+     "id": "lab_technician",
+     "name": "Lab Technician"
+    },
+    {
+     "id": "chemist",
+     "name": "Chemist"
+    },
+    {
+     "id": "biologist",
+     "name": "Biologist"
+    },
+    {
+     "id": "environmental_scientist",
+     "name": "Environmental Scientist"
+    }
+   ]
+  },
+  {
+   "id": "education_training",
+   "name": "Education & Training",
+   "description": "Teaching, curriculum, and training work.",
+   "job_types": [
+    {
+     "id": "k12_teacher",
+     "name": "K-12 / Early-Education Teacher"
+    },
+    {
+     "id": "instructor_lecturer",
+     "name": "Instructor / Lecturer"
+    },
+    {
+     "id": "higher_ed_faculty",
+     "name": "Higher-Ed Faculty"
+    },
+    {
+     "id": "curriculum_designer",
+     "name": "Curriculum Designer"
+    },
+    {
+     "id": "assessment_designer",
+     "name": "Assessment Designer"
+    },
+    {
+     "id": "youth_program_coordinator",
+     "name": "Youth Program Coordinator"
+    }
+   ]
+  },
+  {
+   "id": "community_social_services",
+   "name": "Community & Social Services",
+   "description": "New family (v2.0): social and community support work, mapped from O*NET's Community and Social Service major group.",
+   "job_types": [
+    {
+     "id": "social_worker",
+     "name": "Social Worker"
+    },
+    {
+     "id": "counselor",
+     "name": "Counselor"
+    },
+    {
+     "id": "clergy",
+     "name": "Clergy"
+    },
+    {
+     "id": "nonprofit_program_manager",
+     "name": "Nonprofit Program Manager"
+    },
+    {
+     "id": "case_manager",
+     "name": "Case Manager"
+    }
+   ]
+  },
+  {
+   "id": "arts_design_media_entertainment",
+   "name": "Arts, Design, Media & Entertainment",
+   "description": "New family (v2.0): creative, design, and performance work, mapped from O*NET's Arts, Design, Entertainment, Sports, and Media major group.",
+   "job_types": [
+    {
+     "id": "graphic_design_creative",
+     "name": "Graphic Designer"
+    },
+    {
+     "id": "ux_ui_design",
+     "name": "UX / UI Designer"
+    },
+    {
+     "id": "writer_editor",
+     "name": "Writer / Editor"
+    },
+    {
+     "id": "photographer_videographer",
+     "name": "Photographer / Videographer"
+    },
+    {
+     "id": "musician_performer",
+     "name": "Musician / Performer"
+    },
+    {
+     "id": "athlete",
+     "name": "Athlete"
+    }
+   ]
+  },
+  {
+   "id": "hospitality_food_service",
+   "name": "Hospitality & Food Service",
+   "description": "Hotel, restaurant, and guest-services work.",
+   "job_types": [
+    {
+     "id": "guest_services_coordinator",
+     "name": "Guest Services Coordinator"
+    },
+    {
+     "id": "activity_supervisor",
+     "name": "Activity Supervisor"
+    },
+    {
+     "id": "chef_cook",
+     "name": "Chef / Cook"
+    },
+    {
+     "id": "server_bartender",
+     "name": "Server / Bartender"
+    },
+    {
+     "id": "hotel_management",
+     "name": "Hotel Management"
+    }
+   ]
+  },
+  {
+   "id": "personal_domestic_services",
+   "name": "Personal & Domestic Services",
+   "description": "Personal care, fitness, beauty, and domestic work.",
+   "job_types": [
+    {
+     "id": "fitness_personal_training",
+     "name": "Fitness / Personal Training"
+    },
+    {
+     "id": "yoga_pilates",
+     "name": "Yoga / Pilates Instruction"
+    },
+    {
+     "id": "beauty_cosmetology",
+     "name": "Beauty / Cosmetology"
+    },
+    {
+     "id": "barbering",
+     "name": "Barbering"
+    },
+    {
+     "id": "childcare_domestic",
+     "name": "Childcare / Domestic"
+    }
+   ]
+  },
+  {
+   "id": "healthcare_clinical",
+   "name": "Healthcare (Clinical & Practitioner)",
+   "description": "New family (v2.0): licensed clinical practitioner work, mapped from O*NET's Healthcare Practitioners and Technical major group.",
+   "job_types": [
+    {
+     "id": "physician",
+     "name": "Physician"
+    },
+    {
+     "id": "registered_nurse",
+     "name": "Registered Nurse"
+    },
+    {
+     "id": "physical_therapist",
+     "name": "Physical Therapist"
+    },
+    {
+     "id": "pharmacist",
+     "name": "Pharmacist"
+    },
+    {
+     "id": "dentist",
+     "name": "Dentist"
+    },
+    {
+     "id": "physician_assistant",
+     "name": "Physician Assistant"
+    }
+   ]
+  },
+  {
+   "id": "healthcare_support",
+   "name": "Healthcare Support",
+   "description": "New family (v2.0): non-licensed clinical support work, mapped from O*NET's Healthcare Support major group.",
+   "job_types": [
+    {
+     "id": "medical_assistant",
+     "name": "Medical Assistant"
+    },
+    {
+     "id": "cna",
+     "name": "Certified Nursing Assistant (CNA)"
+    },
+    {
+     "id": "home_health_aide",
+     "name": "Home Health Aide"
+    },
+    {
+     "id": "phlebotomist",
+     "name": "Phlebotomist"
+    },
+    {
+     "id": "medical_records_technician",
+     "name": "Medical Records Technician"
+    }
+   ]
+  },
+  {
+   "id": "construction_extraction",
+   "name": "Construction & Extraction",
+   "description": "New family (v2.0): skilled trades and construction, mapped from O*NET's Construction and Extraction major group.",
+   "job_types": [
+    {
+     "id": "electrician",
+     "name": "Electrician"
+    },
+    {
+     "id": "plumber",
+     "name": "Plumber"
+    },
+    {
+     "id": "carpenter",
+     "name": "Carpenter"
+    },
+    {
+     "id": "hvac_installer",
+     "name": "HVAC Installer"
+    },
+    {
+     "id": "miner",
+     "name": "Miner"
+    }
+   ]
+  },
+  {
+   "id": "installation_maintenance_repair",
+   "name": "Installation, Maintenance & Repair",
+   "description": "New family (v2.0): equipment installation and repair trades, mapped from O*NET's Installation, Maintenance, and Repair major group.",
+   "job_types": [
+    {
+     "id": "hvac_technician",
+     "name": "HVAC Technician"
+    },
+    {
+     "id": "auto_mechanic",
+     "name": "Auto Mechanic"
+    },
+    {
+     "id": "appliance_repair",
+     "name": "Appliance Repair"
+    },
+    {
+     "id": "industrial_equipment_repair",
+     "name": "Industrial Equipment Repair"
+    }
+   ]
+  },
+  {
+   "id": "production_manufacturing",
+   "name": "Production & Manufacturing",
+   "description": "New family (v2.0): factory and production-line work, mapped from O*NET's Production major group.",
+   "job_types": [
+    {
+     "id": "machine_operator",
+     "name": "Machine Operator"
+    },
+    {
+     "id": "assembler",
+     "name": "Assembler"
+    },
+    {
+     "id": "quality_inspector",
+     "name": "Quality Inspector"
+    },
+    {
+     "id": "production_supervisor",
+     "name": "Production Supervisor"
+    }
+   ]
+  },
+  {
+   "id": "transportation_material_moving",
+   "name": "Transportation & Material Moving",
+   "description": "New family (v2.0): driving, piloting, and material-handling work, mapped from O*NET's Transportation and Material Moving major group.",
+   "job_types": [
+    {
+     "id": "truck_driver",
+     "name": "Truck Driver"
+    },
+    {
+     "id": "pilot",
+     "name": "Pilot"
+    },
+    {
+     "id": "warehouse_worker",
+     "name": "Warehouse Worker"
+    },
+    {
+     "id": "forklift_operator",
+     "name": "Forklift Operator"
+    },
+    {
+     "id": "delivery_driver",
+     "name": "Delivery Driver"
+    }
+   ]
+  },
+  {
+   "id": "building_grounds_maintenance",
+   "name": "Building & Grounds Maintenance",
+   "description": "New family (v2.0): custodial and grounds-keeping work, mapped from O*NET's Building and Grounds Cleaning and Maintenance major group.",
+   "job_types": [
+    {
+     "id": "janitor_custodian",
+     "name": "Janitor / Custodian"
+    },
+    {
+     "id": "landscaper",
+     "name": "Landscaper"
+    },
+    {
+     "id": "facilities_maintenance",
+     "name": "Facilities Maintenance"
+    }
+   ]
+  },
+  {
+   "id": "farming_fishing_forestry",
+   "name": "Farming, Fishing & Forestry",
+   "description": "New family (v2.0): agricultural and natural-resource labor, mapped from O*NET's Farming, Fishing, and Forestry major group.",
+   "job_types": [
+    {
+     "id": "farm_worker",
+     "name": "Farm Worker"
+    },
+    {
+     "id": "fisher",
+     "name": "Fisher"
+    },
+    {
+     "id": "forestry_technician",
+     "name": "Forestry Technician"
+    },
+    {
+     "id": "agricultural_manager",
+     "name": "Agricultural Manager"
+    }
+   ]
+  },
+  {
+   "id": "protective_service",
+   "name": "Protective Service",
+   "description": "New family (v2.0): public safety and protective work, mapped from O*NET's Protective Service major group.",
+   "job_types": [
+    {
+     "id": "police_officer",
+     "name": "Police Officer"
+    },
+    {
+     "id": "firefighter",
+     "name": "Firefighter"
+    },
+    {
+     "id": "security_guard",
+     "name": "Security Guard"
+    },
+    {
+     "id": "corrections_officer",
+     "name": "Corrections Officer"
+    },
+    {
+     "id": "emt_paramedic",
+     "name": "EMT / Paramedic"
+    }
+   ]
+  },
+  {
+   "id": "military",
+   "name": "Military",
+   "description": "New family (v2.0): military service, kept as its own family (distinct from protective_service) given how consistently it reads as a separate resume section.",
+   "job_types": [
+    {
+     "id": "enlisted",
+     "name": "Enlisted"
+    },
+    {
+     "id": "officer",
+     "name": "Officer"
+    },
+    {
+     "id": "military_specialist",
+     "name": "Military Specialist"
+    }
+   ]
+  }
+ ],
+ "industries": [
+  {
+   "id": "technology_software",
+   "name": "Technology & Software"
+  },
+  {
+   "id": "internet_platforms",
+   "name": "Internet Services & Online Platforms"
+  },
+  {
+   "id": "hardware_electronics",
+   "name": "Hardware & Electronics"
+  },
+  {
+   "id": "industrial_iot",
+   "name": "Industrial IoT & Manufacturing"
+  },
+  {
+   "id": "aerospace_defense",
+   "name": "Aerospace & Defense"
+  },
+  {
+   "id": "telecommunications",
+   "name": "Telecommunications"
+  },
+  {
+   "id": "medical_devices",
+   "name": "Medical Devices"
+  },
+  {
+   "id": "pharmaceuticals_life_sciences",
+   "name": "Pharmaceuticals & Life Sciences"
+  },
+  {
+   "id": "healthcare_services",
+   "name": "Healthcare Services & Hospitals"
+  },
+  {
+   "id": "digital_health",
+   "name": "Digital Health"
+  },
+  {
+   "id": "health_insurance_payer",
+   "name": "Health Insurance / Payer"
+  },
+  {
+   "id": "financial_services",
+   "name": "Financial Services"
+  },
+  {
+   "id": "real_estate",
+   "name": "Real Estate"
+  },
+  {
+   "id": "real_estate_proptech",
+   "name": "Real Estate & PropTech"
+  },
+  {
+   "id": "construction_industry",
+   "name": "Construction"
+  },
+  {
+   "id": "retail",
+   "name": "Retail"
+  },
+  {
+   "id": "staffing_recruiting",
+   "name": "Staffing & Recruiting"
+  },
+  {
+   "id": "hospitality_lodging",
+   "name": "Hospitality & Lodging"
+  },
+  {
+   "id": "travel_tourism",
+   "name": "Travel & Tourism"
+  },
+  {
+   "id": "fitness_wellness",
+   "name": "Fitness & Wellness"
+  },
+  {
+   "id": "personal_beauty_services",
+   "name": "Personal & Beauty Services"
+  },
+  {
+   "id": "sports_entertainment",
+   "name": "Sports & Entertainment"
+  },
+  {
+   "id": "education_k12",
+   "name": "Education - K-12"
+  },
+  {
+   "id": "education_higher_ed",
+   "name": "Education - Higher Education"
+  },
+  {
+   "id": "transportation_logistics",
+   "name": "Transportation & Logistics"
+  },
+  {
+   "id": "agriculture_food_manufacturing",
+   "name": "Agriculture & Food Manufacturing",
+   "description": "Agriculture, meat/food processing, FMCG manufacturing and wholesale. Added 2026-07-19 during a real-world test parse (a multi-industry agroholding employer: agriculture, meat processing, FMCG wholesale) where no existing industry fit."
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+.DS_Store
+**/.DS_Store
+__MACOSX/
+dist/
+
+# Candidate data never belongs in this repo (see README).
+*_structured.json
+*_career-ladder.html
+*.pdf
+samples/
+out/

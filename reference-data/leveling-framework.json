@@ -1,0 +1,596 @@
+{
+  "$schema_version": "1.0",
+  "name": "Career leveling framework",
+  "version": "3.0",
+  "updated": "2026-08-09",
+  "notes": "13 levels across three tracks (IC / Manager / Executive), each defined against 7 dimensions. Replaces leveling-framework.xlsx (2 sheets, non-R&D + R&D), which defined the 7 dimensions only for P2-P6 and left every M/E level blank below the 'Level description' row. This version defines all 7 dimensions for all 13 levels. R&D-specific dimension text and the per-level readiness / anti-pattern indicator blocks from the xlsx were intentionally not carried over. RANK CONTRACT: P2=1 through C-Level=12 are unchanged from the previous framework; P1 is new and is rank 0 so that no existing structured.json or chart axis is renumbered.",
+  "rank_contract": {
+    "min_rank": 0,
+    "max_rank": 12,
+    "note": "P1 (rank 0) was added in v3.0. Ranks 1-12 are stable and must not be renumbered."
+  },
+  "dimensions": [
+    {
+      "id": "scope_and_complexity",
+      "name": "Scope & Complexity",
+      "applies_to": "all"
+    },
+    {
+      "id": "degree_of_autonomy",
+      "name": "Degree of Autonomy",
+      "applies_to": "all"
+    },
+    {
+      "id": "level_of_influence",
+      "name": "Level of Influence",
+      "applies_to": "all"
+    },
+    {
+      "id": "business_impact",
+      "name": "Business Impact",
+      "applies_to": "all"
+    },
+    {
+      "id": "leadership_and_mentorship",
+      "name": "Leadership Expectations / Mentorship",
+      "applies_to": "all"
+    },
+    {
+      "id": "communication",
+      "name": "Communication",
+      "applies_to": "all"
+    },
+    {
+      "id": "engineering_culture",
+      "name": "Engineering Culture",
+      "applies_to": "rnd_families_only",
+      "note": "Additional scope consideration for R&D job families only; ignore when leveling non-R&D roles."
+    }
+  ],
+  "leveling_notes": [
+    "Industry beats title at E7 and above. 'VP', 'SVP', 'Managing Director', 'Director' and 'Executive Director' each denote materially different levels in banking, professional services, nonprofits and Commonwealth-jurisdiction companies than they do at a technology company. Read the role's `industry` before applying any executive title anchor.",
+    "'Head of X' carries no level information on its own. It appears at P4 (sole practitioner), M4 (with reports), M6 (multi-department) and E7 (company-wide). What reports up decides it.",
+    "Authority, not activity, separates M3 from M4. Both supervise people. M4 holds final decisions on hire/fire/comp/budget; M3 holds delegated authority with the final call at the manager-once-removed (MoR).",
+    "P1 is the only title-gated level. Every other level is assigned from scope evidence in the bullets; P1 additionally requires an explicit marker in the title string.",
+    "Where the title and the bullets disagree, follow the bullets and record the conflict in `strata.reasoning`. Surface the call to the user when it changes the candidate's peak strata or their dominant professional sphere."
+  ],
+  "tracks": {
+    "IC": "Individual contributor track (P1-P6).",
+    "Manager": "People-management track (M3-M6).",
+    "Executive": "Executive track (E7, E8, C-Level)."
+  },
+  "levels": [
+    {
+      "code": "P1",
+      "name": "Entry Professional",
+      "track": "IC",
+      "rank": 0,
+      "description": "Individual Contributor (IC) at the start of their professional career with little or no prior experience relevant to the job title, who performs simple, well-defined tasks under close and continuous supervision while building the foundational knowledge, skills, and experience (KSE) the role requires.",
+      "example_titles": [
+        "Intern",
+        "Software Engineering Intern",
+        "Summer Intern",
+        "Trainee",
+        "Graduate Trainee",
+        "Apprentice",
+        "Entry-Level Software Engineer",
+        "Engineer I",
+        "Analyst I",
+        "Specialist I",
+        "Co-op Student",
+        "Working Student"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Single, well-defined tasks that are assigned and decomposed by someone else. Work follows established step-by-step procedures with little variation.",
+        "degree_of_autonomy": "Close and continuous supervision. Instructions are detailed for every assignment, not only for new ones, and work is reviewed at each stage.",
+        "level_of_influence": "Interaction confined to the immediate team and an assigned mentor; primarily receives guidance rather than providing it.",
+        "business_impact": "Limited; affects own task completion and learning pace. Errors are contained within the team and are expected to be caught during review.",
+        "leadership_and_mentorship": "Not expected to lead or mentor. Focuses on absorbing feedback, building foundational skills, and following the learning plan agreed with a mentor.",
+        "communication": "Asks for help early rather than staying blocked. Reports task status honestly and on time. Listens actively and records instructions and feedback.",
+        "engineering_culture": "Learns the team's version control, tooling, and coding conventions with a mentor. Writes small pieces of code to specification and fixes simple, well-scoped bugs. Runs existing tests and follows provided checklists; does not yet design tests independently."
+      },
+      "assignment_rule": "title_gated",
+      "title_gate": {
+        "markers": [
+          "intern",
+          "trainee",
+          "apprentice",
+          "co-op",
+          "coop",
+          "entry-level",
+          "entry level",
+          "graduate trainee",
+          "working student",
+          "praktikant"
+        ],
+        "suffix_markers": [
+          "I"
+        ],
+        "note": "Assign P1 only when one of these markers appears in the title itself. Scope alone never justifies P1; an unmarked title with P1-shaped scope is P2."
+      },
+      "title_traps": [
+        "P1 is title-gated, unlike every other level in this framework. Assign it only when the title itself carries an intern / trainee / apprentice / co-op / 'Entry-Level' / roman-or-numeric 'I' suffix marker. Never infer P1 from thin bullets or short tenure - an unmarked title with P1-looking scope is P2."
+      ],
+      "source": "authored 2026-08-09 (column was empty in source workbook)"
+    },
+    {
+      "code": "P2",
+      "name": "Junior",
+      "track": "IC",
+      "rank": 1,
+      "description": "Individual Contributor (IC) who completes tasks of average/medium complexity, ranging from supervised routine work at the lower end of the band to independent delivery with only occasional guidance at the upper end. Begins taking light project leadership within the team and collaborates cross-functionally, while continuing to build toward the depth of expertise expected at more senior levels.",
+      "example_titles": [
+        "Junior Accountant",
+        "Junior Recruiter",
+        "Junior FrontEnd Developer",
+        "Software Engineer II",
+        "QA Engineer",
+        "HR Assistant",
+        "Payroll Clerk",
+        "Accounts Payable Clerk",
+        "Bookkeeper",
+        "Administrative Assistant",
+        "Data Entry Clerk",
+        "Customer Support Representative (Tier 1)",
+        "Sales Development Representative (SDR)",
+        "Marketing Assistant",
+        "Research Assistant"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Defined segments of projects or processes. Handles moderately varied tasks using judgment within established guidelines.",
+        "degree_of_autonomy": "General supervision on routine work; increasing independence with detailed instructions only for new projects.",
+        "level_of_influence": "Regular interaction within the immediate team or small project group; limited cross-functional exposure.",
+        "business_impact": "Moderate; impacts team deliverables and operational efficiency. Errors may affect project schedules or department goals.",
+        "leadership_and_mentorship": "Focuses on execution; may provide informal guidance or peer support to new team members.",
+        "communication": "Asks questions, reports progress, incorporates feedback.\nRespects colleagues. Listens to and considers their opinions.\nJustifies their point of view.",
+        "engineering_culture": "Studies best practices with a mentor and learns to write quality code or test using existing models.\nManually checks “green scenarios” (expected behavior) and error handling.\nWrites basic unit tests with guidance. Understands purpose of testing.\nWrites working code. Uses coding style. Knows standard coding practices. Writes readable code. Understands what design patterns are."
+      },
+      "source": "from source workbook; description widened 2026-08-09",
+      "title_traps": [
+        "'Executive Assistant' is not an Assistant in the P2 sense - it often carries P3/P4 scope (exec calendar and travel ownership, budget handling, confidential comms). Level up, not down."
+      ]
+    },
+    {
+      "code": "P3",
+      "name": "Middle",
+      "track": "IC",
+      "rank": 2,
+      "description": "Productive Individual Contributor (IC) with well-formed professional knowledge and skills who independently completes tasks of average/medium complexity and only occasionally needs guidance/supervision.\nBegins taking light project leadership within the team and collaborates cross-functionally, while continuing to build toward the depth of expertise expected at more senior levels.",
+      "example_titles": [
+        "Software Engineer",
+        "SDE, C++",
+        "SDE, FrontEnd",
+        "QA Automation Engineer",
+        "DevOps Engineer",
+        "Data Analyst",
+        "HR Specialist",
+        "HR Generalist",
+        "Technical Recruiter",
+        "Payroll Accountant",
+        "Financial Analyst",
+        "Marketing Specialist",
+        "Account Executive",
+        "Business Analyst",
+        "Administrative Specialist",
+        "Executive Assistant",
+        "Office Manager"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Owns complete tasks or project components. Analyzes identifiable factors to solve moderately complex professional problems.",
+        "degree_of_autonomy": "Works independently on most assignments. Determines own methods and procedures; guidance provided only for escalated issues.",
+        "level_of_influence": "Influences across related teams or a specific functional area. Provides guidance to less experienced professionals.",
+        "business_impact": "Functional impact; contributes to operational performance and the achievement of specific business goals.",
+        "leadership_and_mentorship": "Expected to lead small projects or specific workstreams; contributes to overall team effectiveness.",
+        "communication": "Clearly explains solutions to the team.\nAccepts constructive feedback and responds appropriately.\nAvoids escalating disagreements into destructive conflicts.\nConsiders others’ interests and needs, even when they conflict with their own.",
+        "engineering_culture": "Applies best practices\nMonitors how solutions perform in production; consults a mentor if anomalies arise.\nConsults a mentor to choose optimal approaches for quality and security validation.\nKnows the most common design patterns. Writes documentation.\nWrites unit and integration tests. Owns regression prevention for features."
+      },
+      "title_traps": [
+        "'Office Manager' - 'Manager' in the title, but the scope is facilities and office administration, not people management. Case 3 of the Manager decision tree.",
+        "'Account Manager' / 'Customer Success Manager' - manages accounts, not people. P3 by default.",
+        "'Project Manager' / 'Product Manager' - manages scope and delivery, not headcount. P3 here, P4-P5 where bullets show program breadth. Never M4 on the title alone."
+      ]
+    },
+    {
+      "code": "P4",
+      "name": "Senior",
+      "track": "IC",
+      "rank": 3,
+      "description": "Fully productive Individual Contributor (IC) with deep subject-matter expertise who completes tasks of high complexity with no guidance/supervision, reliably serves as a source of domain knowledge for more junior ICs, and leads or represents the team in cross-functional and cross-department collaboration.",
+      "example_titles": [
+        "Senior Software Engineer",
+        "Senior SDE, C++",
+        "Senior QA Automation Engineer",
+        "Senior DevOps Engineer",
+        "Site Reliability Engineer",
+        "Software Architect",
+        "Senior Data Scientist",
+        "Senior Technical Recruiter",
+        "HR Business Partner (HRBP)",
+        "Senior HR Generalist",
+        "Senior Marketing Specialist",
+        "Senior Financial Analyst",
+        "Senior Technical Support Engineer",
+        "Senior Product Manager",
+        "Senior Project Manager",
+        "Senior UX Designer",
+        "Corporate Counsel"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Leads complex assignments and project components. Evaluates intangibles and adapts methods to solve non-routine issues.",
+        "degree_of_autonomy": "Operates with substantial latitude and minimal supervision. Focus is on results-based review rather than task-oversight.",
+        "level_of_influence": "Influences department-wide and cross-functional stakeholders. Formally mentors and guides lower-level professionals.",
+        "business_impact": "Significant impact on department results, project costs, and functional quality/timelines.",
+        "leadership_and_mentorship": "Provides technical leadership and guidance on large, multi-disciplinary projects. Recognized as a formal mentor to others.",
+        "communication": "Provides constructive, fact-based feedback.\nChooses appropriate communication tools and formats based on the audience.\nLeads technical discussions and proactively aligns cross-functional stakeholders.\nMentors peers by modeling how to resolve complex disagreements through data.",
+        "engineering_culture": "Provides meaningful code review comments.\nBalances speed and quality.\nPrototypes to test hypotheses.\nDocuments technical decisions\nKnows most of the design patterns. Understands when and where to use them, and - more important - when not. Writes well-documented and highly readable code.\nDefines testing strategy for owned domains"
+      },
+      "title_traps": [
+        "Any 'Manager'-titled role whose bullets show neither managerial nor supervisory duties lands here. This is the single most common mis-level in resume parsing.",
+        "'Head of X' at a small company where X is a function of one - sounds M5, is P4 sole-owner scope.",
+        "'Architect' reads P5/P6 from the word alone, but is P4 unless bullets show authority beyond a single team.",
+        "Founder / Self-Employed / Independent Consultant with purely functional delivery bullets usually lands here once the title discount is applied.",
+        "HRBP has no reports but partners with director- and VP-level stakeholders: high influence, flat leadership. That combination is the signature of P4, not an M-track role."
+      ]
+    },
+    {
+      "code": "P5",
+      "name": "Lead",
+      "track": "IC",
+      "rank": 4,
+      "description": "Senior (and often) long tenured Individual Contributor (IC) who delivers leadership and direction to a team (or multi-team department within one professional domain).",
+      "example_titles": [
+        "Lead Software Engineer",
+        "Lead SDE, C++",
+        "Lead SDE, Python",
+        "Tech Lead",
+        "Staff Software Engineer",
+        "Lead Data Scientist",
+        "Solutions Architect",
+        "Platform Architect",
+        "Lead QA Engineer",
+        "Program Manager",
+        "Technical Program Manager (TPM)",
+        "Group Product Manager",
+        "Lead UX Designer",
+        "Talent Acquisition Lead",
+        "HR Lead",
+        "Finance Lead",
+        "Engineering Manager (IC-scoped)"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Leads critical functional initiatives or large programs. Develops new approaches to solve highly complex, unique, or ambiguous problems.",
+        "degree_of_autonomy": "Fully self-directed. Determines own methods for new or special assignments and sets direction for major functional initiatives.",
+        "level_of_influence": "Influences the technical or strategic direction of an entire function. Drives alignment on major initiatives with senior stakeholders.\nAligns multiple teams and stakeholders on technical direction.\nFacilitates discussions and resolves conflicts constructively.",
+        "business_impact": "Critical impact; directly affects major business unit objectives, product lines, or program success.",
+        "leadership_and_mentorship": "Recognized SME who drives technical strategy and innovation. Leads cross-functional initiatives and contributes to functional strategy.",
+        "communication": "Translates complex technical concepts into clear, actionable business language for product managers and stakeholders.\nMasters the art of \"disagree and commit\" within the team.\nLeads technical design reviews and ensures all voices are heard. Proactively communicates project risks and status updates to leadership before they become issues.",
+        "engineering_culture": "Improves company-wide engineering tools.\nTests complex corner cases.\nDesigns testable systems.\nEnforces testing standards and release quality."
+      },
+      "title_traps": [
+        "'Tech Lead' vs 'Team Lead' is the sharpest boundary in this framework. Tech Lead = technical direction with no delegated authority over hiring, pay, or performance -> P5. Team Lead = delegated managerial authority with final calls at the MoR -> M3.",
+        "'Engineering Manager' is commonly IC-scoped at product companies where a separate Director owns headcount. Only M4 when bullets show performance evaluation AND salary decisions.",
+        "'Staff Engineer' reads senior-adjacent, but Staff sits above Senior; P5 unless bullets show company-wide authority (then P6).",
+        "'Lead' as a seniority adjective rather than a role - 'Lead Recruiter' on a three-person team is often P4 scope with a decorative title."
+      ]
+    },
+    {
+      "code": "P6",
+      "name": "Principal",
+      "track": "IC",
+      "rank": 5,
+      "description": "Senior (and often) long tenured Individual Contributor (IC) with recognized expertise who delivers leadership and direction to a team or multi-team department, and is sought out for cross-department collaboration and alignment beyond their immediate domain.",
+      "example_titles": [
+        "Principal Software Engineer",
+        "Principal SDE, C++",
+        "Principal DevOps Engineer",
+        "Distinguished Engineer",
+        "Senior Staff Engineer",
+        "Chief Architect",
+        "Enterprise Architect",
+        "Principal Data Scientist",
+        "Principal Product Manager",
+        "Technical Fellow",
+        "Principal Consultant",
+        "Principal Designer",
+        "Head of Engineering Standards",
+        "Chief of Staff (function-wide, IC-scoped)",
+        "General Counsel (no legal team)",
+        "Principal Scientist"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Enterprise-level scope. Resolves mission-critical, organization-impacting issues and establishes frameworks with long-term implications.",
+        "degree_of_autonomy": "Full autonomy at the enterprise level. Acts as a key internal consultant to senior leadership, self-directing priorities aligned to strategy.",
+        "level_of_influence": "Influences the industry or the entire organization’s long-term path. Shapes functional or enterprise direction with executive stakeholders.\nInfluences leadership and executives without formal authority. Improves engineering processes.",
+        "business_impact": "Vital impact; decisions influence strategic outcomes, long-term business performance, and significant financial results.",
+        "leadership_and_mentorship": "Visionary leader and enterprise authority. Defines the strategic \"North Star\" and provides leadership across organizational boundaries.",
+        "communication": "Architect of organizational alignment. Communicates a long-term technical vision that inspires the entire R&D department.\nNavigates high-stakes negotiations between engineering, product, and executive leadership.\nSimplifies highly abstract strategies into a cohesive narrative.\nRepresents the company’s technical brand externally through talks, blogs, or industry bodies.",
+        "engineering_culture": "Identifies when standard tools are ineffective.\nSystematically manages technical debt.\nDetects security vulnerabilities.\nDefines company-wide quality standards."
+      },
+      "title_traps": [
+        "'Principal' in consulting or PE is a partner-track people-and-P&L role, frequently M5/M6 equivalent. At a product company it is the top IC rung. Read the industry before trusting it.",
+        "'Chief Architect' and 'Chief of Staff' are NOT C-Level - the C-Level anchor must match the full 'Chief X Officer' pattern, not the bare word 'Chief'.",
+        "'Fellow' reads academic and gets under-leveled; at a technology company it is typically at or above Principal.",
+        "P6 is over-claimed on resumes. Where bullets show authority over one business unit rather than the company, the call is P5."
+      ]
+    },
+    {
+      "code": "M3",
+      "name": "Team Lead",
+      "track": "Manager",
+      "rank": 6,
+      "description": "People leader responsible for a [team name] team's delivery, growth, and execution.",
+      "example_titles": [
+        "Team Lead",
+        "Supervisor",
+        "Shift Supervisor",
+        "Squad Lead",
+        "Engineering Team Lead",
+        "Support Team Lead",
+        "QA Team Lead",
+        "Warehouse Supervisor",
+        "Call Center Supervisor",
+        "Crew Lead",
+        "Foreman",
+        "Lead Teacher",
+        "Charge Nurse",
+        "Restaurant Shift Manager",
+        "Assistant Store Manager"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Leads delivery for a single team; holds delegated (not full) managerial authority — assigns tasks, scopes team's work in partnership with functional leadership.",
+        "degree_of_autonomy": "Moderate independence in day-to-day team operations; escalates level, pay, and final hiring decisions to the manager-once-removed (MoR).",
+        "level_of_influence": "Influences and directly supervises individual contributors; represents team needs upward to management.",
+        "business_impact": "Impacts team-level output quality, timeliness, and morale.",
+        "leadership_and_mentorship": "Provides direct supervision and coaching to ICs; delegated partner in hiring, task assignment, and performance feedback (final decisions rest with the MoR).",
+        "communication": "Communicates status, blockers, and team capacity clearly to the Manager and to relevant stakeholders; runs effective check-ins and retrospectives; considers others' interests and needs even when they conflict with the team's own priorities.",
+        "engineering_culture": "Models and enforces the team's quality bar day to day; ensures consistent code review practices and testing discipline across the team; escalates systemic quality issues to the Manager rather than letting them persist."
+      },
+      "title_traps": [
+        "Tech Lead does NOT belong here - see the P5 trap note. Team Lead (delegated people authority) -> M3; Tech Lead (technical direction only) -> P5.",
+        "'Shift Manager' / 'Assistant Store Manager' - 'Manager' in the title, M3 in substance: they run a shift or a floor and escalate hire/fire and pay upward. Case 2 of the decision tree.",
+        "'Supervisor' is the most reliable M3 signal in this file - rarely inflated, almost always exactly this level.",
+        "'Lead' alone stays ambiguous: people-authority language -> M3; initiative-ownership language -> P5."
+      ]
+    },
+    {
+      "code": "M4",
+      "name": "Manager",
+      "track": "Manager",
+      "rank": 7,
+      "description": "Organizational leader owning multiple teams or a larger [domain]; leads cross-functional projects and begins guiding career development and succession planning within the teams.",
+      "example_titles": [
+        "Software Development Manager",
+        "SDE Manager (GUI)",
+        "SDE Manager (Server Development)",
+        "SDE Manager (Cloud Services)",
+        "Engineering Manager (with reports)",
+        "QA Manager",
+        "IT Manager",
+        "HR Manager",
+        "Talent Acquisition Manager",
+        "Finance Manager",
+        "Accounting Manager",
+        "Marketing Manager",
+        "Sales Manager",
+        "Operations Manager",
+        "Customer Support Manager",
+        "Store Manager",
+        "Practice Manager",
+        "Head of [single function] (with reports)"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Owns a functional team's full scope; plans and prioritizes work across several concurrent projects; participates in budgeting.",
+        "degree_of_autonomy": "Full autonomy over team execution and process; guidance sought only on escalated, cross-team, or policy issues.",
+        "level_of_influence": "Influences the team and adjacent functional partners; represents the team in cross-functional planning.",
+        "business_impact": "Significant impact on functional/departmental results — quality, cost, and timelines.",
+        "leadership_and_mentorship": "Manages ICs end-to-end — plans work, evaluates performance, makes salary decisions; builds team capability.",
+        "communication": "Communicates roadmap tradeoffs and risk to the Director and cross-functional peers; manages up on team health; leads discussions within the team and proactively aligns stakeholders on dependencies.",
+        "engineering_culture": "Sets and enforces team-wide engineering standards, including testing, review, and on-call practices; owns technical debt prioritization for the team and proactively identifies systemic issues before they impact delivery."
+      },
+      "title_traps": [
+        "This level is claimed far more often than it is earned. Do not assign M4 on the title alone; apply the three-part authority test (plans work AND evaluates performance AND makes salary decisions). Where bullets are silent on hiring or pay, ask rather than assume.",
+        "'Engineering Manager' appears at both P5 and M4 by design - the same title means IC technical leadership at some companies and full people management at others. The bullets decide; there is no title-level default.",
+        "'Manager' + a non-human object is not M4: Account Manager, Product Manager, Project Manager, Program Manager, Office Manager all manage a thing, not people (P3-P5).",
+        "'Head of X' splits by team size: with reports and hire/pay authority -> M4; sole practitioner owning the function alone -> P4."
+      ]
+    },
+    {
+      "code": "M5",
+      "name": "Director",
+      "track": "Manager",
+      "rank": 8,
+      "description": "Organizational leader owning multiple teams via other managers, responsible for a department's technical direction, delivery, and budget; collaborates cross-departmentally to align department strategy with broader company priorities.",
+      "example_titles": [
+        "HR Director",
+        "IT Director",
+        "QA Director",
+        "Director of Engineering",
+        "Director of Product",
+        "Director of Marketing",
+        "Director of Sales",
+        "Director of Operations",
+        "Director of Finance",
+        "Controller",
+        "Director of Talent Acquisition",
+        "Director of Customer Success",
+        "Head of Department (with managers reporting)",
+        "Plant Manager",
+        "Regional Manager",
+        "General Manager (single site or business line)"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Owns multiple teams or sub-teams via other managers; owns department budget; participates in strategic planning for the department.",
+        "degree_of_autonomy": "High autonomy; sets departmental policies, priorities, and resourcing aligned with company strategy.",
+        "level_of_influence": "Influences department-wide and cross-functional stakeholders; represents the department to senior leadership.",
+        "business_impact": "Major impact on department-level results, budget, and multi-team delivery outcomes; decisions shape the performance of an entire department and its contribution to company goals.",
+        "leadership_and_mentorship": "Manages managers — plans work, evaluates performance, makes salary decisions; develops the next generation of managers.",
+        "communication": "Communicates department strategy and risk to senior leadership; facilitates alignment across managers with competing priorities; translates complex concepts into clear, actionable language for business stakeholders.",
+        "engineering_culture": "Sets department-wide quality standards and the technical bar for non-functional requirements; owns build-vs-buy decisions for the department's tooling and platforms; ensures consistent standards across all teams in the department."
+      },
+      "title_traps": [
+        "'Director' is jurisdiction-dependent. In the UK, Ireland, Australia and much of the Commonwealth it is a statutory board appointment - a Company Director at a five-person firm is an owner, not an M5. Read industry and company size before trusting the anchor.",
+        "'Managing Director' is an investment-banking rank (roughly E7/E8 equivalent) in one industry and 'runs the company' in another. M5 in neither - never anchor it here.",
+        "'Executive Director' at a nonprofit or agency is usually the chief executive -> C-Level, not M5.",
+        "'Director' with only ICs reporting fails the structural test (no manager layer) - that is M4 with an inflated title."
+      ],
+      "source": "from source workbook; business_impact rewritten 2026-08-09 (source cell duplicated P4's text verbatim)"
+    },
+    {
+      "code": "M6",
+      "name": "Senior Director",
+      "track": "Manager",
+      "rank": 9,
+      "description": "Senior organizational leader owning strategic planning and execution for a group of departments or a business unit; drives alignment with company-wide vision and represents the business unit in cross-functional and cross-department leadership.",
+      "example_titles": [
+        "Senior Director, Core Technology",
+        "Senior Director, Data Science",
+        "Senior Director of Engineering",
+        "Senior Director of Product",
+        "Senior Director of Operations",
+        "Senior Director, People",
+        "Executive Director (corporate usage)",
+        "Head of Business Unit",
+        "Divisional Director",
+        "Group Director",
+        "Country Manager",
+        "Regional Director",
+        "Head of Engineering (multi-department)",
+        "Site Director",
+        "Chief of Staff to the CEO (with reports)"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Owns strategic planning and budget for a group of departments or a business unit; leads senior leaders responsible for their own functions.",
+        "degree_of_autonomy": "Very high autonomy; defines strategy and operating model across a group of departments or a business unit.",
+        "level_of_influence": "Influences senior leadership and executive stakeholders; drives alignment across multiple departments or a business unit.",
+        "business_impact": "Critical impact; directly affects major business-unit objectives, product lines, or program success.",
+        "leadership_and_mentorship": "Manages senior leaders accountable for their own functions; builds succession pipeline across a business unit.",
+        "communication": "Communicates multi-department strategy to executives and navigates high-stakes prioritization debates across the business unit; masters the art of disagree and commit among peer senior leaders; proactively communicates risk to leadership before it becomes a crisis.",
+        "engineering_culture": "Shapes engineering culture across a business unit and drives adoption of shared platforms and practices; systematically manages technical debt and detects risk areas at the business-unit level."
+      },
+      "title_traps": [
+        "'Executive Director' is the sharpest fork in the file: corporate usage -> M6; nonprofit -> C-Level (chief executive of the organization); investment banking -> a rank between VP and Managing Director. Resolve this from the `industry` field, not the bullets.",
+        "M6 is thin on real resumes - many organizations skip it, going M5 -> VP. Where a candidate's trajectory has no Senior Director step, do not manufacture one to smooth the curve.",
+        "'Country Manager' / 'Regional Director' scale with company size: multinational -> M6; 50-person company with one overseas office -> M4 with a geographic label.",
+        "'Head of X' appears at P4, M4 and M6 depending entirely on what reports up. The phrase carries no level information on its own."
+      ]
+    },
+    {
+      "code": "E7",
+      "name": "Vice President",
+      "track": "Executive",
+      "rank": 10,
+      "description": "Executive leader who translates company vision into direction for a business unit, managing multiple Directors and Senior Directors across functions.",
+      "example_titles": [
+        "VP, Business Development",
+        "VP of Product Delivery",
+        "VP of Engineering",
+        "VP of Product",
+        "VP of Marketing",
+        "VP of Sales",
+        "VP of Operations",
+        "VP of People",
+        "VP of Finance",
+        "VP of Customer Success",
+        "VP of Data & Analytics",
+        "General Manager, Business Unit",
+        "Head of Function (company-wide, with Directors reporting)",
+        "Managing Director, Region (non-banking usage)",
+        "Division President"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Enterprise-level scope; manages multiple Directors and Senior Directors across business units; translates company vision into business-unit direction.",
+        "degree_of_autonomy": "Full autonomy at the business-unit level; self-directs priorities in alignment with overall corporate strategy.",
+        "level_of_influence": "Influences executive-level and board-adjacent stakeholders; shapes functional direction company-wide.",
+        "business_impact": "Vital impact at the business-unit level; decisions influence strategic outcomes and long-term business-unit performance.",
+        "leadership_and_mentorship": "Sponsors and develops senior leaders; sets long-term functional strategy; represents the function to executive leadership.",
+        "communication": "Communicates strategy to the executive team and board-adjacent stakeholders; represents the function externally; navigates high-stakes negotiations between the function, other departments, and executive leadership.",
+        "engineering_culture": "Owns company-wide engineering culture and standards and drives org-wide initiatives such as platform consolidation; defines universal coding standards, architectural patterns, and quality benchmarks that let engineers company-wide move faster with fewer errors."
+      },
+      "title_traps": [
+        "VP in banking and financial services is NOT an executive. The ladder runs Analyst -> Associate -> VP -> Director -> Managing Director, putting VP at roughly P5/M4 scope. A resume with 'VP' at a bank and 'VP' at a SaaS company holds two genuinely different levels; only `industry` distinguishes them.",
+        "VP at a startup under ~50 people is frequently M4/M5 scope with an inflated title - often a founding employee running a function of two or three.",
+        "'Division President' / 'General Manager' - 'President' reads C-Level, but a division president reports to the corporate C-suite and is E7 scope."
+      ]
+    },
+    {
+      "code": "E8",
+      "name": "Senior Vice President",
+      "track": "Executive",
+      "rank": 11,
+      "description": "Executive leader overseeing multiple business units or functions, setting company-wide vision and goals for those areas.",
+      "example_titles": [
+        "SVP Operations",
+        "SVP of Engineering",
+        "SVP of Product",
+        "SVP of Sales",
+        "SVP of Marketing",
+        "SVP of People",
+        "SVP of Finance",
+        "Executive Vice President (EVP)",
+        "Group President",
+        "President (non-CEO)",
+        "Managing Director (banking, top rank)",
+        "Partner (professional services)",
+        "Head of Global [Function]",
+        "Deputy CEO",
+        "Chief of Staff to the Board"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Oversees multiple business units or functions; identifies and translates company vision and goals into direction for multiple business units.",
+        "degree_of_autonomy": "Enterprise-wide autonomy; acts as a key strategic partner to the CEO/C-suite in setting company direction.",
+        "level_of_influence": "Influences the C-suite and board; shapes overall company strategy and long-term direction.",
+        "business_impact": "Organization-wide impact; decisions shape strategic outcomes, financial performance, and long-term company growth.",
+        "leadership_and_mentorship": "Builds executive bench strength; defines company-wide organizational strategy, structure, and culture.",
+        "communication": "Communicates company-wide strategy to the board, investors, and external partners; simplifies highly abstract, multi-year strategy into a cohesive narrative that inspires both staff and the C-suite; represents the company's brand publicly.",
+        "engineering_culture": "Sets the company's overall technology culture and philosophy and sponsors technical excellence initiatives at the executive level; ensures the company's engineering standards remain competitive with the broader industry over the long term."
+      },
+      "title_traps": [
+        "The banking inversion peaks here: 'Managing Director' is the TOP rank at an investment bank (genuine E8 scope) while 'SVP' at the same bank sits closer to M5/M6 - the opposite order from how the two strings read at a technology company. Where industry is unclear, ask.",
+        "'President' without 'CEO' may be the #2 to a CEO (E8), a ceremonial founder title, or the actual chief executive where the company uses President instead of CEO (C-Level). Read the reporting line: if nobody is above them, it is C-Level.",
+        "'Partner' at a law, accounting or consulting firm is an owner as well as an executive. E8 is the closest scope fit, but the ownership dimension has no home in this framework.",
+        "EVP vs SVP ordering is not universal. Both map to E8 here rather than inventing a rung between E8 and C-Level."
+      ]
+    },
+    {
+      "code": "C-Level",
+      "name": "C-Level",
+      "track": "Executive",
+      "rank": 12,
+      "description": "Executive Officers of the company",
+      "example_titles": [
+        "Chief Executive Officer (CEO)",
+        "Chief Operating Officer (COO)",
+        "Chief Financial Officer (CFO)",
+        "Chief Technology Officer (CTO)",
+        "Chief Product Officer (CPO)",
+        "Chief Information Officer (CIO)",
+        "Chief Marketing Officer (CMO)",
+        "Chief Revenue Officer (CRO)",
+        "Chief People Officer (CHRO)",
+        "Chief Information Security Officer (CISO)",
+        "Chief Legal Officer",
+        "General Counsel (with a legal department)",
+        "Chief Data Officer (CDO)",
+        "Managing Partner",
+        "Executive Director (nonprofit usage)",
+        "Founder / Co-Founder acting as chief executive"
+      ],
+      "dimensions": {
+        "scope_and_complexity": "Company-wide scope; accountable for the enterprise or a principal function of it. Sets corporate strategy and resolves issues whose consequences reach the company's viability and market position.",
+        "degree_of_autonomy": "Full autonomy, bounded only by the board and the shareholder mandate; defines the company's objectives rather than executing objectives set by others.",
+        "level_of_influence": "Influences the board, investors, regulators, and the market; serves as the primary voice for the company's direction both internally and externally.",
+        "business_impact": "Company-defining impact; decisions determine financial performance, market position, and the long-term survival and growth of the company as a whole.",
+        "leadership_and_mentorship": "Builds and leads the executive team; owns organizational design, succession for the most senior roles, and the company's culture and values.",
+        "communication": "Sets the company's narrative for the board, investors, employees, press, and the market; communicates vision and difficult decisions company-wide with credibility.",
+        "engineering_culture": "Owns the company's technology strategy and technical standing, typically through the CTO; makes final build-vs-buy and platform-bet decisions at company scale and sponsors long-term investment in engineering quality."
+      },
+      "title_traps": [
+        "The Founder/CEO discount: where a Founder or CEO role's bullets describe only product, technical or functional delivery - no P&L, no fundraising, no company-wide operations - follow the bullets, not the title. At a two-person company that is often P4. Surface this to the user.",
+        "'Chief Architect' and 'Chief of Staff' are not C-Level (see P6). Match the full 'Chief X Officer' pattern, not the bare word 'Chief'.",
+        "CISO and CDO frequently report to the CTO or CIO rather than the CEO. Where the reporting line runs through another executive, the structural test fails and the honest call is E7/E8.",
+        "'General Counsel' appears at both P6 and C-Level - sole lawyer at a small company versus head of a legal department. The reports decide it."
+      ],
+      "source": "description and titles from source workbook; dimension rows authored 2026-08-09 (they were empty)"
+    }
+  ]
+}
