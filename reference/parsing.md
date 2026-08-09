@@ -9,7 +9,7 @@ The JSON schema is the contract between the two phases. Parsing changes shouldn'
 Before starting a new parse, read:
 
 - `reference-data/leveling-framework.json` - the 13-level career strata framework (v3.0), 7 dimensions per level. Anchors all strata assignments. Read `leveling_notes` and each level's `title_traps` and `example_titles` before leveling - the traps encode the title/scope mismatches that cause most mis-levels. Replaces the former `leveling-framework.xlsx`.
-- `reference-data/job-families-and-industries.json` - the taxonomy of professional families (functional areas) and industries (vertical markets). Current version: **v2.0** (2026-07-19) - 34 families anchored on O*NET-SOC's public major groups, replacing the narrower 21-family v1.1 list. human_resources and talent_acquisition remain distinct sibling families as they were in v1.1 (id `human_resources` for HR & People Operations, id `talent_acquisition` for Talent Acquisition & Recruitment), unaffected by the v2.0 restructuring.
+- `reference-data/job-families-and-industries.json` - the taxonomy of professional families (functional areas) and industries (vertical markets). Current version: **v2.0** (2026-07-19) - 35 families and 27 industries, anchored on O*NET-SOC's public major groups, replacing the narrower 21-family v1.1 list. The v2.0 restructuring itself produced 34 families; entries added additively since then carry no version bump and are logged in the file's `notes`. human_resources and talent_acquisition remain distinct sibling families as they were in v1.1 (id `human_resources` for HR & People Operations, id `talent_acquisition` for Talent Acquisition & Recruitment), unaffected by the v2.0 restructuring.
 
 ## The two-step workflow
 

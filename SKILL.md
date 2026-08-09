@@ -24,7 +24,7 @@ Both phases are built around one JSON contract, defined in full in `reference/pa
 ## Reference data (used by Phase 1)
 
 - `reference-data/leveling-framework.json` - the 13-level career strata framework (v3.0), 7 dimensions per level, plus `example_titles` and `title_traps` per level and file-level `leveling_notes`. Required reading before any parsing pass.
-- `reference-data/job-families-and-industries.json` - the job-family/industry taxonomy, currently v2.0. Required reading before any parsing pass.
+- `reference-data/job-families-and-industries.json` - the job-family/industry taxonomy, currently v2.0 (35 families, 27 industries). Required reading before any parsing pass.
 
 ## Companion docs (used by / about Phase 2)
 

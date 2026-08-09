@@ -1,6 +1,6 @@
 {
  "version": "2.0",
- "notes": "v2.0 (2026-07-19): Full job-family restructuring. Rebuilt the family list (21 -> 34 families) anchored on O*NET-SOC's 23 major groups (US Dept of Labor, public domain classification standard) plus LinkedIn's public job-function taxonomy, to close major coverage gaps the v1.1 list had for healthcare, skilled trades, manufacturing, protective services, arts, agriculture-as-work, and more. Merged four v1.1 near-duplicate pairs into single families: sales + sales_business_development -> sales; administrative_office + office_administration -> administrative_office; customer_support + customer_service -> customer_support_service; operations_program_mgmt + program_management -> split cleanly into operations and program_project_management. Split finance_accounting into finance and accounting (forward-looking financial planning vs. transactional record-keeping), per user request. Added 14 new families for coverage: engineering_technical, science_research, community_social_services, arts_design_media_entertainment, healthcare_clinical, healthcare_support, protective_service, supply_chain_procurement, building_grounds_maintenance, farming_fishing_forestry, construction_extraction, installation_maintenance_repair, production_manufacturing, transportation_material_moving, military. All existing v1.1 job_types were preserved and carried over into their new/merged family; a handful of new job_types were added under merged families for continuity (e.g. executive_assistant, technical_support). BREAKING CHANGE from v1.1: family IDs sales_business_development, office_administration, customer_support, customer_service, and finance_accounting no longer exist -- any stored structured.json referencing them under schema v1.0 should be treated as legacy and re-tagged against v2.0 on next parse; the JSON schema (v1.0) itself is unaffected since family_id is a free-text-matched field, not a schema-enforced enum. human_resources and talent_acquisition remain untouched, unmerged sibling families, since that distinction predates and is independent of this restructuring. Industries list (v1.1, unaffected by this change) still has agriculture_food_manufacturing added from a real-world test parse on 2026-07-18/19. This remains a living taxonomy, not exhaustive -- extend as new roles surface, per the existing v1.1 policy.",
+ "notes": "v2.0 (2026-07-19): Full job-family restructuring. Rebuilt the family list (21 -> 34 families) anchored on O*NET-SOC's 23 major groups (US Dept of Labor, public domain classification standard) plus LinkedIn's public job-function taxonomy, to close major coverage gaps the v1.1 list had for healthcare, skilled trades, manufacturing, protective services, arts, agriculture-as-work, and more. Merged four v1.1 near-duplicate pairs into single families: sales + sales_business_development -> sales; administrative_office + office_administration -> administrative_office; customer_support + customer_service -> customer_support_service; operations_program_mgmt + program_management -> split cleanly into operations and program_project_management. Split finance_accounting into finance and accounting (forward-looking financial planning vs. transactional record-keeping), per user request. Added 14 new families for coverage: engineering_technical, science_research, community_social_services, arts_design_media_entertainment, healthcare_clinical, healthcare_support, protective_service, supply_chain_procurement, building_grounds_maintenance, farming_fishing_forestry, construction_extraction, installation_maintenance_repair, production_manufacturing, transportation_material_moving, military. All existing v1.1 job_types were preserved and carried over into their new/merged family; a handful of new job_types were added under merged families for continuity (e.g. executive_assistant, technical_support). BREAKING CHANGE from v1.1: family IDs sales_business_development, office_administration, customer_support, customer_service, and finance_accounting no longer exist -- any stored structured.json referencing them under schema v1.0 should be treated as legacy and re-tagged against v2.0 on next parse; the JSON schema (v1.0) itself is unaffected since family_id is a free-text-matched field, not a schema-enforced enum. human_resources and talent_acquisition remain untouched, unmerged sibling families, since that distinction predates and is independent of this restructuring. Industries list (v1.1, unaffected by this change) still has agriculture_food_manufacturing added from a real-world test parse on 2026-07-18/19. This remains a living taxonomy, not exhaustive -- extend as new roles surface, per the existing v1.1 policy. 2026-08-09: re-added two entries that were present in an earlier snapshot of this file but missing from a later revision, family it_infrastructure_systems_administration and industry energy_oil_gas, bringing the list to 35 families and 27 industries. Both are additive restorations and carry no version bump, per the additive-entries policy above.",
  "job_families": [
   {
    "id": "human_resources",
@@ -991,6 +991,37 @@
      "name": "Military Specialist"
     }
    ]
+  },
+  {
+   "id": "it_infrastructure_systems_administration",
+   "name": "IT Infrastructure & Systems Administration",
+   "description": "Running and securing the IT systems an organization depends on: networks, servers, virtualization, identity and endpoint management, systems integration, and internal IT support. Distinct from engineering_software, which builds software products; when the work is operating and maintaining infrastructure rather than shipping a product, tag it here even though both touch cloud and platform technology. Also distinct from customer_support_service, whose technical_support job_type covers supporting external customers rather than internal systems. Re-added 2026-08-09: this family was present in an earlier snapshot of this taxonomy and absent from a later revision, and was restored with its original job_type IDs.",
+   "job_types": [
+    {
+     "id": "network_engineer",
+     "name": "Network Engineer"
+    },
+    {
+     "id": "systems_administrator",
+     "name": "Systems Administrator"
+    },
+    {
+     "id": "security_engineer_infrastructure",
+     "name": "Security Engineer (Infrastructure)"
+    },
+    {
+     "id": "virtualization_administrator",
+     "name": "Virtualization Administrator"
+    },
+    {
+     "id": "it_support_engineer",
+     "name": "IT Support Engineer"
+    },
+    {
+     "id": "systems_integration_engineer",
+     "name": "Systems Integration Engineer"
+    }
+   ]
   }
  ],
  "industries": [
@@ -1098,6 +1129,11 @@
    "id": "agriculture_food_manufacturing",
    "name": "Agriculture & Food Manufacturing",
    "description": "Agriculture, meat/food processing, FMCG manufacturing and wholesale. Added 2026-07-19 during a real-world test parse (a multi-industry agroholding employer: agriculture, meat processing, FMCG wholesale) where no existing industry fit."
+  },
+  {
+   "id": "energy_oil_gas",
+   "name": "Energy, Oil & Gas",
+   "description": "Energy production, distribution, and related services, covering oil and gas, utilities, and renewables. Re-added 2026-08-09: this industry was present in an earlier snapshot of this taxonomy and absent from a later revision."
   }
  ]
 }
