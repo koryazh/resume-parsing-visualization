@@ -384,6 +384,18 @@ When a candidate provides both a resume PDF AND a LinkedIn export/profile:
 
 Save to a working file location. Always include a data_quality section flagging any borderline calls, revisions, or user overrides - even if the JSON was clean, the empty audit trail is itself a signal.
 
+**Then validate before handing off to Phase 2:**
+
+```
+python3 scripts/validate_structured_json.py path/to/structured.json
+```
+
+Exit code 0 means the contract holds; exit 1 means Phase 2 would render incorrectly. Fix every ERROR before rendering and review the WARNs. The validator catches the failure modes that are tedious to eyeball - family weights that do not sum to 1.0, a `strata.code`/`rank` pair that disagrees with the framework, aggregates that drifted after a late strata revision, a dominant family with no ranked sphere entry (a bar with no colour), a dangling `connector.previous_role_id`, and any education date that crept in against the LOCKED content rule.
+
+It is a check on arithmetic and cross-references only. It cannot tell you whether a leveling call is *right* - that still needs the user sign-off described in Step 3.
+
+`reference-data/example-structured.json` is a small synthetic fixture (fabricated candidate, not a real resume) showing a complete, valid document. Consult it when unsure how a field is meant to be populated.
+
 ## Versioning & contract stability
 
 - The JSON schema version is currently `1.0`. Field additions that don't break existing consumers are OK to add without a bump.

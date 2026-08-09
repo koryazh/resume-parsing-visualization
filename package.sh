@@ -15,13 +15,14 @@ mkdir -p "$STAGE/$SKILL" "$ROOT/dist"
 
 # Only the files the skill itself needs. README, .gitignore, and this
 # script are repo scaffolding and are deliberately left out of the zip.
-for item in SKILL.md reference reference-data docs; do
+for item in SKILL.md reference reference-data docs scripts; do
   cp -R "$ROOT/$item" "$STAGE/$SKILL/"
 done
 
 find "$STAGE" -name '.DS_Store' -delete
+find "$STAGE" -name '__pycache__' -type d -prune -exec rm -rf {} +
 
-( cd "$STAGE" && zip -qr "$OUT" "$SKILL" -x '*.DS_Store' )
+( cd "$STAGE" && zip -qr "$OUT" "$SKILL" -x '*.DS_Store' '*__pycache__*' )
 
 echo "Packaged: $OUT"
 unzip -Z1 "$OUT" | sed 's/^/  /'

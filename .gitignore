@@ -9,3 +9,5 @@ dist/
 *.pdf
 samples/
 out/
+__pycache__/
+*.pyc

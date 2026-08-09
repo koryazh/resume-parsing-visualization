@@ -25,6 +25,9 @@ reference/parsing.md                        Phase 1 rules: leveling, taxonomy, s
 reference/visualization.md                  Phase 2 rules: geometry, encoding, palette, locked rules
 reference-data/leveling-framework.json      13-level career strata framework (v3.0)
 reference-data/job-families-and-industries.json   job family and industry taxonomy (v2.0)
+reference-data/example-structured.json      synthetic reference document, also the validator fixture
+scripts/validate_structured_json.py         checks a structured JSON against the schema and reference data
+scripts/test_validator.py                   self-test for the validator, 16 cases
 docs/visualization-technical-spec.md        portable rendering spec, usable outside this skill
 docs/how-visualization-works.md             reader-facing explainer for someone opening the chart
 ```
@@ -38,7 +41,7 @@ docs/how-visualization-works.md             reader-facing explainer for someone 
 | JSON schema | 1.0 | Contract between the two phases. Additive fields are fine; breaking changes need a bump. |
 | Leveling framework | 3.0 | 13 levels, 7 dimensions each, plus `example_titles` and `title_traps` per level. |
 | Job family taxonomy | 2.0 | 35 families anchored on O*NET-SOC major groups, 27 industries. |
-| Visualization spec | 1.2 | Solid dominant-family-color bars by default. |
+| Visualization spec | 1.4 | Solid dominant-family-color bars by default. Rank range 0-12; axis-overlay alignment rules locked. |
 
 Rank contract: P1 sits at rank 0, added in v3.0. Ranks 1 through 12 are stable and must never be renumbered, because every previously generated `structured.json` encodes them.
 
@@ -55,7 +58,19 @@ These are the ones that bite hardest if missed. Full detail lives in the referen
 
 ## Candidate data
 
-No candidate files belong in this repository. The skill is portable by design and ships with no example resumes, no structured JSON, and no rendered charts. Generated output stays wherever it was produced. `.gitignore` blocks the common cases as a backstop.
+No real candidate files belong in this repository. The skill is portable by design and ships with no resumes and no rendered charts. Generated output stays wherever it was produced. `.gitignore` blocks the common cases as a backstop.
+
+The one bundled JSON, `reference-data/example-structured.json`, is a fabricated fixture with an invented candidate. It exists so the schema has a concrete reference and so the validator has something to self-test against.
+
+## Validating a structured JSON
+
+```bash
+python3 scripts/validate_structured_json.py path/to/structured.json
+```
+
+Run it between the two phases and after any hand-edit of the JSON. Exit 0 means the contract holds; exit 1 means Phase 2 would render incorrectly. `--strict` fails on warnings, `--json` gives machine-readable output. Standard library only, no install step.
+
+After changing the schema, the validator, or either reference-data file, run `python3 scripts/test_validator.py`. It breaks the bundled fixture 16 different ways and asserts each one is caught, which is what tells you the fixture has gone stale.
 
 ## Packaging
 

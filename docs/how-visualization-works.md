@@ -30,9 +30,11 @@ This is intentional. The chart doesn't replace the resume - it navigates it.
 
 The whole career fits on one screen. No horizontal scrolling. This is a deliberate design choice: a 30-year career compresses horizontally, a 5-year career stretches. In exchange, you can see the entire arc at a glance without dragging.
 
-**Vertical (Y-axis) is career level.** The chart uses a 12-level strata framework running from **P2 Junior** at the bottom through **P6 Principal**, then the manager track **M3 Team Lead** through **M6 Senior Director**, then executive levels **E7 VP**, **E8 SVP**, and finally **C-Level** at the top (Executive Officers - CTO, CFO, CEO, etc.).
+**Vertical (Y-axis) is career level.** The chart uses a 13-level strata framework running from **P1 Entry Professional** and **P2 Junior** at the bottom through **P6 Principal**, then the manager track **M3 Team Lead** through **M6 Senior Director**, then executive levels **E7 VP**, **E8 SVP**, and finally **C-Level** at the top (Executive Officers - CTO, CFO, CEO, etc.).
 
-Each candidate's chart only shows the bands from their lowest role's level up to their peak plus one band of breathing room. So a candidate whose career runs P3 → P5 sees four bands (P3, P4, P5, P6) rather than the whole 12-level ladder. This keeps the chart focused and the bars readable.
+P1 is the only level assigned from the title alone: it's reserved for roles explicitly marked intern, trainee, apprentice, co-op, "Entry-Level", or an `I` suffix. An unmarked role with entry-level scope is P2, not P1. So a P1 band on a chart tells you the candidate's title literally said so - it is never an inference about how junior their work looked.
+
+Each candidate's chart only shows the bands from their lowest role's level up to their peak plus one band of breathing room. So a candidate whose career runs P3 → P5 sees four bands (P3, P4, P5, P6) rather than the whole 13-level ladder. This keeps the chart focused and the bars readable. The one exception is a candidate who has reached C-Level: there is no band above it, so their chart tops out at C-Level with no empty band above.
 
 The strata codes appear on the right side of the chart as a sticky overlay, not inside the SVG itself. This means the codes stay crisp at any zoom level and take up visual space outside the bar-drawing area.
 

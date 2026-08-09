@@ -1,0 +1,563 @@
+{
+  "$schema_version": "1.0",
+  "generated": "2026-08-09",
+  "source": "SYNTHETIC - no real candidate. Fabricated fixture for contract testing.",
+  "taxonomy_source": "job-families-and-industries.json v2.0",
+  "leveling_source": "leveling-framework.json v3.0",
+  "_fixture_note": "This is a fabricated example candidate, not a real person's resume. It exists so the JSON contract has a concrete reference and so scripts/validate_structured_json.py has something to self-test against. It deliberately exercises: a rank-0 P1 role (chart floor below rank 1), a same-employer promotion staircase at two different employers, a multi-family role with a secondary family that is never dominant (operations - palette entry but no legend pill), a concurrent side gig at the same rank as a main role (lane-splitting), and an off-chart pre-career role.",
+  "candidate": {
+    "name": "Rowan Ellis",
+    "contact": {
+      "phone": "+1 555 0100",
+      "email": "rowan.ellis@example.com",
+      "linkedin": "https://linkedin.com/in/example-rowan-ellis",
+      "github": null,
+      "portfolio": null,
+      "location": "Portland, OR",
+      "relocation": null,
+      "work_authorization": null
+    },
+    "summary": "Analytics leader with a decade in applied modelling, moving from entry-level analysis into managing a data science team.",
+    "areas_of_expertise": [
+      "Forecasting",
+      "Customer analytics",
+      "Team leadership"
+    ],
+    "education": [
+      {
+        "institution": "University of Washington",
+        "degree": "BSc",
+        "field": "Statistics"
+      }
+    ],
+    "certifications": [],
+    "languages": [
+      "English",
+      "Portuguese"
+    ],
+    "honors": [],
+    "tech_stack": {
+      "general_purpose": [
+        "Python",
+        "SQL",
+        "Git"
+      ],
+      "domain_specific": [
+        "scikit-learn",
+        "dbt",
+        "Airflow"
+      ]
+    }
+  },
+  "roles": [
+    {
+      "id": "role_1",
+      "company": "Northvale Systems",
+      "title": "Analytics Manager",
+      "location": "Portland, OR (Hybrid)",
+      "country": "United States",
+      "start_date": "2022-07",
+      "end_date": "current",
+      "is_current": true,
+      "single_sentence": false,
+      "is_estimated": false,
+      "narrative_summary": null,
+      "narrative_bullets": [
+        "Manage a team of five analysts and data scientists, owning hiring, performance reviews, and compensation recommendations for the group.",
+        "Set the quarterly analytics roadmap in partnership with Product and Finance, and own the team's tooling budget.",
+        "Rebuilt the customer-churn model that now drives retention outreach for roughly 40,000 accounts.",
+        "Introduced a peer code-review standard for notebooks and pipelines, cutting rework on recurring reports."
+      ],
+      "strata": {
+        "code": "M4",
+        "name": "Manager",
+        "rank": 7,
+        "reasoning": "Bullets give explicit hire/perf/comp authority over direct reports plus budget ownership - the M4 test from the Manager decision tree. No Team Lead layer beneath, so not M5."
+      },
+      "family_tags": [
+        {
+          "family_id": "data_science_ai_ml",
+          "family_name": "Data Science / AI / ML",
+          "weight": 0.6,
+          "job_types": [
+            {
+              "id": "ds_leadership",
+              "weight": 0.6,
+              "reasoning": "Leads the DS/analytics function."
+            }
+          ],
+          "reasoning": "Team and roadmap are data-science work; leadership job type carries the weight."
+        },
+        {
+          "family_id": "operations",
+          "family_name": "Operations",
+          "weight": 0.4,
+          "job_types": [
+            {
+              "id": "business_operations",
+              "weight": 0.4,
+              "reasoning": "Roadmap, budget, and cross-functional planning."
+            }
+          ],
+          "reasoning": "Meaningful share of the role is planning and budget rather than modelling."
+        }
+      ],
+      "industry": {
+        "id": "technology_software",
+        "name": "Technology & Software",
+        "reasoning": "B2B software vendor."
+      },
+      "role_type": {
+        "value": "People Manager",
+        "reasoning": "Five direct reports with full authority."
+      },
+      "render_policy": {
+        "on_chart": true,
+        "in_experience_text": true
+      },
+      "connector": {
+        "same_employer_as_previous": true,
+        "move_type_from_previous": "promotion",
+        "previous_role_id": "role_2",
+        "notes": "IC to manager track at the same employer."
+      },
+      "duration_months": 50,
+      "duration_label": "4 years 2 months"
+    },
+    {
+      "id": "role_2",
+      "company": "Northvale Systems",
+      "title": "Senior Data Scientist",
+      "location": "Portland, OR",
+      "country": "United States",
+      "start_date": "2019-03",
+      "end_date": "2022-06",
+      "is_current": false,
+      "single_sentence": false,
+      "is_estimated": false,
+      "narrative_summary": null,
+      "narrative_bullets": [
+        "Owned the forecasting domain end to end, from data contracts through model deployment and monitoring.",
+        "Built and shipped the demand-forecasting service used by the supply planning team.",
+        "Mentored two junior analysts through their first production model launches.",
+        "Ran the weekly model-performance review with Product and Operations stakeholders."
+      ],
+      "strata": {
+        "code": "P4",
+        "name": "Senior",
+        "rank": 3,
+        "reasoning": "Sole ownership of one domain (forecasting) with mentorship but no delegated people authority - textbook P4. No initiative-level or program-level leadership language that would justify P5."
+      },
+      "family_tags": [
+        {
+          "family_id": "data_science_ai_ml",
+          "family_name": "Data Science / AI / ML",
+          "weight": 0.75,
+          "job_types": [
+            {
+              "id": "applied_ml",
+              "weight": 0.5,
+              "reasoning": "Forecasting model development."
+            },
+            {
+              "id": "ml_engineering",
+              "weight": 0.25,
+              "reasoning": "Deployment and monitoring."
+            }
+          ],
+          "reasoning": "Primary output is applied modelling with a real engineering component."
+        },
+        {
+          "family_id": "operations",
+          "family_name": "Operations",
+          "weight": 0.25,
+          "job_types": [
+            {
+              "id": "business_operations",
+              "weight": 0.25,
+              "reasoning": "Supply planning partnership and stakeholder review cadence."
+            }
+          ],
+          "reasoning": "Recurring operational partnership is a genuine sub-focus, not incidental."
+        }
+      ],
+      "industry": {
+        "id": "technology_software",
+        "name": "Technology & Software",
+        "reasoning": "Same employer as role_1."
+      },
+      "role_type": {
+        "value": "IC",
+        "reasoning": "Mentorship without delegated authority."
+      },
+      "render_policy": {
+        "on_chart": true,
+        "in_experience_text": true
+      },
+      "connector": {
+        "same_employer_as_previous": false,
+        "move_type_from_previous": "company_change",
+        "previous_role_id": "role_3",
+        "notes": null
+      },
+      "duration_months": 40,
+      "duration_label": "3 years 4 months"
+    },
+    {
+      "id": "role_6",
+      "company": "Cascadia Community College",
+      "title": "Adjunct Instructor, Applied Statistics",
+      "location": "Portland, OR (Evenings)",
+      "country": "United States",
+      "start_date": "2021-01",
+      "end_date": "2022-12",
+      "is_current": false,
+      "single_sentence": false,
+      "is_estimated": false,
+      "narrative_summary": null,
+      "narrative_bullets": [
+        "Taught one evening section of Applied Statistics per term to a mix of returning and first-year students.",
+        "Designed the course's project-based assessment, replacing a single final exam."
+      ],
+      "strata": {
+        "code": "P4",
+        "name": "Senior",
+        "rank": 3,
+        "reasoning": "Subject-matter delivery within one course, self-directed but narrow scope. Teaching is not program leadership - the P5 trap called out in the common-mistakes list."
+      },
+      "family_tags": [
+        {
+          "family_id": "education_training",
+          "family_name": "Education & Training",
+          "weight": 1.0,
+          "job_types": [
+            {
+              "id": "instructor_lecturer",
+              "weight": 1.0,
+              "reasoning": "Classroom instruction."
+            }
+          ],
+          "reasoning": "Entirely teaching work; no second family applies."
+        }
+      ],
+      "industry": {
+        "id": "education_higher_ed",
+        "name": "Education - Higher Education",
+        "reasoning": "Community college."
+      },
+      "role_type": {
+        "value": "IC",
+        "reasoning": "No reports."
+      },
+      "render_policy": {
+        "on_chart": true,
+        "in_experience_text": true
+      },
+      "connector": {
+        "same_employer_as_previous": false,
+        "move_type_from_previous": "side_gig_start",
+        "previous_role_id": "role_2",
+        "notes": "Concurrent evening side gig alongside the Northvale role."
+      },
+      "duration_months": 24,
+      "duration_label": "2 years"
+    },
+    {
+      "id": "role_3",
+      "company": "Meridian Analytics",
+      "title": "Data Scientist",
+      "location": "Seattle, WA",
+      "country": "United States",
+      "start_date": "2016-09",
+      "end_date": "2019-02",
+      "is_current": false,
+      "single_sentence": false,
+      "is_estimated": false,
+      "narrative_summary": null,
+      "narrative_bullets": [
+        "Delivered client-facing segmentation and propensity models across retail and subscription accounts.",
+        "Became the team's reference point for feature-engineering conventions on new client projects.",
+        "Presented model results directly to client analytics leads."
+      ],
+      "strata": {
+        "code": "P3",
+        "name": "Middle",
+        "rank": 2,
+        "reasoning": "Fully productive IC completing client work unsupervised and acting as a knowledge source for juniors; scope is per-project, not domain ownership, so below P4."
+      },
+      "family_tags": [
+        {
+          "family_id": "data_science_ai_ml",
+          "family_name": "Data Science / AI / ML",
+          "weight": 1.0,
+          "job_types": [
+            {
+              "id": "applied_ml",
+              "weight": 1.0,
+              "reasoning": "Segmentation and propensity modelling."
+            }
+          ],
+          "reasoning": "Single-focus modelling role."
+        }
+      ],
+      "industry": {
+        "id": "technology_software",
+        "name": "Technology & Software",
+        "reasoning": "Analytics consultancy serving software and retail clients."
+      },
+      "role_type": {
+        "value": "IC",
+        "reasoning": "No reports."
+      },
+      "render_policy": {
+        "on_chart": true,
+        "in_experience_text": true
+      },
+      "connector": {
+        "same_employer_as_previous": true,
+        "move_type_from_previous": "promotion",
+        "previous_role_id": "role_4",
+        "notes": "Promotion out of the entry-level track."
+      },
+      "duration_months": 30,
+      "duration_label": "2 years 6 months"
+    },
+    {
+      "id": "role_4",
+      "company": "Meridian Analytics",
+      "title": "Data Scientist I",
+      "location": "Seattle, WA",
+      "country": "United States",
+      "start_date": "2015-09",
+      "end_date": "2016-08",
+      "is_current": false,
+      "single_sentence": false,
+      "is_estimated": false,
+      "narrative_summary": null,
+      "narrative_bullets": [
+        "Supported senior scientists on client engagements, building and validating feature sets under review.",
+        "Maintained the team's shared data-cleaning utilities."
+      ],
+      "strata": {
+        "code": "P1",
+        "name": "Entry Professional",
+        "rank": 0,
+        "reasoning": "Title-gated: the 'I' suffix is an explicit entry-level marker, which is the only basis on which P1 may be assigned. Bullets independently show supervised, scoped work."
+      },
+      "family_tags": [
+        {
+          "family_id": "data_science_ai_ml",
+          "family_name": "Data Science / AI / ML",
+          "weight": 1.0,
+          "job_types": [
+            {
+              "id": "applied_ml",
+              "weight": 1.0,
+              "reasoning": "Feature work on modelling engagements."
+            }
+          ],
+          "reasoning": "Single-focus entry role."
+        }
+      ],
+      "industry": {
+        "id": "technology_software",
+        "name": "Technology & Software",
+        "reasoning": "Same employer as role_3."
+      },
+      "role_type": {
+        "value": "IC",
+        "reasoning": "Supervised IC."
+      },
+      "render_policy": {
+        "on_chart": true,
+        "in_experience_text": true
+      },
+      "connector": {
+        "same_employer_as_previous": false,
+        "move_type_from_previous": "company_change",
+        "previous_role_id": "role_5",
+        "notes": "First professional role."
+      },
+      "duration_months": 12,
+      "duration_label": "1 year"
+    },
+    {
+      "id": "role_5",
+      "company": "Bright Harbor Cafe",
+      "title": "Barista",
+      "location": "Seattle, WA",
+      "country": "United States",
+      "start_date": "2013-06",
+      "end_date": "2014-08",
+      "is_current": false,
+      "single_sentence": true,
+      "is_estimated": false,
+      "narrative_summary": null,
+      "narrative_bullets": [
+        "Front-of-house service and opening shifts at an independent cafe while completing an undergraduate degree."
+      ],
+      "strata": {
+        "code": "P2",
+        "name": "Junior",
+        "rank": 1,
+        "reasoning": "Routine supervised service work. Not P1 - the title carries no entry-level marker, and P1 is title-gated."
+      },
+      "family_tags": [
+        {
+          "family_id": "hospitality_food_service",
+          "family_name": "Hospitality & Food Service",
+          "weight": 1.0,
+          "job_types": [
+            {
+              "id": "server_bartender",
+              "weight": 1.0,
+              "reasoning": "Counter and front-of-house service."
+            }
+          ],
+          "reasoning": "Single-sentence role; no breakdown inferable."
+        }
+      ],
+      "industry": {
+        "id": "hospitality_lodging",
+        "name": "Hospitality & Lodging",
+        "reasoning": "Independent cafe."
+      },
+      "role_type": {
+        "value": "IC",
+        "reasoning": "No reports."
+      },
+      "render_policy": {
+        "on_chart": false,
+        "in_experience_text": true,
+        "exclusion_reason": "Pre-career student job in an unrelated family; excluded from the ladder by default per the off-chart pre-career rule. Flip to on_chart if the user wants a maximal-history view."
+      },
+      "connector": {
+        "same_employer_as_previous": false,
+        "move_type_from_previous": null,
+        "previous_role_id": null,
+        "notes": "Earliest role on the resume."
+      },
+      "duration_months": 15,
+      "duration_label": "1 year 3 months"
+    }
+  ],
+  "aggregates": {
+    "career_start": "2015-09",
+    "career_end": "current (2026-08)",
+    "career_length_months": 132,
+    "career_length_label": "11 years",
+    "sum_of_tenure_months": 156,
+    "sum_of_tenure_label": "13 years",
+    "overlap_months": 24,
+    "gaps": [],
+    "role_count": 6,
+    "role_count_on_chart": 5,
+    "role_count_off_chart": 1,
+    "employer_count": 4,
+    "peak_strata": {
+      "code": "M4",
+      "name": "Manager",
+      "rank": 7
+    },
+    "strata_trajectory": [
+      {
+        "role_id": "role_4",
+        "code": "P1",
+        "rank": 0,
+        "year": 2015,
+        "company": "Meridian Analytics"
+      },
+      {
+        "role_id": "role_3",
+        "code": "P3",
+        "rank": 2,
+        "year": 2016,
+        "company": "Meridian Analytics"
+      },
+      {
+        "role_id": "role_2",
+        "code": "P4",
+        "rank": 3,
+        "year": 2019,
+        "company": "Northvale Systems"
+      },
+      {
+        "role_id": "role_6",
+        "code": "P4",
+        "rank": 3,
+        "year": 2021,
+        "company": "Cascadia Community College"
+      },
+      {
+        "role_id": "role_1",
+        "code": "M4",
+        "rank": 7,
+        "year": 2022,
+        "company": "Northvale Systems"
+      }
+    ],
+    "professional_spheres_ranked_by_dominant": [
+      {
+        "rank": 1,
+        "color": "#75a426",
+        "family_id": "data_science_ai_ml",
+        "family_name": "Data Science / AI / ML",
+        "months": 132,
+        "months_label": "11 years",
+        "share_of_sum_pct": 84.6,
+        "roles_where_dominant": [
+          "role_4",
+          "role_3",
+          "role_2",
+          "role_1"
+        ],
+        "note": null
+      },
+      {
+        "rank": 2,
+        "color": "#cd1a8c",
+        "family_id": "education_training",
+        "family_name": "Education & Training",
+        "months": 24,
+        "months_label": "2 years",
+        "share_of_sum_pct": 15.4,
+        "roles_where_dominant": [
+          "role_6"
+        ],
+        "note": null
+      }
+    ]
+  },
+  "data_quality": [
+    {
+      "field": "_meta",
+      "severity": "informational",
+      "note": "Synthetic fixture, not a parsed resume. Safe to ship inside the skill."
+    },
+    {
+      "field": "roles[role_4].strata",
+      "severity": "informational",
+      "note": "P1 assigned on the title gate ('I' suffix) only. Had the title been plain 'Data Scientist', this role would be P2 regardless of how junior the bullets read."
+    },
+    {
+      "field": "roles[role_6].render_policy",
+      "severity": "advisory",
+      "note": "Concurrent side gig kept on-chart because it is a genuine multi-year thread. It shares rank 3 with role_2 during 2021-01..2022-06, so both bars lane-split to half height for their full durations."
+    },
+    {
+      "field": "roles[role_5].render_policy",
+      "severity": "advisory",
+      "note": "Off-chart pre-career role. Its 15 months are excluded from sum_of_tenure_months and from the sphere ranking, so hospitality_food_service has no ranked sphere entry."
+    },
+    {
+      "field": "aggregates.professional_spheres_ranked_by_dominant",
+      "severity": "informational",
+      "note": "'operations' carries weight in two roles but is never dominant, so it gets a secondary palette colour and no legend pill."
+    },
+    {
+      "field": "candidate.languages",
+      "severity": "informational",
+      "note": "Captured but must NOT render by default per section conservatism."
+    }
+  ]
+}

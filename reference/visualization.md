@@ -10,10 +10,11 @@ Also see the companion documents in this skill's `docs/` folder:
 
 ## Required reading before rendering
 
-Before starting a new render, read this file (`reference/visualization.md`) fully. This skill intentionally ships with no candidate example files (per its portability rule: no candidate data bundled). If a similar candidate shape has been rendered before earlier in this conversation or session (single-sphere HR career, R&D long career, multi-sphere with side gigs), look at that prior render's HTML as a template. Otherwise, build directly from the rules in this document: solid dominant-family-color bars (see Bar encoding below), centered hero, dividers only under Experience/Education/Tech Stack section headers, and a centered/tight two-line tenure header.
+Before starting a new render, read this file (`reference/visualization.md`) fully. This skill intentionally ships with no *real* candidate files (per its portability rule: no candidate data bundled). The one bundled JSON, `reference-data/example-structured.json`, is a fabricated fixture - useful as a shape reference for the DATA block, not as a visual template. If a similar candidate shape has been rendered before earlier in this conversation or session (single-sphere HR career, R&D long career, multi-sphere with side gigs), look at that prior render's HTML as a template. Otherwise, build directly from the rules in this document: solid dominant-family-color bars (see Bar encoding below), centered hero, dividers only under Experience/Education/Tech Stack section headers, and a centered/tight two-line tenure header.
 
 ## The rendering workflow
 
+0. **Validate the input first.** Run `python3 scripts/validate_structured_json.py path/to/structured.json`. If it exits non-zero, stop and fix the JSON (or hand the errors back to Phase 1) before writing any HTML - every ERROR it reports is something that renders wrong rather than something that fails visibly. Do not attempt to compensate for a bad contract inside the renderer.
 1. Read the `structured.json`. Confirm `$schema_version: "1.0"` and `taxonomy_source: "job-families-and-industries.json v2.0"` (or later).
 2. Pick the closest structural template (see `visualization-technical-spec.md` for shape patterns). Copy that HTML as a starting point.
 3. Replace candidate-specific data:
@@ -24,7 +25,8 @@ Before starting a new render, read this file (`reference/visualization.md`) full
    - DATA block in the script tag (axis, strata_bands, sphere_palette, roles, aggregates)
 4. Verify every LOCKED rule below is honored.
 5. Sanity-check braces/parens balance in the JS. Sanity-check all articles have matching bars in DATA.roles for on-chart roles.
-6. Deliver.
+6. **Check axis-label alignment, including at a narrow width.** Confirm the `#strata-axis` overlay has no pixel height set, each label's `top` is a pure percentage of the band center (no `+Npx`), and `.strata-label` carries `transform: translateY(-50%)`. If you can render the HTML, screenshot at ~900px and ~480px and confirm each bar sits in the row its label names at *both* sizes - resize drift is the signature of the axis-overlay bug (see the Strata axis overlay section).
+7. Deliver.
 
 ## Content presentation rules (LOCKED)
 
@@ -94,12 +96,57 @@ Start dates and end dates are NOT symmetric. A role starting in month M begins a
 - Always include one empty band above the peak for visual breathing room
 - Pass strata bands as `DATA.strata_bands` - array of `{ code, name, rank }` ordered low-to-high
 
+**Rank range is 0-12 inclusive (UPDATED 2026-08-09, leveling framework v3.0).** `P1 Entry Professional` sits at **rank 0**. It was added below the previous floor precisely so that ranks 1-12 never had to be renumbered, which means the visualization's only required change is to stop assuming 1 is the bottom:
+
+- Never clamp the floor (`Math.max(minRank, 1)` is a bug). A candidate whose earliest on-chart role is a title-gated intern/trainee role has a legitimate rank-0 band.
+- Band-index arithmetic must be `rank - floorRank`, never `rank - 1`. A hardcoded `- 1` shifts every bar down one band and pushes rank-0 bars off the bottom of the plot.
+- Clamp the breathing-room band at the top: `topRank = Math.min(12, Math.max(peakRank + 1, highestBandUsed + 1))`. A C-Level candidate (rank 12) tops out at the C-Level band - don't synthesize a rank-13 band.
+- `strata.code` for the top level is the string `C-Level`, not `C`. Short axis labels are fine as display text; don't match renderer logic against the short form.
+
+```javascript
+const ranks       = DATA.roles.map(r => r.strata.rank);
+const floorRank   = Math.min(...ranks);                                  // may be 0
+const peakRank    = Math.max(...ranks);
+const topRank     = Math.min(12, peakRank + 1);                          // clamped
+const bandIndex   = rank => rank - floorRank;                            // NOT rank - 1
+```
+
 ### Strata axis overlay
 - Strata codes (P3, P4, M5, etc.) render as an HTML overlay `#strata-axis` absolutely positioned to the right of `.ladder-frame`, NOT inside the SVG
 - Labels left-aligned, 6px left margin
 - Font-size: `clamp(10px, 1.1vw, 13px)` - scales with viewport
 - SVG `pad.right = 12` (no inline labels)
 - `.ladder-wrap` has `padding-right: 36px` to reserve space for the overlay
+
+#### Axis-label alignment (LOCKED 2026-08-09 - misalignment bug)
+
+The labels live in CSS-pixel space; the bars live in a viewBox that is scaled to fit the container width (`width: 100%` + `preserveAspectRatio: xMidYMid meet`). Those two coordinate systems only stay aligned if the overlay is sized and positioned so that "x% down the overlay" always equals "x% down the rendered SVG". Three rules make that hold; breaking any one reproduces a real, shipped bug where the labels slid off their bars, worse as the window narrowed:
+
+1. **Never give `#strata-axis` a pixel height.** It must stretch to the frame via CSS `top: 0; bottom: 0` (the frame's height *is* the rendered SVG height, since the frame contains only the SVG). Setting `axisEl.style.height = CHART.vh + "px"` is the primary bug: `CHART.vh` is in viewBox units and is constant, but the rendered SVG shrinks with width, so the overlay and the chart end up different heights and every label drifts. At the reference width the two happen to be close, so the bug hides on a desktop and only becomes obvious on a narrow viewport. If you catch yourself assigning a px height to the axis element, stop.
+
+2. **Position each label at the band CENTER as a percentage of `vh`, with no literal-px term.** The label's `top` is `((pad.top + fromTop*BAND_HEIGHT + BAND_HEIGHT/2) / CHART.vh) * 100 + "%"`. Pair it with `transform: translateY(-50%)` on `.strata-label` so the glyph is centered on that line. Do NOT anchor to the band's top edge (`pad.top + fromTop*BAND_HEIGHT`, missing the `+ BAND_HEIGHT/2`) - that puts every label half a band too high. Do NOT add a fixed `+Npx` nudge (`calc(${pct}% + 6px)`): a px term does not scale with the SVG, so it is wrong at every width and wrong by a *different* amount at each width, which is exactly the visible drift-on-resize signature.
+
+3. **Use the same `fromTop` inversion the bars use.** Bands are stored low-to-high (`DATA.strata_bands[0]` is the lowest rank), but the SVG y-axis grows downward, so both the bar y (`yForRank`) and the label y must invert via `fromTop = strata_bands.length - 1 - i`. If one inverts and the other doesn't, the labels come out mirrored top-to-bottom.
+
+Canonical overlay block:
+
+```javascript
+const axisEl = document.getElementById("strata-axis");   // CSS: position:absolute; top:0; bottom:0  (NO height set here)
+DATA.strata_bands.forEach((b, i) => {
+  const fromTop = DATA.strata_bands.length - 1 - i;                       // same inversion as yForRank
+  const center  = CHART.pad.top + fromTop * CHART.BAND_HEIGHT + CHART.BAND_HEIGHT / 2;
+  const pct     = (center / CHART.vh) * 100;                              // % of viewBox height == % of rendered height
+  const div = document.createElement("div");
+  div.className = "strata-label";
+  div.style.top = pct + "%";                                             // no "+ Npx"
+  div.textContent = b.code;
+  axisEl.appendChild(div);
+});
+```
+
+with `.strata-label { position:absolute; transform:translateY(-50%); ... }`.
+
+**Verification (do this before delivering any chart):** the labels must line up with the bars *and stay lined up when the browser window is resized narrower*. Resize-drift is the signature of this bug - if a label sits on its band at full width but slides off when you shrink the window, a px height or a px offset has crept back in. If you can render the HTML, screenshot the chart at both a wide (~900px) and a narrow (~480px) width and confirm each bar sits in the row its label names at both sizes.
 
 ### Same-employer staircase
 - When 2+ roles share a `company` value → render faint gray staircase behind the bars

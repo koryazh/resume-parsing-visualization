@@ -12,7 +12,7 @@ The page has two co-equal halves:
 
 1. **Chart card** (top, sticky) - an interactive infographic showing the candidate's career progression as bars across two axes:
    - **X** = time (year)
-   - **Y** = strata (career level: P2 Junior through C-Level)
+   - **Y** = strata (career level: P1 Entry Professional through C-Level)
    - **Bar width** = role duration
    - **Bar color/stripes** = professional sphere(s) the role contributed to
 
@@ -146,10 +146,13 @@ The renderer expects a structured JSON of the shape below. Treat the schema as a
 }
 ```
 
-### Strata rank reference (12-level ladder, low → high)
+### Strata rank reference (13-level ladder, low → high)
+
+Ranks run **0 through 12 inclusive**. Rank 0 (`P1`) was added in leveling-framework v3.0 (2026-08-09); ranks 1-12 were deliberately left unrenumbered so every previously generated `structured.json` and chart axis stays valid. Never treat rank 1 as the floor - a renderer that assumes a minimum rank of 1 will drop or mis-place any `P1` role.
 
 | Code | Name | Rank |
 |---|---|---|
+| P1 | Entry Professional | 0 |
 | P2 | Junior | 1 |
 | P3 | Middle | 2 |
 | P4 | Senior | 3 |
@@ -159,9 +162,11 @@ The renderer expects a structured JSON of the shape below. Treat the schema as a
 | M4 | Manager | 7 |
 | M5 | Director | 8 |
 | M6 | Senior Director | 9 |
-| E7 | VP | 10 |
-| E8 | SVP | 11 |
-| C | C-Level | 12 |
+| E7 | Vice President | 10 |
+| E8 | Senior Vice President | 11 |
+| C-Level | C-Level | 12 |
+
+Codes and names above are copied verbatim from `reference-data/leveling-framework.json` and are the canonical strings that appear in `strata.code` / `strata.name`. Note the top row in particular: the code is `C-Level`, not `C`. Shortened axis labels (`VP`, `SVP`, `C`) are fine as *display* text in the axis overlay, but never write the short form back into the JSON or match on it in renderer logic.
 
 The renderer reads `strata.rank` for Y-axis positioning. The codes/names are just labels.
 
@@ -378,11 +383,18 @@ CHART.vh          = CHART.plotH + CHART.pad.top + CHART.pad.bottom;
 
 ### 5.3 Strata bands (Y-axis)
 
-- Y-axis spans from the **lowest rank used by any role** to **max(peak_rank + 1, highest_band_used + 1)**.
+- Y-axis spans from the **lowest rank used by any on-chart role** to **max(peak_rank + 1, highest_band_used + 1)**.
 - Always include one empty band above the peak for visual breathing room.
 - Pass the strata bands list as `DATA.strata_bands` - an array of `{ code, name, rank }` entries ordered low-to-high.
 
 Each band renders as a thin horizontal lane in the chart with a dotted grid background. Empty bands (no roles at that rank but within the span range) still render and contribute to the y-axis hierarchy.
+
+**Floor and ceiling (UPDATED 2026-08-09, framework v3.0):**
+
+- The floor is whatever the lowest on-chart role's rank actually is - **including rank 0 (`P1`)**. Do not clamp, offset, or `Math.max(..., 1)` the floor. A candidate whose career starts in a title-gated intern/trainee role legitimately has a rank-0 band as the bottom of their chart.
+- Because the floor can be 0, any band-index arithmetic must be written as `rank - floorRank`, never as `rank - 1`. A hardcoded `- 1` silently shifts every bar down one band on P1-containing charts and pushes a rank-0 bar off the bottom of the plot area entirely.
+- The one-empty-band-above rule is **clamped at the ceiling**: `topRank = Math.min(12, Math.max(peak_rank + 1, highest_band_used + 1))`. For a C-Level candidate (peak rank 12) there is no rank 13 to render, so the chart tops out at the C-Level band with no breathing room above it. Do not synthesize a phantom band.
+- There is no matching clamp at the bottom: the breathing-room band is only ever added above the peak, never below the floor, so a rank-0 floor needs no special handling beyond not clamping it.
 
 ### 5.4 Strata axis overlay
 
@@ -393,6 +405,14 @@ Each band renders as a thin horizontal lane in the chart with a dotted grid back
 - `.ladder-wrap` has `padding-right: 36px` to reserve space for the overlay so bars never slide under the labels.
 
 This overlay pattern (rather than SVG-inline labels) makes the labels resolution-independent and easier to style with CSS.
+
+**Alignment across the two coordinate systems (LOCKED 2026-08-09).** The labels are HTML in CSS-pixel space; the bars are SVG in a viewBox that is scaled to the container width by `width: 100%` + `preserveAspectRatio: xMidYMid meet`. Keeping the two aligned at every viewport width requires that the overlay track the *rendered* SVG, not the viewBox constants. Three rules, each corresponding to a way a real chart shipped misaligned:
+
+1. **Do not set a pixel height on `#strata-axis`.** Let it stretch to the frame with CSS `top: 0; bottom: 0`; the frame contains only the SVG, so the overlay inherits the rendered SVG height. Assigning `axisEl.style.height = vh + "px"` pins the overlay to a constant viewBox-unit height while the rendered SVG shrinks with width - the two diverge and every label drifts, mildly at the reference width and severely on narrow viewports.
+2. **Anchor labels to the band center as a percentage of `vh`, never with a literal-px term.** `top = ((pad.top + fromTop*BAND_HEIGHT + BAND_HEIGHT/2) / vh) * 100 + "%"`, combined with `transform: translateY(-50%)` on the label. A missing `+ BAND_HEIGHT/2` anchors to the band's top edge (labels half a band high); a `calc(% + 6px)` nudge does not scale with the SVG and produces width-dependent drift.
+3. **Invert the band index the same way the bars do** (`fromTop = strata_bands.length - 1 - i`), since bands are stored low-to-high but SVG y grows downward. Inverting in one place and not the other mirrors the labels.
+
+The diagnostic signature of a violation is *resize drift*: labels that sit on their bars at desktop width but slide off as the window narrows. Verify by screenshotting the chart at ~900px and ~480px and confirming each bar sits in the row its label names at both sizes.
 
 ### 5.5 Same-employer staircase
 
@@ -507,18 +527,24 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 - **Adding composed status to the hero** (relocation preference, headline, objective): hero rule is strict.
 - **Putting the tooltip inside `.ladder-wrap`**: it must be a direct child of `.chart-card` for positioning math to work.
 - **Inferring a multi-family weight breakdown for a single-sentence role**: not enough data; render solid.
+- **Setting a pixel height on `#strata-axis`** (e.g. `axisEl.style.height = vh + "px"`): pins the label overlay to viewBox units while the rendered SVG scales with width, so the labels drift off the bars - worse as the window narrows. Let CSS `top:0; bottom:0` size it. See §5.4.
+- **A literal-px term in a strata label's `top`** (e.g. `calc(${pct}% + 6px)`): the px part doesn't scale with the SVG, causing width-dependent misalignment. Use a pure `%` of the band center plus `translateY(-50%)`. See §5.4.
+- **Anchoring strata labels to the band top edge instead of the center**: omit the `+ BAND_HEIGHT/2` and every label sits half a band too high.
 
 ---
 
 ## 9. Version & contract
 
-- Spec version: 1.2
+- Spec version: 1.4
 - JSON schema version this targets: `1.0`
+- Leveling framework version this targets: `3.0` (13 levels, ranks 0-12)
 - Backward-compatible JSON additions (schema v1.1 with new optional fields) should be ignored gracefully by the renderer.
 - Breaking schema changes (schema v2.0) require synchronized renderer updates.
 
 ### Changelog
 
+- **1.4 (2026-08-09):** Locked the strata axis-overlay alignment rules (§5.4) after a shipped chart rendered its Y-axis labels misaligned with the bars. Root cause: the overlay was given a pixel height in viewBox units (`axisEl.style.height = vh + "px"`) while the SVG scales to the container width, plus labels were anchored to the band top edge with a literal `+6px` nudge. All three are now called out as anti-patterns; the fix positions labels at the band center as a pure percentage of `vh` with `translateY(-50%)` and lets CSS `top:0; bottom:0` size the overlay. Added a resize-drift verification step.
+- **1.3 (2026-08-09):** Aligned the rendering spec with leveling-framework v3.0. The rank reference table was still a 12-level ladder starting at P2/rank 1 and omitted `P1 Entry Professional` (rank 0) entirely, so a parsed P1 role had no defined rendering. Added the P1 row, documented the 0-12 rank range, and added explicit floor/ceiling rules to §5.3: never clamp the floor to 1, compute band indices as `rank - floorRank`, and clamp the breathing-room band at rank 12. Also corrected the top-level code from `C` to `C-Level` and the E7/E8 names to their canonical framework strings.
 - **1.2 (2026-07-19):** Default bar encoding changed from weight-proportional stripes to solid dominant-family-color (§5.7); the striped style remains a documented, legitimate alternate on request. Added page density & dividers guidance (§3): centered hero, dividers only under Experience/Education/Tech Stack section headers, centered/tight tenure header with a fixed wording pattern.
 - **1.1 (2026-07-18):** Fixed the parked same-employer staircase gap. End dates now use `endOfMonth` (month, not month-1) instead of reusing the start-date convention - see §5.2 and §5.5. Also reconciled §5.5's arc-detection description with the already-locked (2026-06-08) group-by-company logic; the spec had drifted out of sync with the SKILL.md on this point.
 - **1.0:** Original spec.
