@@ -1,0 +1,48 @@
+Copyright (c) 2026 Artiom Koryagin. All rights reserved.
+
+PERMITTED USE
+
+You may download this software and its accompanying data files (the
+"Skill") and use it, in unmodified form, to process your own resume data
+for your own personal or internal business purposes. You may make copies
+as reasonably necessary for that use, including backups.
+
+RESERVED RIGHTS
+
+All other rights are reserved. Without prior written permission from the
+copyright holder, you may not:
+
+  1. Redistribute, publish, sublicense, sell, rent, or otherwise make the
+     Skill available to any third party, whether modified or unmodified,
+     and whether or not for a fee.
+
+  2. Create derivative works of the Skill, including modified or
+     translated versions of the leveling framework, the job family and
+     industry taxonomy, the JSON schema, or the visualization
+     specification.
+
+  3. Offer the Skill, or any service substantially based on it, as a
+     hosted, managed, or commercial service to third parties.
+
+  4. Remove or alter any copyright, attribution, or proprietary notice.
+
+NO PATENT LICENSE
+
+No license, express or implied, is granted to any patent, patent
+application, or other intellectual property right of the copyright
+holder, except as strictly necessary to exercise the permitted use
+described above. The copyright holder expressly reserves all patent
+rights in the methods, frameworks, and processes embodied in the Skill.
+
+NO WARRANTY
+
+THE SKILL IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+FROM, OUT OF, OR IN CONNECTION WITH THE SKILL OR THE USE OR OTHER
+DEALINGS IN THE SKILL.
+
+For permissions beyond the scope of this license, contact the copyright
+holder.

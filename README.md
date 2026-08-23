@@ -2,7 +2,23 @@
 
 A Claude skill that turns a resume PDF into a structured JSON career profile, then renders that profile as an interactive HTML career-ladder chart.
 
-This repository is the source of truth for the skill. Edit here, commit, then package with `./package.sh` to produce an installable zip.
+## Install
+
+Download the packaged skill from the latest release:
+
+**[Download the latest version](https://github.com/koryazh/resume-parsing-visualization/releases/latest/download/resume-parsing-visualization-skill.zip)**
+
+That link always resolves to the most recent release, so it is safe to bookmark or share.
+
+Then add it to Claude:
+
+1. Open Claude's settings and go to Capabilities, then Skills.
+2. Choose to upload a skill and select the downloaded `.zip`.
+3. The skill appears as `resume-parsing-visualization` and is available in new conversations.
+
+Ask Claude to parse a resume PDF, or to render a chart from a structured JSON you already have, and it will pick up the skill automatically.
+
+**Do not use the green "Code" button's "Download ZIP".** That produces a source archive with the branch name appended to the folder and repository scaffolding included, which is not a valid skill package. Use the release link above.
 
 ## What it does
 
@@ -40,7 +56,7 @@ docs/how-visualization-works.md             reader-facing explainer for someone 
 |---|---|---|
 | JSON schema | 1.0 | Contract between the two phases. Additive fields are fine; breaking changes need a bump. |
 | Leveling framework | 3.0 | 13 levels, 7 dimensions each, plus `example_titles` and `title_traps` per level. |
-| Job family taxonomy | 2.0 | 35 families anchored on O*NET-SOC major groups, 27 industries. |
+| Job family taxonomy | 2.0 | 35 families anchored on O*NET-SOC major groups, 28 industries. |
 | Visualization spec | 1.6 | Solid dominant-family-color bars by default. Rank range 0-12; axis-overlay alignment rules locked; C-Level peak-label collapse and boomerang-re-engagement company notes added. |
 
 Rank contract: P1 sits at rank 0, added in v3.0. Ranks 1 through 12 are stable and must never be renumbered, because every previously generated `structured.json` encodes them.
@@ -72,10 +88,22 @@ Run it between the two phases and after any hand-edit of the JSON. Exit 0 means 
 
 After changing the schema, the validator, or either reference-data file, run `python3 scripts/test_validator.py`. It breaks the bundled fixture 16 different ways and asserts each one is caught, which is what tells you the fixture has gone stale.
 
-## Packaging
+## License
+
+Copyright (c) 2026 Artiom Koryagin. All rights reserved. See [LICENSE](LICENSE).
+
+You may download and use this skill, unmodified, to process your own resume data for personal or internal business purposes. Redistribution, derivative works, and offering it as a service require written permission. No patent rights are granted.
+
+If you want to use this beyond those terms, get in touch.
+
+## For maintainers
+
+This repository is the source of truth for the skill. Edit here, commit, then package:
 
 ```bash
 ./package.sh
 ```
 
-Produces `dist/resume-parsing-visualization-skill-YYYY-MM-DD-HHMM.zip`, matching the naming convention already in use, with macOS cruft excluded.
+That writes two files into `dist/`: a timestamped build record, `resume-parsing-visualization-skill-YYYY-MM-DD-HHMM.zip`, and a constant-named copy, `resume-parsing-visualization-skill.zip`, which is the one to attach to a GitHub release. The asset name must stay constant or the permanent `releases/latest/download/` link above breaks. macOS cruft is excluded from both.
+
+Publishing a new version means cutting a release with that asset attached, not committing a zip to the repository. The full release protocol lives in the separate `resume-skill-release` skill.

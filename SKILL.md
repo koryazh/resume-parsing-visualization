@@ -24,7 +24,7 @@ Both phases are built around one JSON contract, defined in full in `reference/pa
 ## Scripts
 
 - `scripts/validate_structured_json.py` - validates a `structured.json` against schema v1.0 and cross-checks it against both reference-data files. **Run this between the two phases**, and again after any hand-edit of the JSON. Exit 0 = contract holds; exit 1 = Phase 2 would render incorrectly. Add `--strict` to fail on warnings, `--json` for machine-readable output. Standard library only, no install step.
-- `scripts/test_validator.py` - self-test for the validator. Run it after changing the schema, the validator, or either reference-data file; it breaks the bundled fixture 15 different ways and asserts each is caught. If a schema change makes the fixture stale, this is what tells you.
+- `scripts/test_validator.py` - self-test for the validator. Run it after changing the schema, the validator, or either reference-data file; it breaks the bundled fixture 16 different ways and asserts each is caught. If a schema change makes the fixture stale, this is what tells you.
 
 ## Reference data (used by Phase 1)
 
