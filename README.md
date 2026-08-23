@@ -106,4 +106,4 @@ This repository is the source of truth for the skill. Edit here, commit, then pa
 
 That writes two files into `dist/`: a timestamped build record, `resume-parsing-visualization-skill-YYYY-MM-DD-HHMM.zip`, and a constant-named copy, `resume-parsing-visualization-skill.zip`, which is the one to attach to a GitHub release. The asset name must stay constant or the permanent `releases/latest/download/` link above breaks. macOS cruft is excluded from both.
 
-Publishing a new version means cutting a release with that asset attached, not committing a zip to the repository. The full release protocol lives in the separate `resume-skill-release` skill.
+Publishing a new version means cutting a release with that asset attached, not committing a zip to the repository. The full release protocol lives in the separate `resume-par-vis-skill-release` skill.
