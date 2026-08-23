@@ -90,7 +90,7 @@ After changing the schema, the validator, or either reference-data file, run `py
 
 ## License
 
-Copyright (c) 2026 Artiom Koryagin. All rights reserved. See [LICENSE](LICENSE).
+Copyright (c) 2026 Anton Nadey. All rights reserved. See [LICENSE](LICENSE).
 
 You may download and use this skill, unmodified, to process your own resume data for personal or internal business purposes. Redistribution, derivative works, and offering it as a service require written permission. No patent rights are granted.
 
