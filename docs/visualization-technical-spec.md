@@ -166,7 +166,9 @@ Ranks run **0 through 12 inclusive**. Rank 0 (`P1`) was added in leveling-framew
 | E8 | Senior Vice President | 11 |
 | C-Level | C-Level | 12 |
 
-Codes and names above are copied verbatim from `reference-data/leveling-framework.json` and are the canonical strings that appear in `strata.code` / `strata.name`. Note the top row in particular: the code is `C-Level`, not `C`. Shortened axis labels (`VP`, `SVP`, `C`) are fine as *display* text in the axis overlay, but never write the short form back into the JSON or match on it in renderer logic.
+Codes and names above are copied verbatim from `reference-data/leveling-framework.json` and are the canonical strings that appear in `strata.code` / `strata.name`. Note the top row in particular: the code is `C-Level`, not `C` - that string must never change at the data layer (JSON, `DATA.strata_bands`, any comparison or lookup).
+
+At the axis-label level, though, `C-Level` is the one code that's noticeably wider than the rest of the column (7 characters vs. the 2-3 of every other rank, since it doubles as its own name) - render it shortened to `C` in the `#strata-axis` overlay specifically (§5.4). This is a display-only substitution made at the point the label's `textContent` is set; it must not leak into the data or into any renderer comparison.
 
 The renderer reads `strata.rank` for Y-axis positioning. The codes/names are just labels.
 
@@ -215,6 +217,7 @@ The HTML is a single self-contained file. Sections in order from top to bottom:
 - Hero is center-aligned: name, contacts row, and location line all `text-align: center`. Tight padding (~20px top, ~12px bottom reference values); ~6px gap between name and contacts row.
 - Divider lines (`border-bottom`) appear ONLY under the three section headers **Experience**, **Education**, **Tech Stack** (`.section-title`). No divider between individual role articles (whitespace/padding only), none between hero and chart card, none between chart card and Experience.
 - Tenure header (stats row above the chart): center-aligned, both stat lines at the SAME font size (12px reference), bold applied only to the numeric values via `<b>` - not the whole line. Wording: `Career path span <b>X years Y months</b> · <b>N roles</b> · <b>M employers</b>` then `Peak job level · <b>CODE Name</b>` on the next line. Bottom padding on this row is kept near-zero so it reads as directly attached to the chart below it.
+  - **C-Level exception (added spec v1.6)**: `CODE Name` renders as `C-Level C-Level` if built naively, since `strata.code` and `strata.name` are the identical string at that one rank. Render the peak line as just `C-Level` (once) when `peak_strata.code === peak_strata.name`; otherwise `code + " " + name` as normal. Do not apply the axis overlay's `C-Level` → `C` shortening (§5.4) here - the tenure header has room for the full word.
 
 ---
 
@@ -284,6 +287,7 @@ Adding sections without confirmation breaks user expectations and clutters the p
 
 - When `company_history_note` is populated (mid-employment rename like SoftwareHaus → ThePayPortal → CheckoutGate), render the rename history as a small italic line under the company name on the most-recent role at that employer.
 - When `title_history_note` is populated (consolidated multi-title entries), render the title history as a small italic line under the company name.
+- **Boomerang re-engagement (added spec v1.6)**: when Phase 1 has flagged a role as a non-adjacent return to an employer the candidate worked for earlier in a different role (see `reference/parsing.md`'s "Boomerang re-engagement" edge case), render a small italic line under the company name naming the earlier stint's title and dates (e.g. "Second engagement - previously Senior Data Scientist, Mar 2016 - Nov 2017"), same visual treatment as `company_history_note`. Without it, the same-employer staircase (§5.5, which groups by `company` across the whole role list regardless of adjacency) can read as one continuous tenure when the two stints are actually years apart.
 
 ### 4.7 Off-chart roles
 
@@ -403,6 +407,7 @@ Each band renders as a thin horizontal lane in the chart with a dotted grid back
 - Font-size: `clamp(10px, 1.1vw, 13px)` - scales with viewport.
 - SVG `pad.right` is 12 (no inline labels - labels live in the overlay column).
 - `.ladder-wrap` has `padding-right: 36px` to reserve space for the overlay so bars never slide under the labels.
+- **`C-Level` shortens to `C` (UPDATED 2026-08-23).** Every other code in the column is 2-3 characters; `C-Level` is 7 and is the one rank where `code` and `name` are identical, so it reads redundantly long next to `P6` or `M4`. Shorten it at the point the label text is assigned: `div.textContent = b.code === "C-Level" ? "C" : b.code;`. `DATA.strata_bands` itself, and the JSON's `strata.code`, keep the full `C-Level` string - this substitution is display-only.
 
 This overlay pattern (rather than SVG-inline labels) makes the labels resolution-independent and easier to style with CSS.
 
@@ -535,7 +540,7 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ## 9. Version & contract
 
-- Spec version: 1.4
+- Spec version: 1.6
 - JSON schema version this targets: `1.0`
 - Leveling framework version this targets: `3.0` (13 levels, ranks 0-12)
 - Backward-compatible JSON additions (schema v1.1 with new optional fields) should be ignored gracefully by the renderer.
@@ -543,6 +548,8 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ### Changelog
 
+- **1.6 (2026-08-23):** Two fixes from a real-world test parse (a CTO candidate with a peak C-Level role and a boomerang return to a former employer). (1) Tenure header (§3): the locked `Peak job level · CODE Name` wording pattern renders as the visibly duplicated `C-Level C-Level` for any C-Level candidate, since `code` and `name` are the identical string at that rank - added the one-line exception to print `C-Level` just once. (2) Company name rendering (§4.6): added a rendering rule for boomerang re-engagements (a candidate returning to a former employer years later, in a different role, with other employers in between) - render a small italic note under the company name on the more recent stint, matching `company_history_note`'s treatment, since the same-employer staircase (§5.5) otherwise draws what looks like one continuous tenure. See `reference/parsing.md`'s companion edge case for how Phase 1 flags this.
+- **1.5 (2026-08-23):** The axis-overlay renderer (§5.4) never actually implemented the display-only shortening the spec already permitted for `C-Level` (§ Strata rank reference) - `div.textContent = b.code` printed the full 7-character string, which stands out against the 2-3 character codes on every other row. Added the concrete substitution (`b.code === "C-Level" ? "C" : b.code`) at the point the label text is set, in both this doc and `reference/visualization.md`'s canonical overlay block. The underlying data (`DATA.strata_bands`, `strata.code` in the JSON) is unchanged and must stay `C-Level`.
 - **1.4 (2026-08-09):** Locked the strata axis-overlay alignment rules (§5.4) after a shipped chart rendered its Y-axis labels misaligned with the bars. Root cause: the overlay was given a pixel height in viewBox units (`axisEl.style.height = vh + "px"`) while the SVG scales to the container width, plus labels were anchored to the band top edge with a literal `+6px` nudge. All three are now called out as anti-patterns; the fix positions labels at the band center as a pure percentage of `vh` with `translateY(-50%)` and lets CSS `top:0; bottom:0` size the overlay. Added a resize-drift verification step.
 - **1.3 (2026-08-09):** Aligned the rendering spec with leveling-framework v3.0. The rank reference table was still a 12-level ladder starting at P2/rank 1 and omitted `P1 Entry Professional` (rank 0) entirely, so a parsed P1 role had no defined rendering. Added the P1 row, documented the 0-12 rank range, and added explicit floor/ceiling rules to §5.3: never clamp the floor to 1, compute band indices as `rank - floorRank`, and clamp the breathing-room band at rank 12. Also corrected the top-level code from `C` to `C-Level` and the E7/E8 names to their canonical framework strings.
 - **1.2 (2026-07-19):** Default bar encoding changed from weight-proportional stripes to solid dominant-family-color (§5.7); the striped style remains a documented, legitimate alternate on request. Added page density & dividers guidance (§3): centered hero, dividers only under Experience/Education/Tech Stack section headers, centered/tight tenure header with a fixed wording pattern.

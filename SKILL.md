@@ -34,7 +34,7 @@ Both phases are built around one JSON contract, defined in full in `reference/pa
 
 ## Companion docs (used by / about Phase 2)
 
-- `docs/visualization-technical-spec.md` - the portable technical spec for the visualization phase; also useful outside this skill system. Current version 1.2 (2026-07-19): default bar encoding is solid dominant-family-color (striped remains a documented alternate), plus locked page-density/divider/hero-alignment defaults.
+- `docs/visualization-technical-spec.md` - the portable technical spec for the visualization phase; also useful outside this skill system. Current version 1.6 (2026-08-23): the tenure header's peak-level line collapses `C-Level C-Level` to a single `C-Level` for C-Level candidates, and company-name rendering now covers boomerang re-engagements (an italic note under the company name for a non-adjacent return to a former employer) - on top of v1.5's `C-Level` → `C` axis-overlay shortening, v1.2's default solid dominant-family-color bar encoding (striped remains a documented alternate), and locked page-density/divider/hero-alignment defaults.
 - `docs/how-visualization-works.md` - reader-facing narrative explaining the rendered chart to someone opening it for the first time (e.g. a hiring manager). Not required reading for Claude to do the rendering, but good to point a user at if they ask what the chart means.
 
 ## Versioning & contract stability

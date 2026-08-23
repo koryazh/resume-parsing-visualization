@@ -1131,6 +1131,11 @@
    "description": "Agriculture, meat/food processing, FMCG manufacturing and wholesale. Added 2026-07-19 during a real-world test parse (a multi-industry agroholding employer: agriculture, meat processing, FMCG wholesale) where no existing industry fit."
   },
   {
+   "id": "professional_services",
+   "name": "Professional Services & Agencies",
+   "description": "Consulting firms, marketing/creative/digital agencies, and outsourced professional-services providers who deliver work on behalf of client organizations. Added 2026-08-17 during a parse of a marketing executive's resume: two employers were a martech/agency-services firm and a boutique marketing consultancy, and no existing industry fit (technology_software describes product companies; staffing_recruiting is a different service line)."
+  },
+  {
    "id": "energy_oil_gas",
    "name": "Energy, Oil & Gas",
    "description": "Energy production, distribution, and related services, covering oil and gas, utilities, and renewables. Re-added 2026-08-09: this industry was present in an earlier snapshot of this taxonomy and absent from a later revision."

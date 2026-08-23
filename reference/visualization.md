@@ -48,12 +48,14 @@ These rules govern the textual half. They exist to preserve candidate voice and 
    - Do NOT render a divider between the hero and the chart card, or between the chart card and the Experience section.
    - Hero padding: tight top/bottom (~20px top, ~12px bottom is the reference value); name-to-contacts gap ~6px.
    - Tenure header (the stats row above the chart): center-aligned, both stat lines rendered at the SAME font size (12px reference value) with bold applied only to the actual numbers/values via `<b>`, not to the whole line. Wording pattern: `Career path span <b>X years Y months</b> · <b>N roles</b> · <b>M employers</b>` on one line, `Peak job level · <b>CODE Name</b>` on the next.
+     - **C-Level peak-label exception (NEW 2026-08-23)**: `CODE Name` is `C-Level C-Level` when the peak is C-Level, since that's the one rank where `strata.code` and `strata.name` are the identical string. Render just `C-Level` once for the peak line when `peak_strata.code === peak_strata.name` (i.e. `code + " " + name` only when they differ). Do not fix this by shortening the code the way the axis overlay does (§ Strata axis overlay) - the tenure header has room for the full word and shortening it to `C` there would read as a typo, not a label.
    - Keep the gap between the tenure header and the chart itself very small (near-zero bottom padding on the tenure header) so the stats read as clearly belonging to the chart directly below them, not as a separate block.
 4. **Education dates are NEVER rendered**, even if they appear in the JSON. Protects against age-based screening.
 5. **Section conservatism**: render by default only Hero, Chart Card, Experience, Education. Conditional sections: Tech Stack (if JSON has data AND candidate is tech-adjacent), Honors (if JSON has data). NEVER render by default: Languages, Top Skills, Personal Characteristics, Interests, Driver's License, References - only on explicit user request.
 6. **Company name rendering**:
    - `company_history_note` (mid-employment renames like "SoftwareHaus → ThePayPortal") → small italic line under the company name on the most-recent role at that employer
    - `title_history_note` (consolidated multi-title entries) → small italic line
+   - **Boomerang re-engagement (NEW 2026-08-23)**: when a role's `connector` (or its `data_quality` audit trail from Phase 1 - see `reference/parsing.md`'s "Boomerang re-engagement" edge case) marks it as a non-adjacent return to an employer the candidate worked for earlier in a different role, render a small italic line under the company name naming the earlier stint's title and dates (e.g. "Second engagement - previously Senior Data Scientist, Mar 2016 - Nov 2017"), same visual treatment as `company_history_note`. This is a readability aid for the same-employer staircase (§ Same-employer staircase), which will otherwise draw a continuous-looking arc across two stints that are actually years apart with other employers in between.
 7. **Off-chart roles** (`render_policy.on_chart === false` AND `in_experience_text === true`): render normally in Experience section, exclude from chart DATA.roles.
 8. **Internships** (optional array): render as a compact sub-block within Experience, NOT on the chart.
 
@@ -101,7 +103,8 @@ Start dates and end dates are NOT symmetric. A role starting in month M begins a
 - Never clamp the floor (`Math.max(minRank, 1)` is a bug). A candidate whose earliest on-chart role is a title-gated intern/trainee role has a legitimate rank-0 band.
 - Band-index arithmetic must be `rank - floorRank`, never `rank - 1`. A hardcoded `- 1` shifts every bar down one band and pushes rank-0 bars off the bottom of the plot.
 - Clamp the breathing-room band at the top: `topRank = Math.min(12, Math.max(peakRank + 1, highestBandUsed + 1))`. A C-Level candidate (rank 12) tops out at the C-Level band - don't synthesize a rank-13 band.
-- `strata.code` for the top level is the string `C-Level`, not `C`. Short axis labels are fine as display text; don't match renderer logic against the short form.
+- `strata.code` for the top level is the string `C-Level` in the data - `DATA.strata_bands`, the JSON's `strata.code`, anything a comparison or lookup touches. Never rename it to `C` at the data layer.
+- **Axis display only (UPDATED 2026-08-23):** the `C-Level` code is 7 characters against a column sized for 2-3 character codes (`P2`, `M4`, `E8`...) and it's the one code where the string doubles as its own name, so render it shortened as `C` in the strata-axis label - swap it in at the point the label text is set, never upstream of that. See the canonical overlay block below.
 
 ```javascript
 const ranks       = DATA.roles.map(r => r.strata.rank);
@@ -139,7 +142,7 @@ DATA.strata_bands.forEach((b, i) => {
   const div = document.createElement("div");
   div.className = "strata-label";
   div.style.top = pct + "%";                                             // no "+ Npx"
-  div.textContent = b.code;
+  div.textContent = b.code === "C-Level" ? "C" : b.code;                  // display-only shortening; b.code itself stays "C-Level"
   axisEl.appendChild(div);
 });
 ```
