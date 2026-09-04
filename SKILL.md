@@ -3,6 +3,23 @@ name: resume-parsing-visualization
 description: Turn a resume PDF into a structured JSON career profile with leveling and job-family weights, then render it as an interactive HTML career-ladder chart. Use for either phase, or the full pipeline.
 ---
 
+## Version
+
+**Skill version 1.9, updated 2026-09-04.**
+
+This is the same number as the GitHub release tag (`v1.9`) and the visualization spec, which is the component that moves most often. It is deliberately not a fourth independent version to keep in sync. The components below move on their own schedules:
+
+| Component | Version |
+|---|---|
+| JSON schema | 1.0 |
+| Leveling framework | 3.0 (13 levels, ranks 0-12) |
+| Job family taxonomy | 2.0 (35 families, 28 industries) |
+| Visualization spec | 1.9 |
+
+If a release bumps the leveling framework, schema, or taxonomy without touching the visualization spec, increment the skill version anyway and state in the release notes which component actually moved, because the tag alone will not convey it. See `Versioning & contract stability` below for what each component version means and when to bump it.
+
+**Update the line above in the same commit that bumps any component.** A stale version stamp is worse than no version stamp, because it is the first thing a reader trusts and the last thing they re-check.
+
 ## Overview
 
 A two-phase pipeline in one skill: **Phase 1 (parsing)** converts a candidate's resume PDF into a structured JSON file with full career metadata - leveling, professional-sphere weights, industry, render policy, and audit trail. **Phase 2 (visualization)** renders that JSON as a single self-contained HTML file - a sticky interactive career-ladder chart on top, the full textual resume below. The JSON schema (v1.0) is the contract between the two phases.
