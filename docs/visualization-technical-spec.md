@@ -315,7 +315,21 @@ When `candidate.career_synthesis` is present, render it between the hero and the
 
 ### 4.10 Attribution banner (NEW 2026-09-04, spec v1.7)
 
-A full-bleed band at the very top of the page, above the hero, naming the skill and the copyright holder, with the holder's name linked to the skill's repository. It fades and collapses to zero height after 7 seconds and honours `prefers-reduced-motion` by skipping the transition.
+A full-bleed band at the very top of the page, above the hero. It fades and collapses to zero height after 7 seconds and honours `prefers-reduced-motion` by skipping the transition.
+
+**The banner text and link are fixed (LOCKED 2026-09-04). Do not compose them and do not infer the holder from context.** Copy this markup:
+
+```html
+<div class="topbanner" id="topbanner" role="note">
+  This resume visualization was created using an AI skill.
+  &copy; <a href="https://github.com/koryazh/resume-parsing-visualization" target="_blank" rel="noopener">Anton Nadey</a>
+</div>
+```
+
+- **The copyright holder is Anton Nadey. The repository is `github.com/koryazh/resume-parsing-visualization`.**
+- **Never attribute this skill to Anthropic**, and never link it to `github.com/anthropics/skills` or any other repository. This is not an Anthropic product. Getting it wrong asserts someone else's copyright over the holder's work, which is why the wording is locked rather than left to judgement.
+- The name is repeated here on purpose: `LICENSE` is the only other file in the package carrying it, and the rendering phase never reads `LICENSE`. Do not go looking for it elsewhere.
+- Everything other than the text and the link remains a customizable default. An adopter may restyle it, retime it, or delete it, and it must not be re-added once removed. What is locked is that a rendered banner carries these words and this link.
 
 - Collapse via a class setting `opacity:0; max-height:0` with `overflow:hidden` and zeroed padding.
 - Do NOT chain the hide to a `transitionend` listener. Under `prefers-reduced-motion` there is no transition and therefore no event, so cleanup attached to it silently never runs.
@@ -333,6 +347,29 @@ A `Save as PDF` control beside the synthesis toggle, calling `window.print()`.
 - Page-break rules: keep `.role-head` with the content after it, keep section titles with their section, keep individual bullets unsplit. Do NOT set `break-inside: avoid` on `.role` itself; a role with twenty-plus bullets is taller than a page, so the rule is either ignored or forces a mostly empty page.
 - **Browser headers and footers** (the date/title line, the URL/page-number line) are painted by the browser, not the page, and CSS cannot remove them directly. `@page{margin:0}` leaves no margin to paint them into, which suppresses them in Chrome. Treat this as best-effort; the guaranteed control is the reader unchecking "Headers and footers" in the print dialog.
 - With `@page` margin at zero, page margins come from padding on `body`. Consequence to record: body padding applies to the top of the first page and the bottom of the last, not to the top and bottom edges of intermediate pages. Keep first-page top padding small (5mm reference, with the hero's own top padding zeroed for print) so page 1 matches the rest rather than standing out.
+
+**Canonical print block (copy this; do not reconstruct it from the rules above).** Every rule in this section is encoded here, including the two most often dropped: excluding `.role-summary`, and setting `.role` to `break-inside: auto` rather than `avoid`.
+
+```css
+@media print{
+  @page{margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body{background:#fff}
+  body{padding:5mm 12mm 14mm}
+  .hero{padding-top:0}
+  /* Both tiers of AI synthesis panel, the banner, and all interactive chrome. */
+  .topbanner,.career-synth,.role-summary,.hint,#tooltip{display:none!important}
+  .chart-card{position:static!important;break-inside:avoid;page-break-inside:avoid}
+  .section-title{break-after:avoid;page-break-after:avoid}
+  .role-head{break-after:avoid;page-break-after:avoid}
+  /* MUST be auto. `avoid` on a role taller than a page empties the page before it. */
+  .role{break-inside:auto;page-break-inside:auto;padding-bottom:16px}
+  .role-bullets li{break-inside:avoid;page-break-inside:avoid}
+  footer{break-inside:avoid}
+}
+```
+
+Match the selector names to whatever the page actually uses. What must not change is which categories of element each rule targets.
 
 ---
 
@@ -568,12 +605,15 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 - **Setting a pixel height on `#strata-axis`** (e.g. `axisEl.style.height = vh + "px"`): pins the label overlay to viewBox units while the rendered SVG scales with width, so the labels drift off the bars - worse as the window narrows. Let CSS `top:0; bottom:0` size it. See §5.4.
 - **A literal-px term in a strata label's `top`** (e.g. `calc(${pct}% + 6px)`): the px part doesn't scale with the SVG, causing width-dependent misalignment. Use a pure `%` of the band center plus `translateY(-50%)`. See §5.4.
 - **Anchoring strata labels to the band top edge instead of the center**: omit the `+ BAND_HEIGHT/2` and every label sits half a band too high.
+- **`break-inside: avoid` on a whole role article** (§4.11): a role with twenty-plus bullets is taller than a printed page, so the browser cannot honour the rule and instead pushes the entire role to the next page, leaving most of the preceding page blank. Observed in a real generated PDF: a 24-bullet role produced a page roughly two-thirds empty. Set `.role` to `break-inside: auto` explicitly and control pagination with `.role-head{break-after:avoid}` and `.role-bullets li{break-inside:avoid}` instead.
+- **Forgetting `.role-summary` in the print exclusion list** (§4.11): hiding only the full-career panel leaves every per-role AI synthesis block in the PDF, and their `::before` labels then orphan at page bottoms. Both tiers come out.
+- **Composing the attribution banner's text or link** (§4.10): the holder is Anton Nadey and the repository is `github.com/koryazh/resume-parsing-visualization`. A model with no other source has been observed defaulting to "© Anthropic" linked to `github.com/anthropics/skills`, which is wrong on both counts. Copy the locked markup.
 
 ---
 
 ## 9. Version & contract
 
-- Spec version: 1.7
+- Spec version: 1.8
 - JSON schema version this targets: `1.0`
 - Leveling framework version this targets: `3.0` (13 levels, ranks 0-12)
 - Backward-compatible JSON additions (schema v1.1 with new optional fields) should be ignored gracefully by the renderer.
@@ -581,6 +621,7 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ### Changelog
 
+- **1.8 (2026-09-04):** Two corrections after reviewing output generated by a clean install of v1.7, which exposed rules that read fine to an author but did not survive a fresh render. (1) Attribution banner (§4.10): v1.7 described the banner as naming "the copyright holder" without ever stating who, and the holder's name appears in no file the rendering phase reads (`LICENSE` carries it, but rendering never opens it, and `README.md` is not in the distributed package). A clean run defaulted to "© Anthropic" linked to `github.com/anthropics/skills`, misattributing the work. The exact markup, holder, and URL are now locked inline, with an explicit prohibition on attributing the skill to Anthropic. (2) Print stylesheet (§4.11): v1.7 stated the print rules as prose, and a clean run dropped two of them, setting `break-inside: avoid` on `.role` (producing a two-thirds-empty page after a 24-bullet role) and omitting `.role-summary` from the exclusion list (leaving per-role AI synthesis blocks in the PDF with orphaned labels). Added a canonical copy-paste print block, matching how the axis overlay and geometry rules are already specified, and recorded all three failures in §8. No behavioural change to a correct v1.7 implementation; this release makes the existing rules reproducible.
 - **1.7 (2026-09-04):** Three additions from a live design session on a real parse. (1) Full-career synthesis (§4.9): a new additive `candidate.career_synthesis` field composed by Phase 1 and rendered centered between the hero and the sticky chart card, collapsed by default behind an `aria-expanded` disclosure toggle, deliberately not persisted across reloads and deliberately outside the sticky card so an expanded panel does not consume half the viewport on every scroll. (2) Attribution banner (§4.10): a full-bleed top band naming the skill and copyright holder that self-collapses after 7 seconds, documented as a customizable default rather than a locked rule since adopters are expected to adapt or remove it; records the `transitionend` trap, where `prefers-reduced-motion` fires no transition so any cleanup chained to that event never runs. (3) Save as PDF (§4.11): a `window.print()` control plus a print stylesheet excluding the banner, both tiers of AI synthesis panel, and the interactive chrome. Records that silent one-click PDF saving is impossible without a bundled library that would violate §7, that print reveal/hide must be pure CSS rather than DOM mutation, that `print-color-adjust: exact` is required for the chart to keep its colours, that `break-inside: avoid` must not go on a role taller than a page, and that browser-drawn page headers and footers can only be suppressed indirectly via `@page{margin:0}`.
 
 - **1.6 (2026-08-23):** Two fixes from a real-world test parse (a CTO candidate with a peak C-Level role and a boomerang return to a former employer). (1) Tenure header (§3): the locked `Peak job level · CODE Name` wording pattern renders as the visibly duplicated `C-Level C-Level` for any C-Level candidate, since `code` and `name` are the identical string at that rank - added the one-line exception to print `C-Level` just once. (2) Company name rendering (§4.6): added a rendering rule for boomerang re-engagements (a candidate returning to a former employer years later, in a different role, with other employers in between) - render a small italic note under the company name on the more recent stint, matching `company_history_note`'s treatment, since the same-employer staircase (§5.5) otherwise draws what looks like one continuous tenure. See `reference/parsing.md`'s companion edge case for how Phase 1 flags this.

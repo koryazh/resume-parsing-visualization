@@ -66,7 +66,21 @@ These rules govern the textual half. They exist to preserve candidate voice and 
    - State is deliberately NOT persisted. Every load starts collapsed, including a reload, because the page is a document other people open rather than an app with per-reader preferences.
    - Keeping the block outside the sticky `.chart-card` is deliberate: inside it, an expanded panel pushes the always-visible region past half a laptop viewport on every scroll through the experience section.
 
-10. **Attribution banner (NEW 2026-09-04)**: a full-bleed band at the very top of the page, above the hero, naming the skill and the copyright holder, with the holder's name linked to the skill's repository. It fades and collapses to zero height after 7 seconds, and honours `prefers-reduced-motion` by skipping the transition.
+10. **Attribution banner (NEW 2026-09-04, wording LOCKED 2026-09-04)**: a full-bleed band at the very top of the page, above the hero. It fades and collapses to zero height after 7 seconds, and honours `prefers-reduced-motion` by skipping the transition.
+
+    **The banner text and link are fixed. Do not compose them, and do not infer the holder from context.** Copy this markup:
+
+    ```html
+    <div class="topbanner" id="topbanner" role="note">
+      This resume visualization was created using an AI skill.
+      &copy; <a href="https://github.com/koryazh/resume-parsing-visualization" target="_blank" rel="noopener">Anton Nadey</a>
+    </div>
+    ```
+
+    - **The copyright holder is Anton Nadey. The repository is `github.com/koryazh/resume-parsing-visualization`.**
+    - **Never attribute this skill to Anthropic**, and never link it to `github.com/anthropics/skills` or any other repository. This is not an Anthropic product. Getting this wrong asserts someone else's copyright over the holder's work, which is why the wording is locked rather than left to judgement.
+    - The holder's name is deliberately repeated here because `LICENSE` is the only other file in the package that carries it, and the rendering phase never reads `LICENSE`. Do not go looking for the name elsewhere; it is on this line.
+    - Everything **other than the text and the link** stays a customizable default: an adopter may restyle it, change the timing, or delete the banner outright, and it must not be re-added once removed. What is locked is that if a banner is rendered, it carries these words and this link.
     - Collapse via a class setting `opacity:0; max-height:0` with `overflow:hidden` and zeroed padding.
     - Do NOT chain the hide to a `transitionend` listener. Under `prefers-reduced-motion` there is no transition and therefore no event, so cleanup attached to it silently never runs.
     - This is a **customizable default, not a locked rule**. It is meant as a soft reminder, and users of the skill are expected to reword, restyle, or remove it as they adapt the output. Do not treat it as an enforcement mechanism, and do not re-add it if a user has taken it out.
@@ -80,6 +94,29 @@ These rules govern the textual half. They exist to preserve candidate voice and 
     - Page-break rules: keep `.role-head` with the content after it, keep section titles with their section, and keep individual bullets unsplit. Do NOT put `break-inside: avoid` on `.role` itself; a role with twenty-plus bullets is taller than a page, so the rule is either ignored or forces a mostly empty page.
     - **Browser headers and footers** (the date/title line and the URL/page-number line) are painted by the browser, not the page, and CSS cannot remove them directly. `@page{margin:0}` leaves no margin for the browser to paint them into, which suppresses them in Chrome. State this as best-effort; the guaranteed control is the reader unchecking "Headers and footers" in the print dialog.
     - With `@page` margin at zero, page margins come from padding on `body`. Note the consequence: body padding applies to the top of the first page and the bottom of the last, not to the top and bottom edges of intermediate pages. Keep first-page top padding small (5mm reference value, with the hero's own top padding zeroed for print) so page 1 matches the rest instead of standing out.
+
+    **Canonical print block (copy this; do not reconstruct it from the rules above).** Every rule in this section is already encoded here, including the two that are most often dropped: excluding `.role-summary`, and setting `.role` to `break-inside: auto` rather than `avoid`.
+
+    ```css
+    @media print{
+      @page{margin:0}
+      *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      html,body{background:#fff}
+      body{padding:5mm 12mm 14mm}
+      .hero{padding-top:0}
+      /* Both tiers of AI synthesis panel, the banner, and all interactive chrome. */
+      .topbanner,.career-synth,.role-summary,.hint,#tooltip{display:none!important}
+      .chart-card{position:static!important;break-inside:avoid;page-break-inside:avoid}
+      .section-title{break-after:avoid;page-break-after:avoid}
+      .role-head{break-after:avoid;page-break-after:avoid}
+      /* MUST be auto. `avoid` on a role taller than a page empties the page before it. */
+      .role{break-inside:auto;page-break-inside:auto;padding-bottom:16px}
+      .role-bullets li{break-inside:avoid;page-break-inside:avoid}
+      footer{break-inside:avoid}
+    }
+    ```
+
+    Match the selector names to whatever the page actually uses. The class names above are the reference implementation's; what must not change is which categories of element each rule targets.
 
 ## Visual grammar (LOCKED)
 

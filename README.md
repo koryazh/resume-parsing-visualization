@@ -57,7 +57,7 @@ docs/how-visualization-works.md             reader-facing explainer for someone 
 | JSON schema | 1.0 | Contract between the two phases. Additive fields are fine; breaking changes need a bump. |
 | Leveling framework | 3.0 | 13 levels, 7 dimensions each, plus `example_titles` and `title_traps` per level. |
 | Job family taxonomy | 2.0 | 35 families anchored on O*NET-SOC major groups, 28 industries. |
-| Visualization spec | 1.7 | Solid dominant-family-color bars by default. Rank range 0-12; axis-overlay alignment rules locked; C-Level peak-label collapse and boomerang-re-engagement company notes; full-career synthesis block, timed attribution banner, and Save as PDF with a print stylesheet. |
+| Visualization spec | 1.8 | Solid dominant-family-color bars by default. Rank range 0-12; axis-overlay alignment rules locked; C-Level peak-label collapse and boomerang-re-engagement company notes; full-career synthesis block, timed attribution banner, and Save as PDF with a print stylesheet. Attribution wording and the print stylesheet are now locked copy-paste blocks. |
 
 Rank contract: P1 sits at rank 0, added in v3.0. Ranks 1 through 12 are stable and must never be renumbered, because every previously generated `structured.json` encodes them.
 
