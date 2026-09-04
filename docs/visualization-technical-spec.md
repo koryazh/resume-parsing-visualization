@@ -339,6 +339,22 @@ A full-bleed band at the very top of the page, above the hero. It fades and coll
 
 A `Save as PDF` control beside the synthesis toggle, calling `window.print()`.
 
+**The feature is three parts: the control, the handler, and the print stylesheet. Shipping only the stylesheet ships nothing.** A clean run of v1.8 copied the print CSS block below and omitted the button entirely, producing a page that prints correctly but offers no way to start a print. Copy all three.
+
+```html
+<div class="synth-actions">
+  <button class="synth-toggle" id="synth-toggle" type="button" aria-expanded="false" aria-controls="synth-panel">Show career synthesis</button>
+  <span class="synth-sep" aria-hidden="true">&bull;</span>
+  <button class="synth-toggle" id="pdf-btn" type="button">Save as PDF</button>
+</div>
+```
+
+```javascript
+document.getElementById("pdf-btn").addEventListener("click", () => window.print());
+```
+
+Before delivering, confirm the rendered file contains `window.print` at least once. If it does not, the control was dropped.
+
 - No browser lets JavaScript write a PDF to disk silently, and a bundled PDF library would violate the no-external-runtime-dependencies rule in §7. `window.print()` plus a print stylesheet is the entire mechanism. State that limitation plainly rather than implying one-click saving.
 - Reveal and hide content for print **entirely in `@media print` CSS, never by mutating the DOM**. Overriding `#synth-panel[hidden]` in print costs nothing to undo; expanding the panel in JS before printing leaves the page expanded when the reader cancels the dialog, and then needs an `afterprint` restore to repair.
 - Default print exclusions: the attribution banner, the full-career synthesis block with its control row, every per-role AI synthesis panel, the hint line, and the tooltip. What remains is hero, chart, experience with verbatim bullets, education, and tech stack.
@@ -607,13 +623,15 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 - **Anchoring strata labels to the band top edge instead of the center**: omit the `+ BAND_HEIGHT/2` and every label sits half a band too high.
 - **`break-inside: avoid` on a whole role article** (§4.11): a role with twenty-plus bullets is taller than a printed page, so the browser cannot honour the rule and instead pushes the entire role to the next page, leaving most of the preceding page blank. Observed in a real generated PDF: a 24-bullet role produced a page roughly two-thirds empty. Set `.role` to `break-inside: auto` explicitly and control pagination with `.role-head{break-after:avoid}` and `.role-bullets li{break-inside:avoid}` instead.
 - **Forgetting `.role-summary` in the print exclusion list** (§4.11): hiding only the full-career panel leaves every per-role AI synthesis block in the PDF, and their `::before` labels then orphan at page bottoms. Both tiers come out.
+- **Shipping the print stylesheet without the `Save as PDF` control** (§4.11): a canonical CSS block next to a prose description of the button leads to the CSS being copied and the button dropped, which is exactly what a clean run of v1.8 produced. When a feature spans markup, script and style, give a canonical block for **all three**; whichever part is left as prose is the part that goes missing.
+- **Counting off-chart roles in the tenure header** (§3): N and M are on-chart counts. A clean run shipped `9 roles` above a chart with 8 bars. Verify `DATA.roles.length` equals the N printed in the header before delivering.
 - **Composing the attribution banner's text or link** (§4.10): the holder is Anton Nadey and the repository is `github.com/koryazh/resume-parsing-visualization`. A model with no other source has been observed defaulting to "© Anthropic" linked to `github.com/anthropics/skills`, which is wrong on both counts. Copy the locked markup.
 
 ---
 
 ## 9. Version & contract
 
-- Spec version: 1.8
+- Spec version: 1.9
 - JSON schema version this targets: `1.0`
 - Leveling framework version this targets: `3.0` (13 levels, ranks 0-12)
 - Backward-compatible JSON additions (schema v1.1 with new optional fields) should be ignored gracefully by the renderer.
@@ -621,6 +639,7 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ### Changelog
 
+- **1.9 (2026-09-04):** Three corrections from a second clean-install render, this time of v1.8. (1) The `Save as PDF` control vanished entirely (§4.11): v1.8 added a prominent canonical CSS block while leaving the button and handler as prose, and the clean run copied the block and dropped the control, shipping a page that prints correctly but cannot start a print. Canonical markup and handler blocks added, with a pre-delivery check that `window.print` appears in the output. The general lesson is now an anti-pattern in §8: when a feature spans markup, script and style, whichever part is left as prose is the part that goes missing. (2) Tenure header counts (§3): `N roles` and `M employers` now explicitly mean on-chart counts, after a run printed `9 roles` above a chart drawing 8 bars, with a career span that already excluded the ninth. Added a consistency check that the bar count matches the printed N. (3) Phase 1 Step 3 is now a blocking gate (`reference/parsing.md`): the run excluded the candidate's earliest role from the chart on the documented default without asking, and the user's answer would have been to include it. Every `on_chart = false` decision must now be surfaced and answered, with an explicit instruction that a default is where to land after the question, not a licence to skip it.
 - **1.8 (2026-09-04):** Two corrections after reviewing output generated by a clean install of v1.7, which exposed rules that read fine to an author but did not survive a fresh render. (1) Attribution banner (§4.10): v1.7 described the banner as naming "the copyright holder" without ever stating who, and the holder's name appears in no file the rendering phase reads (`LICENSE` carries it, but rendering never opens it, and `README.md` is not in the distributed package). A clean run defaulted to "© Anthropic" linked to `github.com/anthropics/skills`, misattributing the work. The exact markup, holder, and URL are now locked inline, with an explicit prohibition on attributing the skill to Anthropic. (2) Print stylesheet (§4.11): v1.7 stated the print rules as prose, and a clean run dropped two of them, setting `break-inside: avoid` on `.role` (producing a two-thirds-empty page after a 24-bullet role) and omitting `.role-summary` from the exclusion list (leaving per-role AI synthesis blocks in the PDF with orphaned labels). Added a canonical copy-paste print block, matching how the axis overlay and geometry rules are already specified, and recorded all three failures in §8. No behavioural change to a correct v1.7 implementation; this release makes the existing rules reproducible.
 - **1.7 (2026-09-04):** Three additions from a live design session on a real parse. (1) Full-career synthesis (§4.9): a new additive `candidate.career_synthesis` field composed by Phase 1 and rendered centered between the hero and the sticky chart card, collapsed by default behind an `aria-expanded` disclosure toggle, deliberately not persisted across reloads and deliberately outside the sticky card so an expanded panel does not consume half the viewport on every scroll. (2) Attribution banner (§4.10): a full-bleed top band naming the skill and copyright holder that self-collapses after 7 seconds, documented as a customizable default rather than a locked rule since adopters are expected to adapt or remove it; records the `transitionend` trap, where `prefers-reduced-motion` fires no transition so any cleanup chained to that event never runs. (3) Save as PDF (§4.11): a `window.print()` control plus a print stylesheet excluding the banner, both tiers of AI synthesis panel, and the interactive chrome. Records that silent one-click PDF saving is impossible without a bundled library that would violate §7, that print reveal/hide must be pure CSS rather than DOM mutation, that `print-color-adjust: exact` is required for the chart to keep its colours, that `break-inside: avoid` must not go on a role taller than a page, and that browser-drawn page headers and footers can only be suppressed indirectly via `@page{margin:0}`.
 

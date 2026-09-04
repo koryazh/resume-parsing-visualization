@@ -48,6 +48,8 @@ These rules govern the textual half. They exist to preserve candidate voice and 
    - Do NOT render a divider between the hero and the chart card, or between the chart card and the Experience section.
    - Hero padding: tight top/bottom (~20px top, ~12px bottom is the reference value); name-to-contacts gap ~6px.
    - Tenure header (the stats row above the chart): center-aligned, both stat lines rendered at the SAME font size (12px reference value) with bold applied only to the actual numbers/values via `<b>`, not to the whole line. Wording pattern: `Career path span <b>X years Y months</b> · <b>N roles</b> · <b>M employers</b>` on one line, `Peak job level · <b>CODE Name</b>` on the next.
+     - **N and M count on-chart roles only (LOCKED 2026-09-04).** N is `aggregates.role_count_on_chart`, not `role_count`, and M is the number of distinct employers among on-chart roles. The header describes the chart directly beneath it, so counting roles that have no bar contradicts what the reader can see. A clean run shipped a header reading `9 roles` above a chart drawing 8 bars, with a span that already excluded the ninth.
+     - **Consistency check before delivering:** the number of bars in `DATA.roles` must equal N, and the chart's earliest start must match the span's start year. If they disagree, the aggregates were computed over a different role set than the chart, and the header is lying about the picture.
      - **C-Level peak-label exception (NEW 2026-08-23)**: `CODE Name` is `C-Level C-Level` when the peak is C-Level, since that's the one rank where `strata.code` and `strata.name` are the identical string. Render just `C-Level` once for the peak line when `peak_strata.code === peak_strata.name` (i.e. `code + " " + name` only when they differ). Do not fix this by shortening the code the way the axis overlay does (§ Strata axis overlay) - the tenure header has room for the full word and shortening it to `C` there would read as a typo, not a label.
    - Keep the gap between the tenure header and the chart itself very small (near-zero bottom padding on the tenure header) so the stats read as clearly belonging to the chart directly below them, not as a separate block.
 4. **Education dates are NEVER rendered**, even if they appear in the JSON. Protects against age-based screening.
@@ -86,6 +88,29 @@ These rules govern the textual half. They exist to preserve candidate voice and 
     - This is a **customizable default, not a locked rule**. It is meant as a soft reminder, and users of the skill are expected to reword, restyle, or remove it as they adapt the output. Do not treat it as an enforcement mechanism, and do not re-add it if a user has taken it out.
 
 11. **Save as PDF (NEW 2026-09-04)**: a `Save as PDF` control beside the synthesis toggle, calling `window.print()`.
+
+    **The feature is three parts: the control, the handler, and the print stylesheet. Shipping only the stylesheet ships nothing.** A clean run of spec v1.8 copied the print CSS block below and omitted the button entirely, leaving a page that prints correctly but has no way to start a print. Copy all three blocks.
+
+    Markup, with the control row wrapping both buttons:
+
+    ```html
+    <div class="career-synth">
+      <div class="synth-actions">
+        <button class="synth-toggle" id="synth-toggle" type="button" aria-expanded="false" aria-controls="synth-panel">Show career synthesis</button>
+        <span class="synth-sep" aria-hidden="true">&bull;</span>
+        <button class="synth-toggle" id="pdf-btn" type="button">Save as PDF</button>
+      </div>
+      <p class="panel" id="synth-panel" hidden>...career_synthesis text...</p>
+    </div>
+    ```
+
+    Handler:
+
+    ```javascript
+    document.getElementById("pdf-btn").addEventListener("click", () => window.print());
+    ```
+
+    Then the print stylesheet below. Before delivering, confirm the rendered file contains `window.print` at least once; if it does not, the control was dropped.
     - No browser lets JavaScript write a PDF to disk silently, and a bundled PDF library would break the no-external-runtime-dependencies rule under Output below. `window.print()` plus a print stylesheet is the whole mechanism. Say so plainly when a user asks for one-click saving rather than implying the button does more than it does.
     - Reveal and hide content for print **entirely in `@media print` CSS, never by mutating the DOM**. Overriding `#synth-panel[hidden]` in print costs nothing to undo; expanding the panel in JS before printing leaves the page expanded when the reader cancels the dialog and needs an `afterprint` restore to repair.
     - Default print exclusions: the attribution banner, the full-career synthesis block together with its control row, every per-role AI synthesis panel, the hint line, and the tooltip. What remains is hero, chart, experience with verbatim bullets, education, and tech stack.

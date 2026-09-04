@@ -23,11 +23,16 @@ Before starting a new parse, read:
 - Render policy (on-chart / in-experience-text)
 - Data quality notes for any borderline call
 
-**Step 3** (interactive): Surface borderline calls to the user via multiple-choice questions before finalizing the JSON. Common borderline calls:
+**Step 3** (interactive, BLOCKING): Surface borderline calls to the user and **wait for an answer** before finalizing the JSON. Do not resolve any call below by applying a documented default and moving on. A default exists so there is somewhere to land once the user answers, not so the question can be skipped. Silent defaulting has produced wrong output in real runs and is a failure of this step, not a shortcut.
+
+Ask about, at minimum:
+- **Every role that will not appear on the chart.** `render_policy.on_chart = false` is never a silent decision. Name the role, state what the default would do and why (pre-career, different professional family, very old), and let the user choose. This is the most-missed question in this whole workflow: a clean run excluded a candidate's earliest role on the documented default without asking, and the user's answer, when finally given, was to include it.
 - Any "Manager"-titled role (apply the decision tree below)
 - Side gigs that overlap with main career
-- Pre-career roles in a different family (on-chart vs off-chart decision)
 - Ambiguous scope where bullets are minimal (1-2 lines only)
+- Any call whose reversal would change the top two entries of `aggregates.professional_spheres_ranked_by_dominant`, since that reorders the chart's colours and legend
+
+If the run is genuinely non-interactive and no answer can be obtained, apply the default and record the unasked question in `data_quality` at severity `advisory`, so the user can see what was decided on their behalf.
 
 ## Leveling framework - STRICT
 
@@ -365,7 +370,7 @@ Two genuinely concurrent roles (e.g. part-time + full-time, or contractor at com
 - **Include on-chart** also for short side gigs in a different sphere if it adds biographical context (e.g. Fitness Instructor parallel to Kindergarten Teacher - both on-chart, lane-split at same rank during overlap).
 - **Off-chart** only for genuinely tangential work (e.g. a few months of freelance gigs unrelated to the career arc).
 
-The user makes the final call - surface borderline decisions per the workflow's Step 3.
+The user makes the final call - surface borderline decisions per the workflow's Step 3, and wait for the answer. Applying the default silently is the documented failure mode here, not the fallback.
 
 ### Off-chart pre-career roles
 Pre-HR / pre-career roles at companies in different professional families (Sales Support, Receptionist, Event Hostess) → `render_policy.on_chart = false`. They appear in the textual Experience section but not on the ladder chart. The chart axis spans only the **on-chart** career.
