@@ -303,6 +303,39 @@ Optional `internships` array - render as a compact sub-block within Experience, 
 
 ---
 
+### 4.9 Full-career synthesis block (NEW 2026-09-04, spec v1.7)
+
+When `candidate.career_synthesis` is present, render it between the hero and the sticky chart card, so it introduces the ladder without riding along on every scroll.
+
+- Panel styling matches the per-role AI synthesis panel (§4.2), labelled `AI SYNTHESIS - FULL CAREER` via a `::before` pseudo-element. Never put the label text in the markup; the duplicate-label anti-pattern in §8 applies here too.
+- Body text and label are both center-aligned. The label needs `left:0; right:0; text-align:center` rather than a left anchor, or it sits off to one side of centered body text.
+- **Collapsed by default**, behind a centered toggle reading `Show career synthesis` / `Hide career synthesis`. Use the `hidden` attribute and set `aria-expanded` and `aria-controls` on the button, so it is a real disclosure control rather than a styled div.
+- State is deliberately NOT persisted. Every load starts collapsed, because the page is a document other people open, not an app with per-reader preferences.
+- Keeping the block outside the sticky `.chart-card` is deliberate: inside it, an expanded panel pushes the always-visible region past half a laptop viewport on every scroll through the experience section.
+
+### 4.10 Attribution banner (NEW 2026-09-04, spec v1.7)
+
+A full-bleed band at the very top of the page, above the hero, naming the skill and the copyright holder, with the holder's name linked to the skill's repository. It fades and collapses to zero height after 7 seconds and honours `prefers-reduced-motion` by skipping the transition.
+
+- Collapse via a class setting `opacity:0; max-height:0` with `overflow:hidden` and zeroed padding.
+- Do NOT chain the hide to a `transitionend` listener. Under `prefers-reduced-motion` there is no transition and therefore no event, so cleanup attached to it silently never runs.
+- This is a **customizable default, not a locked rule**. It is a soft reminder, and adopters are expected to reword, restyle, or remove it. Do not treat it as enforcement, and do not re-add it once a user has removed it.
+
+### 4.11 Save as PDF (NEW 2026-09-04, spec v1.7)
+
+A `Save as PDF` control beside the synthesis toggle, calling `window.print()`.
+
+- No browser lets JavaScript write a PDF to disk silently, and a bundled PDF library would violate the no-external-runtime-dependencies rule in §7. `window.print()` plus a print stylesheet is the entire mechanism. State that limitation plainly rather than implying one-click saving.
+- Reveal and hide content for print **entirely in `@media print` CSS, never by mutating the DOM**. Overriding `#synth-panel[hidden]` in print costs nothing to undo; expanding the panel in JS before printing leaves the page expanded when the reader cancels the dialog, and then needs an `afterprint` restore to repair.
+- Default print exclusions: the attribution banner, the full-career synthesis block with its control row, every per-role AI synthesis panel, the hint line, and the tooltip. What remains is hero, chart, experience with verbatim bullets, education, and tech stack.
+- `-webkit-print-color-adjust: exact; print-color-adjust: exact` is required, or chart bars and legend swatches print as empty outlines.
+- `.chart-card` must become `position: static` for print, or the sticky card fights pagination.
+- Page-break rules: keep `.role-head` with the content after it, keep section titles with their section, keep individual bullets unsplit. Do NOT set `break-inside: avoid` on `.role` itself; a role with twenty-plus bullets is taller than a page, so the rule is either ignored or forces a mostly empty page.
+- **Browser headers and footers** (the date/title line, the URL/page-number line) are painted by the browser, not the page, and CSS cannot remove them directly. `@page{margin:0}` leaves no margin to paint them into, which suppresses them in Chrome. Treat this as best-effort; the guaranteed control is the reader unchecking "Headers and footers" in the print dialog.
+- With `@page` margin at zero, page margins come from padding on `body`. Consequence to record: body padding applies to the top of the first page and the bottom of the last, not to the top and bottom edges of intermediate pages. Keep first-page top padding small (5mm reference, with the hero's own top padding zeroed for print) so page 1 matches the rest rather than standing out.
+
+---
+
 ## 5. Chart-rendering rules (LOCKED)
 
 ### 5.1 Fit-to-screen timeline
@@ -540,13 +573,15 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ## 9. Version & contract
 
-- Spec version: 1.6
+- Spec version: 1.7
 - JSON schema version this targets: `1.0`
 - Leveling framework version this targets: `3.0` (13 levels, ranks 0-12)
 - Backward-compatible JSON additions (schema v1.1 with new optional fields) should be ignored gracefully by the renderer.
 - Breaking schema changes (schema v2.0) require synchronized renderer updates.
 
 ### Changelog
+
+- **1.7 (2026-09-04):** Three additions from a live design session on a real parse. (1) Full-career synthesis (§4.9): a new additive `candidate.career_synthesis` field composed by Phase 1 and rendered centered between the hero and the sticky chart card, collapsed by default behind an `aria-expanded` disclosure toggle, deliberately not persisted across reloads and deliberately outside the sticky card so an expanded panel does not consume half the viewport on every scroll. (2) Attribution banner (§4.10): a full-bleed top band naming the skill and copyright holder that self-collapses after 7 seconds, documented as a customizable default rather than a locked rule since adopters are expected to adapt or remove it; records the `transitionend` trap, where `prefers-reduced-motion` fires no transition so any cleanup chained to that event never runs. (3) Save as PDF (§4.11): a `window.print()` control plus a print stylesheet excluding the banner, both tiers of AI synthesis panel, and the interactive chrome. Records that silent one-click PDF saving is impossible without a bundled library that would violate §7, that print reveal/hide must be pure CSS rather than DOM mutation, that `print-color-adjust: exact` is required for the chart to keep its colours, that `break-inside: avoid` must not go on a role taller than a page, and that browser-drawn page headers and footers can only be suppressed indirectly via `@page{margin:0}`.
 
 - **1.6 (2026-08-23):** Two fixes from a real-world test parse (a CTO candidate with a peak C-Level role and a boomerang return to a former employer). (1) Tenure header (§3): the locked `Peak job level · CODE Name` wording pattern renders as the visibly duplicated `C-Level C-Level` for any C-Level candidate, since `code` and `name` are the identical string at that rank - added the one-line exception to print `C-Level` just once. (2) Company name rendering (§4.6): added a rendering rule for boomerang re-engagements (a candidate returning to a former employer years later, in a different role, with other employers in between) - render a small italic note under the company name on the more recent stint, matching `company_history_note`'s treatment, since the same-employer staircase (§5.5) otherwise draws what looks like one continuous tenure. See `reference/parsing.md`'s companion edge case for how Phase 1 flags this.
 - **1.5 (2026-08-23):** The axis-overlay renderer (§5.4) never actually implemented the display-only shortening the spec already permitted for `C-Level` (§ Strata rank reference) - `div.textContent = b.code` printed the full 7-character string, which stands out against the 2-3 character codes on every other row. Added the concrete substitution (`b.code === "C-Level" ? "C" : b.code`) at the point the label text is set, in both this doc and `reference/visualization.md`'s canonical overlay block. The underlying data (`DATA.strata_bands`, `strata.code` in the JSON) is unchanged and must stay `C-Level`.

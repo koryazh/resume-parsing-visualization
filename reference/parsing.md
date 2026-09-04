@@ -9,7 +9,7 @@ The JSON schema is the contract between the two phases. Parsing changes shouldn'
 Before starting a new parse, read:
 
 - `reference-data/leveling-framework.json` - the 13-level career strata framework (v3.0), 7 dimensions per level. Anchors all strata assignments. Read `leveling_notes` and each level's `title_traps` and `example_titles` before leveling - the traps encode the title/scope mismatches that cause most mis-levels. Replaces the former `leveling-framework.xlsx`.
-- `reference-data/job-families-and-industries.json` - the taxonomy of professional families (functional areas) and industries (vertical markets). Current version: **v2.0** (2026-07-19) - 35 families and 27 industries, anchored on O*NET-SOC's public major groups, replacing the narrower 21-family v1.1 list. The v2.0 restructuring itself produced 34 families; entries added additively since then carry no version bump and are logged in the file's `notes`. human_resources and talent_acquisition remain distinct sibling families as they were in v1.1 (id `human_resources` for HR & People Operations, id `talent_acquisition` for Talent Acquisition & Recruitment), unaffected by the v2.0 restructuring.
+- `reference-data/job-families-and-industries.json` - the taxonomy of professional families (functional areas) and industries (vertical markets). Current version: **v2.0** (2026-07-19) - 35 families and 28 industries, anchored on O*NET-SOC's public major groups, replacing the narrower 21-family v1.1 list. The v2.0 restructuring itself produced 34 families; entries added additively since then carry no version bump and are logged in the file's `notes`. human_resources and talent_acquisition remain distinct sibling families as they were in v1.1 (id `human_resources` for HR & People Operations, id `talent_acquisition` for Talent Acquisition & Recruitment), unaffected by the v2.0 restructuring.
 
 ## The two-step workflow
 
@@ -206,6 +206,7 @@ The per-role `family_tags` array describes the **role's** professional sphere co
       "work_authorization": "null unless source resume states it"
     },
     "summary": "verbatim summary paragraph from resume if present",
+    "career_synthesis": "composed 3-4 sentence narrative of the whole career, or null",
     "areas_of_expertise": ["..."],
     "education": [
       { "institution": "...", "degree": "...", "field": "..." }
@@ -343,6 +344,7 @@ The per-role `family_tags` array describes the **role's** professional sphere co
 4. **Summary paragraph** captured verbatim if present. The renderer does NOT render this - it's kept in JSON for downstream consumers (job-matching, search).
 5. **Section conservatism**: capture Languages, Top Skills, Personal Characteristics, Interests, Driver's License, References in JSON if present, but flag in `data_quality` that they should NOT render by default.
 6. **Audit trail is mandatory** for every borderline strata call. Include the reasoning chain in `strata.reasoning` and a `data_quality` entry if the call was revised or overridden.
+7. **`candidate.career_synthesis` is the one composed field (NEW 2026-09-04, spec v1.7).** Every other narrative field in this schema is verbatim from the source; this one is written by the model. Compose 3-4 sentences covering the arc from first to current role, the shape of the transitions, and the spheres the candidate actually spent time in. Write it from the parsed roles and aggregates rather than from the resume's own summary paragraph, and never let it contradict the leveling calls or the sphere ranking. Keep every claim checkable against the JSON: no praise, no adjectives the bullets do not support, no invented metrics. The field is additive to schema v1.0, so a consumer that does not know it ignores it, and a renderer falls back cleanly when it is null. Phase 2 renders it collapsed by default; see `reference/visualization.md`.
 
 ## Edge cases
 

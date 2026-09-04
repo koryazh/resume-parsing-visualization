@@ -59,6 +59,28 @@ These rules govern the textual half. They exist to preserve candidate voice and 
 7. **Off-chart roles** (`render_policy.on_chart === false` AND `in_experience_text === true`): render normally in Experience section, exclude from chart DATA.roles.
 8. **Internships** (optional array): render as a compact sub-block within Experience, NOT on the chart.
 
+9. **Full-career synthesis block (NEW 2026-09-04)**: when `candidate.career_synthesis` is present, render it between the hero and the sticky chart card, so it reads as an introduction to the ladder without riding along on every scroll.
+   - Panel styling matches the per-role AI synthesis panel, labelled `AI SYNTHESIS - FULL CAREER` via a `::before` pseudo-element. Do NOT put the label text in the markup; same rule as the per-role panel.
+   - Body text and label are both center-aligned. The label needs `left:0; right:0; text-align:center` rather than a left anchor, or it sits off to one side of centered body text.
+   - **Collapsed by default**, behind a centered toggle reading `Show career synthesis` / `Hide career synthesis`. Use the `hidden` attribute, and set `aria-expanded` and `aria-controls` on the button so it is a real disclosure control rather than a styled div.
+   - State is deliberately NOT persisted. Every load starts collapsed, including a reload, because the page is a document other people open rather than an app with per-reader preferences.
+   - Keeping the block outside the sticky `.chart-card` is deliberate: inside it, an expanded panel pushes the always-visible region past half a laptop viewport on every scroll through the experience section.
+
+10. **Attribution banner (NEW 2026-09-04)**: a full-bleed band at the very top of the page, above the hero, naming the skill and the copyright holder, with the holder's name linked to the skill's repository. It fades and collapses to zero height after 7 seconds, and honours `prefers-reduced-motion` by skipping the transition.
+    - Collapse via a class setting `opacity:0; max-height:0` with `overflow:hidden` and zeroed padding.
+    - Do NOT chain the hide to a `transitionend` listener. Under `prefers-reduced-motion` there is no transition and therefore no event, so cleanup attached to it silently never runs.
+    - This is a **customizable default, not a locked rule**. It is meant as a soft reminder, and users of the skill are expected to reword, restyle, or remove it as they adapt the output. Do not treat it as an enforcement mechanism, and do not re-add it if a user has taken it out.
+
+11. **Save as PDF (NEW 2026-09-04)**: a `Save as PDF` control beside the synthesis toggle, calling `window.print()`.
+    - No browser lets JavaScript write a PDF to disk silently, and a bundled PDF library would break the no-external-runtime-dependencies rule under Output below. `window.print()` plus a print stylesheet is the whole mechanism. Say so plainly when a user asks for one-click saving rather than implying the button does more than it does.
+    - Reveal and hide content for print **entirely in `@media print` CSS, never by mutating the DOM**. Overriding `#synth-panel[hidden]` in print costs nothing to undo; expanding the panel in JS before printing leaves the page expanded when the reader cancels the dialog and needs an `afterprint` restore to repair.
+    - Default print exclusions: the attribution banner, the full-career synthesis block together with its control row, every per-role AI synthesis panel, the hint line, and the tooltip. What remains is hero, chart, experience with verbatim bullets, education, and tech stack.
+    - `-webkit-print-color-adjust: exact; print-color-adjust: exact` is required, or the chart bars and legend swatches print as empty outlines.
+    - `.chart-card` must become `position: static` for print, or the sticky card fights pagination.
+    - Page-break rules: keep `.role-head` with the content after it, keep section titles with their section, and keep individual bullets unsplit. Do NOT put `break-inside: avoid` on `.role` itself; a role with twenty-plus bullets is taller than a page, so the rule is either ignored or forces a mostly empty page.
+    - **Browser headers and footers** (the date/title line and the URL/page-number line) are painted by the browser, not the page, and CSS cannot remove them directly. `@page{margin:0}` leaves no margin for the browser to paint them into, which suppresses them in Chrome. State this as best-effort; the guaranteed control is the reader unchecking "Headers and footers" in the print dialog.
+    - With `@page` margin at zero, page margins come from padding on `body`. Note the consequence: body padding applies to the top of the first page and the bottom of the last, not to the top and bottom edges of intermediate pages. Keep first-page top padding small (5mm reference value, with the hero's own top padding zeroed for print) so page 1 matches the rest instead of standing out.
+
 ## Visual grammar (LOCKED)
 
 ### Fit-to-screen
