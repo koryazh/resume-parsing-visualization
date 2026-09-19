@@ -93,6 +93,24 @@ docs/how-visualization-works.md             reader-facing explainer for someone 
 
 Rank contract: P1 sits at rank 0, added in v3.0. Ranks 1 through 12 are stable and must never be renumbered, because every previously generated `structured.json` encodes them.
 
+### Version history
+
+Newest first. Releases are published from v1.6 onward; earlier versions predate the public packaging.
+
+| Version | Date | What changed |
+|---|---|---|
+| 2.0 | 2026-09-19 | The page is drawn by the bundled viewer instead of being written per candidate. Header and legend computed from the on-chart roles; composed summaries carried in the JSON; `render_options` for per-profile choices; LinkedIn exports supported as a source; staircase seam fix. |
+| 1.9 | 2026-09-04 | Save as PDF control restored, tenure-header counts limited to on-chart roles, Phase 1 borderline calls made a blocking gate. |
+| 1.8 | 2026-09-04 | Attribution wording and repository link locked; canonical print stylesheet block added. |
+| 1.7 | 2026-09-04 | Full-career synthesis block, timed attribution banner, and Save as PDF with a print stylesheet. |
+| 1.6 | 2026-08-23 | C-Level peak-label collapse; boomerang re-engagement notes under the company name. |
+| 1.5 | 2026-08-23 | `C-Level` shortened to `C` in the strata axis overlay, display only. |
+| 1.4 | 2026-08-09 | Strata axis-overlay alignment rules locked after a chart shipped with drifting labels. |
+| 1.3 | 2026-08-09 | Aligned with leveling framework 3.0: rank range 0-12, floor never clamped. |
+| 1.2 | 2026-07-19 | Solid dominant-family bars became the default; page density and divider rules. |
+| 1.1 | 2026-07-18 | End dates given their own month convention, closing the same-employer staircase gap. |
+| 1.0 | - | Original spec. |
+
 ## Editing rules worth knowing
 
 These are the ones that bite hardest if missed. Full detail lives in the reference files.
@@ -119,11 +137,11 @@ python3 scripts/validate_structured_json.py path/to/structured.json
 
 Run it between the two phases and after any hand-edit of the JSON. Exit 0 means the contract holds; exit 1 means Phase 2 would render incorrectly. `--strict` fails on warnings, `--json` gives machine-readable output. Standard library only, no install step.
 
-After changing the schema, the validator, or either reference-data file, run `python3 scripts/test_validator.py`. It breaks the bundled fixture 16 different ways and asserts each one is caught, which is what tells you the fixture has gone stale.
+After changing the schema, the validator, or either reference-data file, run `python3 scripts/test_validator.py`. It breaks the bundled fixture many different ways and asserts each one is caught, including the warning-only cases, which is what tells you the fixture has gone stale.
 
 ## License
 
-Copyright (c) 2026 Anton Nadey. All rights reserved. See [LICENSE](LICENSE).
+Copyright (c) 2026 Anton Nadey. All rights reserved. Patent pending. See [LICENSE](LICENSE).
 
 You may download and use this skill, unmodified, to process your own resume data for personal or internal business purposes. Redistribution, derivative works, and offering it as a service require written permission. No patent rights are granted.
 
