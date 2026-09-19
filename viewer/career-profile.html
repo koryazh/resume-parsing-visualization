@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<meta name="generator" content="resume-parsing-visualization viewer 1.0.0 (visualization spec 2.0, schema 1.0, leveling 3.0)" />
+<title>Career Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf9f6; --card:#ffffff; --ink:#1e2126; --ink-2:#4a4f57; --ink-3:#8a8f98;
+    --line:#e7e5df; --band:#f2f1ec;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  [hidden]{display:none!important;}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px;}
+
+  /* Attribution banner (customizable default; text and link LOCKED) */
+  .topbanner{background:var(--ink);color:var(--paper);text-align:center;font-size:11.5px;padding:7px 16px;
+    max-height:80px;overflow:hidden;transition:opacity .6s ease,max-height .6s ease,padding .6s ease;}
+  .topbanner a{color:var(--paper);}
+  .topbanner.collapsed{opacity:0;max-height:0;padding-top:0;padding-bottom:0;}
+  @media (prefers-reduced-motion: reduce){ .topbanner{transition:none;} }
+
+  /* Hero */
+  .hero{text-align:center;padding:20px 16px 12px;}
+  .hero h1{font-family:'Fraunces',serif;font-weight:600;font-size:2.1rem;letter-spacing:0.01em;}
+  .hero .contacts{margin-top:6px;font-size:0.86rem;color:var(--ink-2);font-variant-numeric:tabular-nums;}
+  .hero .contacts a{color:var(--ink-2);text-decoration:none;}
+  .hero .loc{margin-top:2px;font-size:0.86rem;color:var(--ink-3);}
+
+  /* Full-career synthesis + Save as PDF */
+  .career-synth{max-width:880px;margin:0 auto;padding:0 16px 10px;text-align:center;}
+  .synth-actions{display:flex;justify-content:center;align-items:center;gap:8px;}
+  .synth-toggle{background:none;border:0;font:inherit;font-size:11px;color:var(--ink-3);cursor:pointer;
+    text-decoration:underline;text-underline-offset:2px;padding:2px 4px;}
+  .synth-toggle:hover,.synth-toggle:focus-visible{color:var(--ink);}
+  .synth-sep{font-size:10px;color:var(--ink-3);}
+  .career-synth .panel{position:relative;background:#f6f5f1;border-left:3px solid #cdcabf;border-radius:0 6px 6px 0;
+    margin:8px auto 0;padding:24px 16px 10px;font-size:0.9rem;color:var(--ink-2);text-align:center;}
+  .career-synth .panel::before{content:"AI SYNTHESIS - FULL CAREER";position:absolute;top:8px;left:0;right:0;text-align:center;
+    font-family:'Inter',sans-serif;font-size:8.5px;letter-spacing:0.09em;font-weight:700;color:var(--ink-3);}
+
+  /* Chart card */
+  .chart-card{position:sticky;top:0;z-index:20;background:var(--card);max-width:880px;margin:0 auto;
+    padding:18px 8px 8px;border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 18px rgba(30,33,38,0.06);}
+  .tenure{text-align:center;font-size:12px;color:var(--ink-2);line-height:1.5;padding-bottom:2px;}
+  .tenure b{color:var(--ink);font-variant-numeric:tabular-nums;}
+  .ladder-frame{position:relative;}
+  .ladder-wrap{padding-right:36px;}
+  .ladder-wrap svg{width:100%;height:auto;display:block;}
+  /* NO pixel height on the axis: top/bottom stretch it to the rendered SVG (spec 5.4). */
+  #strata-axis{position:absolute;top:0;bottom:0;right:0;width:36px;pointer-events:none;}
+  .strata-label{position:absolute;left:0;margin-left:6px;transform:translateY(-50%);
+    font-family:'Inter',sans-serif;font-size:clamp(10px,1.1vw,13px);font-weight:600;color:var(--ink-3);}
+  .bar{cursor:pointer;transition:opacity 0.15s;}
+  .bar.dim{opacity:0.14 !important;}
+  .bar-hatch.dim{opacity:0.14 !important;}
+  .same-employer-arc-block{pointer-events:none;}
+  .legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;padding:8px 5% 2px;}
+  .pill{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none;background:none;border:0;font:inherit;}
+  .pill .sw{width:10px;height:10px;border-radius:2px;}
+  .pill .nm{font-family:'Fraunces',serif;font-size:11px;color:var(--ink);}
+  .pill .du{font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums;}
+  .pill.off{opacity:0.4;}
+  .hint{text-align:center;font-size:10px;color:var(--ink-3);padding:4px 0 2px;}
+
+  /* Tooltip (direct child of .chart-card) */
+  #tooltip{position:absolute;min-width:240px;max-width:296px;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;box-shadow:0 6px 22px rgba(30,33,38,0.16);padding:10px 12px;pointer-events:none;
+    opacity:0;transition:opacity 0.12s;z-index:40;left:0;top:0;}
+  #tooltip .tt-dates{font-family:'Fraunces',serif;font-size:8.5px;font-weight:600;color:var(--ink);letter-spacing:0.03em;text-transform:uppercase;}
+  #tooltip .tt-title{font-size:13px;font-weight:700;margin-top:1px;}
+  #tooltip .tt-co{font-size:11px;font-weight:500;color:var(--ink-2);}
+  #tooltip .tt-lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-3);margin:8px 0 5px;}
+  #tooltip .tt-row{display:flex;align-items:center;gap:7px;margin-bottom:4px;}
+  #tooltip .tt-swwrap{flex:1;height:7px;background:var(--band);border-radius:4px;overflow:hidden;}
+  #tooltip .tt-sw{height:100%;border-radius:4px;}
+  #tooltip .tt-nm{font-size:10.5px;color:var(--ink-2);min-width:0;}
+  #tooltip .tt-pct{font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums;}
+
+  /* Sections */
+  main{padding-top:8px;}
+  .section-title{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;margin:26px 0 14px;
+    padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .section-title.plain{border-bottom:0;padding-bottom:0;}
+  .sub-title{font-family:'Fraunces',serif;font-size:0.98rem;font-weight:600;margin:10px 0 8px;color:var(--ink-2);}
+  article.role{padding:2px 0 18px;scroll-margin-top:8px;}
+  .role-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline;}
+  .role-title{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;}
+  .role-co{font-size:0.9rem;color:var(--ink-2);}
+  .role-note{font-size:0.8rem;font-style:italic;color:var(--ink-3);}
+  .role-dates{font-size:0.8rem;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .role-summary{position:relative;background:#f6f5f1;border-left:3px solid #cdcabf;border-radius:0 6px 6px 0;
+    padding:9px 12px 9px 12px;margin:10px 0 10px;font-size:0.9rem;color:var(--ink-2);}
+  .role-summary::before{content:"AI SYNTHESIS";display:block;font-family:'Inter',sans-serif;font-size:8.5px;
+    letter-spacing:0.09em;font-weight:700;color:var(--ink-3);margin-bottom:4px;}
+  .role-bullets{margin:8px 0 0 18px;}
+  .role-bullets li{font-size:0.9rem;color:var(--ink-2);margin-bottom:5px;line-height:1.5;}
+  .internships article.role{padding-bottom:10px;}
+  .internships .role-title{font-size:0.95rem;}
+  .internships .role-bullets li{font-size:0.85rem;}
+  .role-highlight{animation:role-pulse 2.2s ease-out;}
+  @keyframes role-pulse{0%{background:rgba(226,156,34,0.22);}100%{background:transparent;}}
+  .edu-item{margin-bottom:6px;font-size:0.92rem;}
+  .edu-item b{font-weight:600;}
+  .certs{font-size:0.9rem;color:var(--ink-2);margin-top:8px;}
+  .plain-list{margin:0 0 0 18px;}
+  .plain-list li{font-size:0.9rem;color:var(--ink-2);margin-bottom:4px;}
+  .tech-grp{margin-bottom:10px;}
+  .tech-grp .tg-lbl{font-size:0.78rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-3);margin-bottom:6px;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{background:#eef0f3;color:var(--ink-2);border-radius:999px;padding:3px 10px;font-size:0.8rem;}
+  footer{text-align:center;color:var(--ink-3);font-size:0.75rem;padding:26px 0 30px;}
+
+  /* Loader (shown only when no profile is loaded) */
+  .loader{max-width:560px;margin:10vh auto 40px;padding:0 16px;text-align:center;}
+  .loader h1{font-family:'Fraunces',serif;font-weight:600;font-size:1.8rem;}
+  .loader-lede{color:var(--ink-2);font-size:0.92rem;margin:6px 0 18px;}
+  .dropzone{background:var(--card);border:1.5px dashed #cdcabf;border-radius:12px;padding:28px 16px;}
+  .dropzone.over{border-color:var(--ink-2);background:#f6f5f1;}
+  .dropzone p{color:var(--ink-2);font-size:0.9rem;margin-bottom:12px;}
+  .btn{display:inline-block;background:var(--ink);color:var(--paper);border:0;border-radius:8px;padding:7px 14px;
+    font:inherit;font-size:0.85rem;font-weight:500;cursor:pointer;}
+  .btn:hover{background:var(--ink-2);}
+  .url-form{display:flex;gap:8px;margin-top:14px;}
+  .url-form input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font:inherit;font-size:0.85rem;background:var(--card);color:var(--ink);}
+  .loader-status{margin-top:14px;font-size:0.85rem;color:var(--ink-2);min-height:1.2em;}
+  .loader-status.err{color:#b3261e;}
+  .loader-errors{text-align:left;margin:8px 0 0 18px;font-size:0.82rem;color:#b3261e;}
+  .loader-errors li{margin-bottom:3px;}
+  .loader-foot{margin-top:18px;font-size:0.75rem;color:var(--ink-3);}
+  .loader code{font-size:0.85em;}
+
+  @media print{
+    @page{margin:0}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    html,body{background:#fff}
+    body{padding:5mm 12mm 14mm}
+    .hero{padding-top:0}
+    /* Both tiers of AI synthesis panel, the banner, and all interactive chrome. */
+    .topbanner,.career-synth,.role-summary,.hint,#tooltip,.loader{display:none!important}
+    .chart-card{position:static!important;break-inside:avoid;page-break-inside:avoid}
+    .section-title{break-after:avoid;page-break-after:avoid}
+    .role-head{break-after:avoid;page-break-after:avoid}
+    /* MUST be auto. `avoid` on a role taller than a page empties the page before it. */
+    .role{break-inside:auto;page-break-inside:auto;padding-bottom:16px}
+    .role-bullets li{break-inside:avoid;page-break-inside:avoid}
+    footer{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<!--
+  PROFILE DATA SLOT.
+  scripts/build_profile.py replaces the `null` below with a structured career JSON to produce a
+  single self-contained page (the Phase 2 deliverable). Left as `null`, the viewer looks for ?data=<url> and otherwise shows
+  the file loader.
+-->
+<script type="application/json" id="profile-data">null</script>
+
+<noscript><p style="text-align:center;padding:40px">This career profile needs JavaScript to render.</p></noscript>
+
+<section class="loader" id="loader" hidden>
+  <h1>Career Profile Viewer</h1>
+  <p class="loader-lede">Open a structured career profile JSON (schema 1.0) to render it as a career ladder.</p>
+  <div class="dropzone" id="dropzone">
+    <p>Drop a <code>.json</code> file anywhere on this page</p>
+    <label class="btn">Choose file<input type="file" id="file-input" accept="application/json,.json" hidden></label>
+  </div>
+  <form id="url-form" class="url-form">
+    <input type="url" id="url-input" placeholder="https://example.com/profile.json" aria-label="JSON URL" required>
+    <button class="btn" type="submit">Load URL</button>
+  </form>
+  <p class="loader-status" id="loader-status" role="status"></p>
+  <ul class="loader-errors" id="loader-errors"></ul>
+  <p class="loader-foot">Files open locally in your browser. Nothing is uploaded.</p>
+</section>
+
+<div id="profile" hidden>
+  <div class="topbanner" id="topbanner" role="note">
+    This resume visualization was created using an AI skill.
+    &copy; <a href="https://github.com/koryazh/resume-parsing-visualization" target="_blank" rel="noopener">Anton Nadey</a>
+  </div>
+
+  <div class="hero">
+    <h1 id="hero-name"></h1>
+    <div class="contacts" id="hero-contacts"></div>
+    <div class="loc" id="hero-loc"></div>
+  </div>
+
+  <div class="career-synth">
+    <div class="synth-actions">
+      <button class="synth-toggle" id="synth-toggle" type="button" aria-expanded="false" aria-controls="synth-panel">Show career synthesis</button>
+      <span class="synth-sep" id="synth-sep" aria-hidden="true">&bull;</span>
+      <button class="synth-toggle" id="pdf-btn" type="button">Save as PDF</button>
+    </div>
+    <p class="panel" id="synth-panel" hidden></p>
+  </div>
+
+  <div class="chart-card" id="chart-card">
+    <div class="tenure" id="tenure"></div>
+    <div class="ladder-frame">
+      <div class="ladder-wrap"><svg id="chart" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Career ladder chart"></svg></div>
+      <div id="strata-axis"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div class="hint">Hover a bar for detail. Click a bar to jump to the role. Click a legend pill to filter.</div>
+    <div id="tooltip"></div>
+  </div>
+
+  <main class="wrap" id="sections"></main>
+</div>
+
+<script>
+(function () {
+"use strict";
+
+const VIEWER_VERSION = "1.0.0";
+const svgNS = "http://www.w3.org/2000/svg";
+
+/* ------------------------------------------------------------------------------------------
+   FRAMEWORK CONSTANTS - copied verbatim from reference-data/ and docs/visualization-technical-spec.md.
+   scripts/check_viewer.py fails if these blocks drift from those files.
+   ------------------------------------------------------------------------------------------ */
+
+/* LEVELS:BEGIN leveling-framework.json v3.0 (ranks frozen; P1 is rank 0) */
+const LEVELS = [
+  { rank: 0,  code: "P1",      name: "Entry Professional" },
+  { rank: 1,  code: "P2",      name: "Junior" },
+  { rank: 2,  code: "P3",      name: "Middle" },
+  { rank: 3,  code: "P4",      name: "Senior" },
+  { rank: 4,  code: "P5",      name: "Lead" },
+  { rank: 5,  code: "P6",      name: "Principal" },
+  { rank: 6,  code: "M3",      name: "Team Lead" },
+  { rank: 7,  code: "M4",      name: "Manager" },
+  { rank: 8,  code: "M5",      name: "Director" },
+  { rank: 9,  code: "M6",      name: "Senior Director" },
+  { rank: 10, code: "E7",      name: "Vice President" },
+  { rank: 11, code: "E8",      name: "Senior Vice President" },
+  { rank: 12, code: "C-Level", name: "C-Level" }
+];
+/* LEVELS:END */
+
+/* PALETTE:BEGIN visualization spec 5.8 (sphere rank 1..7, then gray) */
+const SPHERE_COLORS = ["#75a426", "#cd1a8c", "#32c6c6", "#e29c22", "#206a8b", "#cf1515", "#4f5dd1"];
+const SPHERE_COLOR_BEYOND = "#8f8c80";
+/* PALETTE:END */
+
+const MAX_RANK = 12;
+
+/* Geometry - spec 5.2. BAND_HEIGHT and TARGET_VB_TOTAL_WIDTH are the locked values. The padding is
+   {24,12,24,16} since spec 2.0; the pre-2.0 block's {bottom:56, left:60} predates the move of strata labels into
+   the HTML overlay and left empty space left of and below the plot. */
+const CHART_BASE = { pad: { top: 24, right: 12, bottom: 24, left: 16 }, BAND_HEIGHT: 25, TARGET_VB_TOTAL_WIDTH: 828 };
+
+/* Deterministic stand-in for the "tech-adjacent candidate" judgement in section conservatism (spec 4.5).
+   Override per profile with render_options.show_tech_stack. Ids from job-families-and-industries.json v2.0. */
+const TECH_FAMILIES = new Set(["engineering_software", "data_science_ai_ml", "product_management",
+  "engineering_technical", "it_infrastructure_systems_administration"]);
+const TECH_INDUSTRIES = new Set(["technology_software", "internet_platforms", "hardware_electronics", "industrial_iot",
+  "telecommunications", "digital_health", "real_estate_proptech", "medical_devices", "aerospace_defense"]);
+
+/* Sections that never render by default (spec 4.5). render_options.extra_sections opts them in. */
+const EXTRA_SECTION_TITLES = {
+  languages: "Languages", areas_of_expertise: "Areas of Expertise", top_skills: "Top Skills",
+  personal_characteristics: "Personal Characteristics", interests: "Interests",
+  drivers_license: "Driver's License", references: "References"
+};
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const ORDINALS = ["First", "Second", "Third", "Fourth", "Fifth", "Sixth"];
+
+/* ---------------- small helpers ---------------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const isStr = v => typeof v === "string" && v.trim() !== "";
+const DATE_RE = /^(\d{4})-(\d{2})$/;
+function parseYM(s) {
+  const m = DATE_RE.exec(String(s == null ? "" : s).trim());
+  if (!m) return null;
+  const month = +m[2];
+  return month >= 1 && month <= 12 ? { year: +m[1], month } : null;
+}
+const monthIndex = ym => ym.year * 12 + (ym.month - 1);
+const ymFromIndex = i => ({ year: Math.floor(i / 12), month: (i % 12) + 1 });
+function lengthLabel(months) {
+  const y = Math.floor(months / 12), m = months % 12, parts = [];
+  if (y) parts.push(y + (y === 1 ? " year" : " years"));
+  if (m || !y) parts.push(m + (m === 1 ? " month" : " months"));
+  return parts.join(" ");
+}
+const shortLength = months => `${Math.floor(months / 12)}y ${months % 12}m`;
+const humanize = key => String(key).replace(/_/g, " ").replace(/^\w/, c => c.toUpperCase());
+function svgEl(name, attrs) {
+  const el = document.createElementNS(svgNS, name);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+/* Date -> fractional year (spec 5.2). Start of month for starts, start of NEXT month for ends. */
+const startOfMonth = (year, month) => year + (month - 1) / 12;
+const endOfMonth   = (year, month) => year + month / 12;
+
+/* ==========================================================================================
+   LOADING
+   ========================================================================================== */
+function boot() {
+  wireStaticControls();
+  const slot = $("profile-data");
+  const raw = slot ? slot.textContent.trim() : "";
+  if (raw && raw !== "null") {
+    let doc;
+    try { doc = JSON.parse(raw); }
+    catch (e) { return showProblems(["The embedded profile data is not valid JSON: " + e.message]); }
+    return start(doc);
+  }
+  const src = new URLSearchParams(location.search).get("data") || new URLSearchParams(location.hash.slice(1)).get("data");
+  if (src && src.startsWith("storage:")) return loadFromStorage(src.slice("storage:".length));
+  if (src) return loadFromUrl(src);
+  showLoader();
+}
+
+/* ?data=storage:<key> - a profile kept in this browser's localStorage (the workbench's upload box writes
+   one). The stored value is either the profile JSON itself or { name, text } wrapping its raw text. */
+function loadFromStorage(key) {
+  let stored = null;
+  try { stored = localStorage.getItem(key); } catch (e) { stored = null; }
+  if (!stored) {
+    showLoader();
+    return setStatus("The uploaded profile is no longer stored in this browser. Upload the JSON file again.", true);
+  }
+  let doc;
+  try {
+    doc = JSON.parse(stored);
+    // A wrapper carries the raw file in `text`; a bare profile has an object `candidate` and a `roles` array.
+    if (doc && typeof doc.text === "string" && !Array.isArray(doc.roles)) doc = JSON.parse(doc.text);
+  } catch (e) {
+    showLoader();
+    return setStatus("The stored profile is not valid JSON: " + e.message, true);
+  }
+  start(doc);
+}
+
+async function loadFromUrl(url) {
+  showLoader();
+  setStatus("Loading " + url + " ...");
+  try {
+    const res = await fetch(url, { cache: "no-cache" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const text = await res.text();
+    let doc;
+    try { doc = JSON.parse(text); } catch (e) { throw new Error("response is not valid JSON (" + e.message + ")"); }
+    start(doc);
+  } catch (e) {
+    const hint = location.protocol === "file:"
+      ? " Browsers block loading a URL from a page opened as a local file. Choose the JSON file instead, or serve this folder over http."
+      : " Check the address, and that the server hosting the JSON allows cross-origin requests (CORS).";
+    setStatus("Could not load " + url + ": " + e.message + "." + hint, true);
+  }
+}
+
+function loadFromFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let doc;
+    try { doc = JSON.parse(reader.result); }
+    catch (e) { showLoader(); return setStatus(file.name + " is not valid JSON: " + e.message, true); }
+    start(doc);
+  };
+  reader.onerror = () => { showLoader(); setStatus("Could not read " + file.name + ".", true); };
+  reader.readAsText(file);
+}
+
+function start(doc) {
+  const problems = checkContract(doc);
+  if (problems.length) return showProblems(problems);
+  try {
+    render(doc);
+  } catch (e) {
+    console.error(e);
+    showProblems(["The viewer could not render this profile: " + e.message]);
+  }
+}
+
+function showLoader() {
+  $("profile").hidden = true;
+  $("loader").hidden = false;
+  document.title = "Career Profile Viewer";
+}
+function setStatus(msg, isError) {
+  const el = $("loader-status");
+  el.textContent = msg || "";
+  el.classList.toggle("err", !!isError);
+  if (!isError) $("loader-errors").innerHTML = "";
+}
+function showProblems(problems) {
+  showLoader();
+  setStatus("This file does not match the career profile contract (schema 1.0):", true);
+  $("loader-errors").innerHTML = problems.slice(0, 40).map(p => `<li>${esc(p)}</li>`).join("") +
+    (problems.length > 40 ? `<li>...and ${problems.length - 40} more</li>` : "");
+}
+
+function wireStaticControls() {
+  $("file-input").addEventListener("change", e => loadFromFile(e.target.files[0]));
+  $("url-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const url = $("url-input").value.trim();
+    if (!url) return;
+    // Put the source in the address bar so the resulting page is a shareable link.
+    const next = new URL(location.href);
+    next.searchParams.set("data", url);
+    next.hash = "";
+    if (location.protocol === "file:") loadFromUrl(url);
+    else location.href = next.toString();
+  });
+  const dz = $("dropzone");
+  window.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("over"); });
+  window.addEventListener("dragleave", e => { if (!e.relatedTarget) dz.classList.remove("over"); });
+  window.addEventListener("drop", e => {
+    e.preventDefault();
+    dz.classList.remove("over");
+    if (e.dataTransfer && e.dataTransfer.files.length) loadFromFile(e.dataTransfer.files[0]);
+  });
+
+  $("synth-toggle").addEventListener("click", () => {
+    const btn = $("synth-toggle"), panel = $("synth-panel");
+    const open = btn.getAttribute("aria-expanded") !== "true";
+    btn.setAttribute("aria-expanded", String(open));
+    panel.hidden = !open;
+    btn.textContent = open ? "Hide career synthesis" : "Show career synthesis";
+  });
+  document.getElementById("pdf-btn").addEventListener("click", () => window.print());
+}
+
+/* ==========================================================================================
+   CONTRACT CHECK - the fields this viewer needs. Fails loudly instead of rendering wrong.
+   The full validator is scripts/validate_structured_json.py.
+   ========================================================================================== */
+function checkContract(doc) {
+  const p = [];
+  if (!doc || typeof doc !== "object" || Array.isArray(doc)) return ["The top level must be a JSON object."];
+  if (doc.$schema_version != null && String(doc.$schema_version).split(".")[0] !== "1")
+    p.push(`$schema_version is ${doc.$schema_version}; this viewer reads schema 1.x.`);
+  const c = doc.candidate;
+  if (!c || typeof c !== "object") p.push("candidate: missing.");
+  else if (!isStr(c.name)) p.push("candidate.name: missing.");
+  if (!Array.isArray(doc.roles) || !doc.roles.length) { p.push("roles: must be a non-empty array."); return p; }
+
+  const ids = new Set();
+  let anyOnChart = false;
+  doc.roles.forEach((r, i) => {
+    const at = `roles[${i}]` + (r && isStr(r.id) ? ` (${r.id})` : "");
+    if (!r || typeof r !== "object") { p.push(at + ": not an object."); return; }
+    ["id", "company", "title"].forEach(f => { if (!isStr(r[f])) p.push(`${at}.${f}: missing.`); });
+    if (isStr(r.id)) { if (ids.has(r.id)) p.push(`${at}.id: duplicate id.`); ids.add(r.id); }
+    const s = parseYM(r.start_date);
+    const e = r.end_date === "current" ? "current" : parseYM(r.end_date);
+    if (!s) p.push(`${at}.start_date: expected "YYYY-MM".`);
+    if (!e) p.push(`${at}.end_date: expected "YYYY-MM" or "current".`);
+    if (s && e && e !== "current" && monthIndex(e) < monthIndex(s)) p.push(`${at}: end_date is before start_date.`);
+    const onChart = !(r.render_policy && r.render_policy.on_chart === false);
+    if (!onChart) return;
+    anyOnChart = true;
+    const rank = r.strata && r.strata.rank;
+    if (!Number.isInteger(rank) || rank < 0 || rank > MAX_RANK) p.push(`${at}.strata.rank: expected an integer 0-12.`);
+    if (!Array.isArray(r.family_tags) || !r.family_tags.length) p.push(`${at}.family_tags: must be a non-empty array.`);
+    else r.family_tags.forEach((t, j) => {
+      if (!t || !isStr(t.family_id)) p.push(`${at}.family_tags[${j}].family_id: missing.`);
+      if (!t || typeof t.weight !== "number") p.push(`${at}.family_tags[${j}].weight: expected a number.`);
+    });
+  });
+  if (!p.length && !anyOnChart) p.push("No role is on the chart (every render_policy.on_chart is false), so there is nothing to draw.");
+  return p;
+}
+
+/* ==========================================================================================
+   MODEL - everything the page shows is derived here from the roles, so the header, chart,
+   and legend always describe the same set of bars.
+   ========================================================================================== */
+function resolveAsOf(doc) {
+  const opt = doc.render_options && doc.render_options.as_of;
+  const now = new Date();
+  const today = { year: now.getFullYear(), month: now.getMonth() + 1 };
+  if (opt === "today") return { ym: today, overridden: true };
+  if (parseYM(opt)) return { ym: parseYM(opt), overridden: true };
+  // Same reference "now" as the validator: an open-ended role runs to the file's `generated` month,
+  // so the stored aggregates and the drawn bars agree however old the file is.
+  const gen = isStr(doc.generated) ? parseYM(doc.generated.slice(0, 7)) : null;
+  return { ym: gen || today, overridden: false };
+}
+
+function normRole(r, asOf) {
+  const start = parseYM(r.start_date);
+  const end = r.end_date === "current" ? "current" : parseYM(r.end_date);
+  const startIdx = monthIndex(start);
+  const endIdx = Math.max(startIdx, monthIndex(end === "current" ? asOf : end));
+  const tags = (Array.isArray(r.family_tags) ? r.family_tags : []).filter(t => t && isStr(t.family_id));
+  // Highest weight wins; `>` keeps the first-listed entry on an exact tie.
+  const dominant = tags.length ? tags.reduce((best, t) => (t.weight > best.weight ? t : best)) : null;
+  const policy = r.render_policy || {};
+  return {
+    src: r, id: r.id, title: r.title, company: r.company,
+    start, end, endYM: ymFromIndex(endIdx), startIdx, endIdx, months: endIdx - startIdx + 1,
+    rank: r.strata ? r.strata.rank : null, tags, dominant,
+    onChart: policy.on_chart !== false, inText: policy.in_experience_text !== false,
+    estimated: r.is_estimated === true, singleSentence: r.single_sentence === true,
+    bullets: (Array.isArray(r.narrative_bullets) ? r.narrative_bullets : []).filter(b => typeof b === "string")
+  };
+}
+
+function dateLabel(r) {
+  const fmt = ym => (r.estimated ? String(ym.year) : `${MONTHS[ym.month - 1]} ${ym.year}`);
+  return fmt(r.start) + " - " + (r.end === "current" ? "Present" : fmt(r.end));
+}
+
+function buildSpheres(doc, onChart) {
+  const nameOf = new Map();
+  onChart.forEach(r => r.tags.forEach(t => { if (!nameOf.has(t.family_id)) nameOf.set(t.family_id, t.family_name || humanize(t.family_id)); }));
+
+  // Months-where-dominant over the drawn bars (parsing.md "Professional spheres"), so the legend can never
+  // disagree with the chart. Ties follow the parse's stored ranking when it has one, else family_id A-Z.
+  const monthsBy = new Map();
+  onChart.forEach(r => monthsBy.set(r.dominant.family_id, (monthsBy.get(r.dominant.family_id) || 0) + r.months));
+  const stored = doc.aggregates && Array.isArray(doc.aggregates.professional_spheres_ranked_by_dominant)
+    ? doc.aggregates.professional_spheres_ranked_by_dominant.map(s => s && s.family_id) : [];
+  const storedPos = id => (stored.indexOf(id) < 0 ? Infinity : stored.indexOf(id));
+  const ranked = [...monthsBy]
+    .sort((a, b) => b[1] - a[1] || storedPos(a[0]) - storedPos(b[0]) || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
+    .map(([id, months]) => ({ family_id: id, family_name: nameOf.get(id), months }));
+
+  const palette = new Map();
+  const colorFor = rank => SPHERE_COLORS[rank - 1] || SPHERE_COLOR_BEYOND;
+  ranked.forEach((s, i) => palette.set(s.family_id, { rank: i + 1, color: colorFor(i + 1), name: s.family_name }));
+  // Secondary families (never dominant) take the next ranks: bar-stripe and tooltip colour, no legend pill.
+  let next = ranked.length + 1;
+  onChart.forEach(r => r.tags.forEach(t => {
+    if (!palette.has(t.family_id)) { palette.set(t.family_id, { rank: next, color: colorFor(next), name: nameOf.get(t.family_id) }); next++; }
+  }));
+  return { ranked, palette };
+}
+
+function companyNotes(allRoles) {
+  const notes = new Map(); // role id -> [note strings]
+  const add = (id, text) => { if (!notes.has(id)) notes.set(id, []); notes.get(id).push(text); };
+  const chrono = [...allRoles].sort((a, b) => a.startIdx - b.startIdx || a.endIdx - b.endIdx);
+  const byCompany = new Map();
+  chrono.forEach(r => { if (!byCompany.has(r.company)) byCompany.set(r.company, []); byCompany.get(r.company).push(r); });
+
+  byCompany.forEach(roles => {
+    // company_history_note: on the most recent role at that employer (spec 4.6).
+    const withHistory = roles.filter(r => isStr(r.src.company_history_note));
+    if (withHistory.length) {
+      const latest = roles[roles.length - 1];
+      add(latest.id, withHistory[withHistory.length - 1].src.company_history_note);
+    }
+    // Boomerang re-engagement: another employer's role began after the earlier stint ended.
+    let engagement = 1;
+    roles.forEach((r, i) => {
+      if (isStr(r.src.boomerang_note)) { add(r.id, r.src.boomerang_note); return; }
+      if (i === 0) return;
+      const prior = roles.slice(0, i).reduce((a, b) => (b.endIdx > a.endIdx ? b : a));
+      if (r.startIdx <= prior.endIdx + 1) return;
+      const elsewhere = chrono.some(x => x.company !== r.company && x.startIdx > prior.endIdx && x.startIdx < r.startIdx);
+      if (!elsewhere) return;
+      engagement++;
+      const ord = ORDINALS[engagement - 1] ? `${ORDINALS[engagement - 1]} engagement` : `Engagement ${engagement}`;
+      add(r.id, `${ord} - previously ${prior.title}, ${dateLabel(prior)}`);
+    });
+  });
+  allRoles.forEach(r => { if (isStr(r.src.title_history_note)) add(r.id, r.src.title_history_note); });
+  return notes;
+}
+
+/* ==========================================================================================
+   RENDER
+   ========================================================================================== */
+function render(doc) {
+  const c = doc.candidate;
+  const opts = (doc.render_options && typeof doc.render_options === "object") ? doc.render_options : {};
+  const asOf = resolveAsOf(doc);
+  const roles = doc.roles.map(r => normRole(r, asOf.ym));
+  const onChart = roles.filter(r => r.onChart).sort((a, b) => a.startIdx - b.startIdx || a.endIdx - b.endIdx);
+  const { ranked, palette } = buildSpheres(doc, onChart);
+  const colorOf = id => (palette.get(id) || {}).color || SPHERE_COLOR_BEYOND;
+
+  document.title = `${c.name}, Career Ladder`;
+
+  renderBanner(opts);
+  renderHero(c);
+  renderSynthesis(c);
+  renderTenure(onChart);
+  renderChart(onChart, asOf.ym, colorOf, opts);
+  renderLegend(ranked, colorOf);
+  renderSections(doc, roles, onChart, opts);
+
+  $("loader").hidden = true;
+  $("profile").hidden = false;
+}
+
+let bannerTimer = null;
+function renderBanner(opts) {
+  const banner = $("topbanner");
+  if (!banner) return;
+  if (opts.show_attribution_banner === false) { banner.remove(); return; }
+  if (bannerTimer === null) {
+    // Plain timeout, no transitionend: under prefers-reduced-motion there is no transition event.
+    bannerTimer = setTimeout(() => banner.classList.add("collapsed"), 7000);
+  }
+}
+
+function renderHero(c) {
+  const contact = c.contact || {};
+  $("hero-name").textContent = c.name;
+  const parts = [];
+  if (isStr(contact.phone)) parts.push(esc(contact.phone));
+  if (isStr(contact.email)) parts.push(`<a href="mailto:${esc(contact.email)}">${esc(contact.email)}</a>`);
+  if (isStr(contact.linkedin)) {
+    parts.push(/^https?:\/\//i.test(contact.linkedin)
+      ? `<a href="${esc(contact.linkedin)}" target="_blank" rel="noopener">${esc(contact.linkedin)}</a>`
+      : esc(contact.linkedin));
+  }
+  $("hero-contacts").innerHTML = parts.join(" &nbsp;&middot;&nbsp; ");
+  $("hero-contacts").hidden = !parts.length;
+  // Hero rule (STRICT): location verbatim, plus work authorization only when populated. Nothing else.
+  const loc = [contact.location, contact.work_authorization].filter(isStr).map(esc);
+  $("hero-loc").innerHTML = loc.join(" &nbsp;&middot;&nbsp; ");
+  $("hero-loc").hidden = !loc.length;
+}
+
+function renderSynthesis(c) {
+  const has = isStr(c.career_synthesis);
+  const btn = $("synth-toggle"), panel = $("synth-panel");
+  btn.hidden = !has;
+  $("synth-sep").hidden = !has;
+  panel.textContent = has ? c.career_synthesis : "";
+  // Deliberately not persisted: every load starts collapsed.
+  panel.hidden = true;
+  btn.setAttribute("aria-expanded", "false");
+  btn.textContent = "Show career synthesis";
+}
+
+function renderTenure(onChart) {
+  // N and M are ON-CHART counts, so the header always describes the bars beneath it.
+  const first = Math.min(...onChart.map(r => r.startIdx));
+  const last = Math.max(...onChart.map(r => r.endIdx));
+  const employers = new Set(onChart.map(r => r.company)).size;
+  const peakRank = Math.max(...onChart.map(r => r.rank));
+  const peak = LEVELS[peakRank];
+  const peakLabel = peak.code === peak.name ? peak.code : `${peak.code} ${peak.name}`;
+  $("tenure").innerHTML =
+    `Career path span <b>${esc(lengthLabel(last - first + 1))}</b> &middot; ` +
+    `<b>${onChart.length} ${onChart.length === 1 ? "role" : "roles"}</b> &middot; ` +
+    `<b>${employers} ${employers === 1 ? "employer" : "employers"}</b><br>` +
+    `Peak job level &middot; <b>${esc(peakLabel)}</b>`;
+}
+
+function renderChart(onChart, today, colorOf, opts) {
+  const CHART = JSON.parse(JSON.stringify(CHART_BASE));
+  const svg = $("chart");
+  const axisEl = $("strata-axis");
+  const tooltip = $("tooltip");
+  svg.innerHTML = "";
+  axisEl.innerHTML = "";
+
+  /* ---- time axis (spec 5.1 / 5.2) ---- */
+  const xStart = r => startOfMonth(r.start.year, r.start.month);
+  const xEnd = r => endOfMonth(r.endYM.year, r.endYM.month); // "current" already resolved to the as-of month
+  let earliestRoleStart = Infinity, latestRoleEnd = -Infinity;
+  onChart.forEach(r => {
+    earliestRoleStart = Math.min(earliestRoleStart, xStart(r));
+    latestRoleEnd = Math.max(latestRoleEnd, xEnd(r));
+  });
+  const chartStart = Math.floor(earliestRoleStart);
+  const chartEnd = Math.max(Math.ceil(latestRoleEnd), today.year + 1);
+  const chartSpanYears = chartEnd - chartStart;
+
+  /* ---- strata bands (spec 5.3): floor never clamped, one breathing band above, capped at 12 ---- */
+  const ranks = onChart.map(r => r.rank);
+  const floorRank = Math.min(...ranks);
+  const topRank = Math.min(MAX_RANK, Math.max(...ranks) + 1);
+  const strataBands = LEVELS.filter(l => l.rank >= floorRank && l.rank <= topRank);
+
+  CHART.vw = CHART.TARGET_VB_TOTAL_WIDTH;
+  CHART.plotW = CHART.vw - CHART.pad.left - CHART.pad.right;
+  CHART.VB_PER_YEAR = CHART.plotW / chartSpanYears;
+  CHART.plotH = strataBands.length * CHART.BAND_HEIGHT;
+  CHART.vh = CHART.plotH + CHART.pad.top + CHART.pad.bottom;
+
+  svg.setAttribute("viewBox", `0 0 ${CHART.vw} ${CHART.vh}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+
+  const bandIndex = rank => rank - floorRank;                                   // NOT rank - 1
+  const fromTop = rank => strataBands.length - 1 - bandIndex(rank);
+  const yForRank = rank => CHART.pad.top + fromTop(rank) * CHART.BAND_HEIGHT;
+  const xFor = frac => CHART.pad.left + (frac - chartStart) * CHART.VB_PER_YEAR;
+  const plotBottom = CHART.pad.top + CHART.plotH;
+
+  const defs = svgEl("defs", {});
+  defs.innerHTML = `<pattern id="estimated-hatch" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="5" stroke="rgba(255,255,255,0.55)" stroke-width="1.6"/></pattern>`;
+  svg.appendChild(defs);
+
+  strataBands.forEach(b => {
+    const y = yForRank(b.rank);
+    svg.appendChild(svgEl("rect", { x: CHART.pad.left, y, width: CHART.plotW, height: CHART.BAND_HEIGHT,
+      fill: b.rank % 2 === 0 ? "var(--band)" : "transparent", opacity: "0.55" }));
+    svg.appendChild(svgEl("line", { x1: CHART.pad.left, x2: CHART.pad.left + CHART.plotW, y1: y + CHART.BAND_HEIGHT, y2: y + CHART.BAND_HEIGHT,
+      stroke: "var(--line)", "stroke-width": "0.5", "stroke-dasharray": "2 3" }));
+  });
+
+  for (let yr = chartStart; yr <= chartEnd; yr++) {
+    if (yr % 2 !== 0 && chartSpanYears > 14) continue;
+    const x = xFor(yr);
+    svg.appendChild(svgEl("line", { x1: x, x2: x, y1: CHART.pad.top, y2: plotBottom, stroke: "var(--line)", "stroke-width": "0.5" }));
+    const t = svgEl("text", { x, y: plotBottom + 16, "font-size": "9", fill: "var(--ink-3)", "text-anchor": "middle", "font-family": "Inter, sans-serif" });
+    t.textContent = yr;
+    svg.appendChild(t);
+  }
+
+  /* ---- same-employer staircase (spec 5.5): group by company across ALL on-chart roles ---- */
+  const byCompany = new Map();
+  onChart.forEach(r => { if (!byCompany.has(r.company)) byCompany.set(r.company, []); byCompany.get(r.company).push(r); });
+  // One translucent group, opaque rects inside: overlapping blocks (a shared boundary month, concurrent roles,
+  // two companies meeting in the same month) merge instead of stacking into darker seams.
+  const arcLayer = svgEl("g", { class: "same-employer-arcs", opacity: "0.10", style: "pointer-events:none" });
+  byCompany.forEach(group => {
+    if (group.length < 2) return;
+    group.forEach(r => {
+      const x1 = xFor(xStart(r)), x2 = xFor(xEnd(r));
+      const y = yForRank(r.rank) + CHART.BAND_HEIGHT;
+      if (plotBottom - y <= 0) return;
+      arcLayer.appendChild(svgEl("rect", { class: "same-employer-arc-block", x: x1, y, width: Math.max(0, x2 - x1),
+        height: plotBottom - y, fill: "var(--ink-3)" }));
+    });
+  });
+  svg.appendChild(arcLayer);
+
+  /* ---- lane splitting for concurrent same-rank roles (spec 5.6) ---- */
+  // Discrete month test: touching at a month boundary is not overlap.
+  const overlaps = (a, b) => a.startIdx < b.endIdx && b.startIdx < a.endIdx;
+  const lane = new Map();
+  const byRank = new Map();
+  onChart.forEach(r => { if (!byRank.has(r.rank)) byRank.set(r.rank, []); byRank.get(r.rank).push(r); });
+  byRank.forEach(group => {
+    const assigned = [];
+    group.forEach(r => { // already chronological
+      const count = group.filter(x => x === r || overlaps(r, x)).length;
+      const taken = new Set(assigned.filter(x => overlaps(r, x)).map(x => lane.get(x.id).idx));
+      let idx = 0;
+      while (taken.has(idx)) idx++;
+      lane.set(r.id, { count, idx: Math.min(idx, count - 1) });
+      assigned.push(r);
+    });
+  });
+
+  /* ---- bars (spec 5.7) ---- */
+  const striped = opts.bar_style === "striped";
+  const card = $("chart-card");
+  onChart.forEach(r => {
+    const x1 = xFor(xStart(r)), x2 = xFor(xEnd(r));
+    const { count, idx } = lane.get(r.id);
+    const fullH = CHART.BAND_HEIGHT - 8;
+    const laneH = fullH / count;
+    const y = yForRank(r.rank) + (CHART.BAND_HEIGHT - fullH) / 2 + idx * laneH;
+    const h = Math.max(4, laneH - (count > 1 ? 1.5 : 0));
+    const w = Math.max(2, x2 - x1);
+    const famId = r.dominant.family_id;
+
+    let bar;
+    if (striped && r.tags.length > 1 && !r.singleSentence) {
+      bar = svgEl("g", { class: "bar", "data-role": r.id, "data-family": famId });
+      const total = r.tags.reduce((s, t) => s + (t.weight > 0 ? t.weight : 0), 0) || 1;
+      let yy = y;
+      [...r.tags].sort((a, b) => b.weight - a.weight).forEach(t => {
+        const sh = h * (Math.max(0, t.weight) / total);
+        bar.appendChild(svgEl("rect", { x: x1, y: yy, width: w, height: sh, fill: colorOf(t.family_id) }));
+        yy += sh;
+      });
+      bar.appendChild(svgEl("rect", { x: x1, y, width: w, height: h, fill: "none", stroke: "var(--paper)", "stroke-width": "0.5" }));
+    } else {
+      bar = svgEl("rect", { class: "bar", "data-role": r.id, "data-family": famId, x: x1, y, width: w, height: h, rx: "2.5", fill: colorOf(famId) });
+    }
+    if (r.estimated) bar.setAttribute("opacity", "0.55");
+    svg.appendChild(bar);
+    if (r.estimated) {
+      svg.appendChild(svgEl("rect", { class: "bar-hatch", "data-family": famId, x: x1, y, width: w, height: h, rx: "2.5",
+        fill: "url(#estimated-hatch)", style: "pointer-events:none" }));
+    }
+
+    bar.addEventListener("mousemove", ev => showTooltip(ev, r));
+    bar.addEventListener("mouseleave", hideTooltip);
+    bar.addEventListener("click", () => { hideTooltip(); jumpTo(r.id); });
+  });
+
+  function showTooltip(ev, r) {
+    const tags = [...r.tags].sort((a, b) => b.weight - a.weight);
+    const lbl = r.singleSentence ? "Professional sphere" : "Responsibilities by Professional Sphere";
+    const rows = tags.map(t => {
+      const pct = Math.round(t.weight * 100);
+      return `<div class="tt-row"><div class="tt-swwrap"><div class="tt-sw" style="width:${Math.max(0, Math.min(100, pct))}%;background:${colorOf(t.family_id)}"></div></div>` +
+        `<span class="tt-nm">${esc(t.family_name || humanize(t.family_id))}</span><span class="tt-pct">${pct}%</span></div>`;
+    }).join("");
+    tooltip.innerHTML = `<div class="tt-dates">${esc(dateLabel(r))}</div><div class="tt-title">${esc(r.title)}</div>` +
+      `<div class="tt-co">${esc(r.company)}</div><div class="tt-lbl">${lbl}</div>${rows}`;
+    const box = card.getBoundingClientRect();
+    let lx = ev.clientX - box.left + 14;
+    const ty = ev.clientY - box.top + 14;
+    if (lx + 300 > box.width) lx = box.width - 306;
+    tooltip.style.left = Math.max(4, lx) + "px";
+    tooltip.style.top = ty + "px";
+    tooltip.style.opacity = "1";
+  }
+  function hideTooltip() { tooltip.style.opacity = "0"; }
+
+  /* ---- strata axis overlay (spec 5.4, LOCKED alignment rules) ---- */
+  strataBands.forEach(b => {
+    const center = CHART.pad.top + fromTop(b.rank) * CHART.BAND_HEIGHT + CHART.BAND_HEIGHT / 2;
+    const div = document.createElement("div");
+    div.className = "strata-label";
+    div.style.top = (center / CHART.vh) * 100 + "%";              // pure %, no px term
+    div.textContent = b.code === "C-Level" ? "C" : b.code;           // display-only shortening
+    div.title = b.name;
+    axisEl.appendChild(div);
+  });
+}
+
+function jumpTo(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const stickyH = $("chart-card").offsetHeight;
+  const top = el.getBoundingClientRect().top + window.scrollY - stickyH - 24;
+  window.scrollTo({ top, behavior: "smooth" });
+  el.classList.remove("role-highlight");
+  void el.offsetWidth;
+  el.classList.add("role-highlight");
+}
+
+let activeFilter = null;
+function renderLegend(ranked, colorOf) {
+  const legend = $("legend");
+  legend.innerHTML = "";
+  activeFilter = null;
+  ranked.forEach(s => {
+    const pill = document.createElement("button");
+    pill.type = "button";
+    pill.className = "pill";
+    pill.dataset.family = s.family_id;
+    pill.innerHTML = `<span class="sw" style="background:${colorOf(s.family_id)}"></span>` +
+      `<span class="nm">${esc(s.family_name)}</span><span class="du">${shortLength(s.months)}</span>`;
+    pill.addEventListener("click", () => {
+      activeFilter = activeFilter === s.family_id ? null : s.family_id;
+      legend.querySelectorAll(".pill").forEach(p => p.classList.toggle("off", !!activeFilter && p.dataset.family !== activeFilter));
+      document.querySelectorAll("#chart .bar, #chart .bar-hatch")
+        .forEach(b => b.classList.toggle("dim", !!activeFilter && b.dataset.family !== activeFilter));
+    });
+    legend.appendChild(pill);
+  });
+}
+
+function roleArticle(r, notes) {
+  const noteHtml = (notes.get(r.id) || []).map(n => `<div class="role-note">${esc(n)}</div>`).join("");
+  // AI synthesis panel: composed text must already be in the JSON (role_synthesis); only for 8+ bullets.
+  const summary = isStr(r.src.role_synthesis) && r.bullets.length >= 8
+    ? `<p class="role-summary">${esc(r.src.role_synthesis)}</p>` : "";
+  const bullets = r.bullets.length
+    ? `<ul class="role-bullets">${r.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : "";
+  return `<article class="role" id="${esc(r.id)}"><div class="role-head">` +
+    `<div><div class="role-title">${esc(r.title)}</div><div class="role-co">${esc(r.company)}</div>${noteHtml}</div>` +
+    `<div class="role-dates">${esc(dateLabel(r))}</div></div>${summary}${bullets}</article>`;
+}
+
+function renderSections(doc, roles, onChart, opts) {
+  const c = doc.candidate;
+  const out = [];
+  const reverseChrono = list => [...list].sort((a, b) => b.startIdx - a.startIdx || b.endIdx - a.endIdx);
+
+  /* Experience */
+  const inText = roles.filter(r => r.inText);
+  const internships = (Array.isArray(doc.internships) ? doc.internships : [])
+    .filter(r => r && isStr(r.title) && isStr(r.company) && parseYM(r.start_date) && (r.end_date === "current" || parseYM(r.end_date)))
+    .map((r, i) => normRole(Object.assign({ id: `internship_${i + 1}` }, r, { family_tags: [] }), resolveAsOf(doc).ym));
+  const notes = companyNotes(roles);
+  out.push(`<h2 class="section-title">Experience</h2>`);
+  out.push(reverseChrono(inText).map(r => roleArticle(r, notes)).join(""));
+  if (internships.length) {
+    out.push(`<div class="internships"><h3 class="sub-title">Internships</h3>` +
+      reverseChrono(internships).map(r => roleArticle(r, new Map())).join("") + `</div>`);
+  }
+
+  /* Education - never any dates (spec 4.4) */
+  const edu = (Array.isArray(c.education) ? c.education : []).filter(e => e && (isStr(e.institution) || isStr(e.degree)));
+  const certs = (Array.isArray(c.certifications) ? c.certifications : [])
+    .map(x => (typeof x === "string" ? x : x && x.name)).filter(isStr);
+  if (edu.length || certs.length) {
+    const period = s => (/[.!?]$/.test(s) ? s : s + ".");
+    out.push(`<h2 class="section-title">Education</h2>`);
+    out.push(edu.map(e => {
+      const rest = [e.degree, e.field].filter(isStr).join(", ");
+      return `<div class="edu-item">${isStr(e.institution) ? `<b>${esc(period(e.institution))}</b> ` : ""}${rest ? esc(period(rest)) : ""}</div>`;
+    }).join(""));
+    if (certs.length) out.push(`<div class="certs">${certs.map(esc).join(" &nbsp;&middot;&nbsp; ")}</div>`);
+  }
+
+  /* Honors - render when present */
+  const honors = (Array.isArray(c.honors) ? c.honors : []).map(h => (typeof h === "string" ? h : h && (h.name || h.title))).filter(isStr);
+  if (honors.length) {
+    out.push(`<h2 class="section-title plain">Honors</h2><ul class="plain-list">${honors.map(h => `<li>${esc(h)}</li>`).join("")}</ul>`);
+  }
+
+  /* Tech stack - when present AND the candidate is tech-adjacent (or render_options forces it) */
+  const groups = techGroups(c.tech_stack, opts.tech_stack_labels);
+  const techAdjacent = onChart.some(r => r.tags.some(t => TECH_FAMILIES.has(t.family_id)) ||
+    (r.src.industry && TECH_INDUSTRIES.has(r.src.industry.id)));
+  if (groups.length && (opts.show_tech_stack === true || (opts.show_tech_stack !== false && techAdjacent))) {
+    out.push(`<h2 class="section-title">Tech Stack</h2>` + groups.map(g =>
+      `<div class="tech-grp"><div class="tg-lbl">${esc(g.label)}</div><div class="chips">` +
+      g.items.map(t => `<span class="chip">${esc(t)}</span>`).join("") + `</div></div>`).join(""));
+  }
+
+  /* Opt-in sections - only when render_options.extra_sections names them (explicit user request) */
+  (Array.isArray(opts.extra_sections) ? opts.extra_sections : []).forEach(key => {
+    const val = c[key];
+    const title = EXTRA_SECTION_TITLES[key] || humanize(key);
+    const items = (Array.isArray(val) ? val : [val])
+      .map(v => (typeof v === "string" ? v : v && (v.name || v.language || v.title))).filter(isStr);
+    if (items.length) out.push(`<h2 class="section-title plain">${esc(title)}</h2><div class="chips">${items.map(t => `<span class="chip">${esc(t)}</span>`).join("")}</div>`);
+  });
+
+  out.push(`<footer></footer>`);
+  $("sections").innerHTML = out.join("");
+}
+
+function techGroups(ts, labels) {
+  const defaults = { domain_specific: "Domain specific", general_purpose: "General purpose" };
+  const lbl = Object.assign({}, defaults, labels && typeof labels === "object" ? labels : {});
+  const clean = arr => (Array.isArray(arr) ? arr : []).filter(isStr);
+  if (Array.isArray(ts)) return clean(ts).length ? [{ label: "Tools", items: clean(ts) }] : [];
+  if (!ts || typeof ts !== "object") return [];
+  const order = ["domain_specific", "general_purpose", ...Object.keys(ts).filter(k => !(k in defaults))];
+  return order.map(k => ({ label: lbl[k] || humanize(k), items: clean(ts[k]) })).filter(g => g.items.length);
+}
+
+boot();
+})();
+</script>
+</body>
+</html>

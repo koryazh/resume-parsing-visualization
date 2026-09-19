@@ -7,7 +7,8 @@ against the skill's reference data (leveling-framework.json, job-families-and-in
 
 This exists because the schema is the contract between Phase 1 (parsing) and Phase 2
 (rendering), and "fail loudly if a required field is missing" was previously only a
-prose instruction. Run this between the two phases.
+prose instruction. Run this between the two phases - scripts/build_profile.py runs it
+for you and refuses to build while any ERROR stands.
 
 Usage
 -----
@@ -24,7 +25,7 @@ Exit codes
 
 Severity
 --------
-    ERROR  Phase 2 will render wrong or crash. Fix before rendering.
+    ERROR  The page will render wrong or the build will refuse the file. Fix before rendering.
     WARN   Probably a mistake, but renderable. Review before shipping.
 
 No third-party dependencies - standard library only.
@@ -250,12 +251,29 @@ def check_role(role, i, ids, levels, families, job_types, industries, rep, as_of
     # --- bullets
     bullets = role.get("narrative_bullets")
     if not isinstance(bullets, list) or not bullets:
-        rep.error("%s.narrative_bullets" % p, "missing or empty - the textual half renders from this")
+        # A WARN, not an ERROR (spec 2.0): resumes and LinkedIn exports do carry title-only roles, and
+        # the viewer renders one correctly as a head with dates and no body. Confirm the source really
+        # has no description rather than treating this as a parse failure.
+        rep.warn("%s.narrative_bullets" % p,
+                 "missing or empty - the role renders as a title and dates only; confirm the source has "
+                 "no description for it")
     else:
         rep.ok()
         if role.get("single_sentence") is True and len(bullets) > 1:
             rep.warn("%s.single_sentence" % p,
                      "true but there are %d bullets" % len(bullets))
+        # Composed panels are written by Phase 1; the viewer cannot compose prose (spec 2.0).
+        synth = role.get("role_synthesis")
+        if len(bullets) >= 8 and not (isinstance(synth, str) and synth.strip()):
+            rep.warn("%s.role_synthesis" % p,
+                     "%d bullets but no composed role_synthesis - the AI SYNTHESIS panel will be absent"
+                     % len(bullets))
+        elif isinstance(synth, str) and synth.strip() and len(bullets) < 8:
+            rep.warn("%s.role_synthesis" % p,
+                     "present but the role has %d bullets; the viewer renders the panel only at 8 or more"
+                     % len(bullets))
+        else:
+            rep.ok()
 
     # --- strata
     st = role.get("strata")
@@ -362,6 +380,39 @@ def check_role(role, i, ids, levels, families, job_types, industries, rep, as_of
                       "%r does not match any role id" % con["previous_role_id"])
 
 
+def check_composed_fields(doc, rep):
+    """Phase 1 writes the composed prose; Phase 2 only renders what the JSON carries (spec 2.0)."""
+    cand = doc.get("candidate")
+    if not isinstance(cand, dict):
+        return
+    cs = cand.get("career_synthesis")
+    if not (isinstance(cs, str) and cs.strip()):
+        rep.warn("candidate.career_synthesis",
+                 "absent - the full-career AI SYNTHESIS block will not render. Compose it in Phase 1 or "
+                 "confirm with the user that the page should ship without it")
+    else:
+        rep.ok()
+
+
+def check_render_options(doc, rep):
+    known = {"bar_style", "as_of", "show_tech_stack", "tech_stack_labels", "extra_sections",
+             "show_attribution_banner"}
+    ro = doc.get("render_options")
+    if ro is None:
+        return
+    if not isinstance(ro, dict):
+        rep.error("render_options", "expected an object")
+        return
+    for k in ro:
+        if k not in known:
+            rep.warn("render_options.%s" % k, "unknown key - the viewer ignores it")
+    if "bar_style" in ro and ro["bar_style"] not in ("solid", "striped"):
+        rep.error("render_options.bar_style", "%r is not 'solid' or 'striped'" % ro["bar_style"])
+    if "extra_sections" in ro and not isinstance(ro["extra_sections"], list):
+        rep.error("render_options.extra_sections", "expected an array of candidate keys")
+    rep.ok()
+
+
 def check_aggregates(doc, rep, families):
     agg = doc.get("aggregates")
     if not isinstance(agg, dict):
@@ -400,10 +451,6 @@ def check_aggregates(doc, rep, families):
                       % (peak.get("rank"), max(ranks)))
         else:
             rep.ok()
-        if min(ranks) == RANK_MIN:
-            rep.warn("aggregates",
-                     "chart floor is rank 0 (P1) - confirm the renderer computes band index as "
-                     "`rank - floorRank`, not `rank - 1` (see visualization spec 5.3)")
 
     # --- sphere ranking
     spheres = agg.get("professional_spheres_ranked_by_dominant")
@@ -493,6 +540,8 @@ def validate(doc, ref_dir):
             check_role(r, i, idset, levels, families, job_types, industries, rep, as_of)
 
     check_aggregates(doc, rep, families)
+    check_composed_fields(doc, rep)
+    check_render_options(doc, rep)
     check_data_quality(doc, rep)
     return rep
 
@@ -537,11 +586,11 @@ def main():
         for f in findings:
             print("%-5s %s\n      %s" % (f["severity"], f["path"], f["message"]))
         if not findings:
-            print("clean - %d checks passed, ready for Phase 2" % rep.checks)
+            print("clean - %d checks passed, ready for scripts/build_profile.py" % rep.checks)
         else:
             print("\n%d error(s), %d warning(s)" % (len(rep.errors), len(rep.warns)))
             if rep.errors:
-                print("Phase 2 will render incorrectly until the errors are fixed.")
+                print("scripts/build_profile.py will refuse to build until the errors are fixed.")
 
     if rep.errors or (args.strict and rep.warns):
         return 1

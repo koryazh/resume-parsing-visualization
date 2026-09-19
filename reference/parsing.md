@@ -22,6 +22,7 @@ Before starting a new parse, read:
 - Role type (IC vs People Manager - reflects team-leadership, not level)
 - Render policy (on-chart / in-experience-text)
 - Data quality notes for any borderline call
+- `role_synthesis` (composed) for any role with 8 or more bullets - see "Composed text" below
 
 **Step 3** (interactive, BLOCKING): Surface borderline calls to the user and **wait for an answer** before finalizing the JSON. Do not resolve any call below by applying a documented default and moving on. A default exists so there is somewhere to land once the user answers, not so the question can be skipped. Silent defaulting has produced wrong output in real runs and is a failure of this step, not a shortcut.
 
@@ -168,7 +169,13 @@ This split lets the visualization surface TA as a distinct sphere (its own color
 
 Single-valued per role. If the company spans industries, pick the closer fit and note the alternative in reasoning.
 
-**Taxonomy gap handling (precedent set 2026-07-19)**: if no existing industry or job_type fits, add a new one directly to `reference-data/job-families-and-industries.json` (industries can be added without a version bump; job_types likewise don't require one) rather than force-fitting to an imperfect neighbor. Always flag the addition in `data_quality` with the reasoning for why existing options didn't fit. Precedents already in the taxonomy from a real-world test parse: industry `agriculture_food_manufacturing` (multi-industry agroholding - agriculture, meat processing, FMCG wholesale; none of `industrial_iot`/`retail`/others fit) and job_type `consumer_retail_sales` under the `sales` family (entry-level auto dealership sales; none of `enterprise_sales`/`account_management`/`business_development` fit).
+**Taxonomy gap handling (precedent set 2026-07-19; scope clarified spec 2.0)**: if no existing industry or job_type fits, do not force-fit to an imperfect neighbor.
+
+- **Ask the user first.** A new industry changes the taxonomy for every future parse, and the closest existing fit is often acceptable to them.
+- **Working inside the source repository** (the skill's own folder, under version control): add the entry directly to `reference-data/job-families-and-industries.json`. Industries and job_types can both be added without a version bump. Log it in the file's `notes` with the date and the parse that prompted it.
+- **Working from an installed copy of the skill**: that folder is a per-session copy and any edit to it is discarded. Tag the closest existing entry, record the proposed new id, name and reasoning in `data_quality`, and tell the user the taxonomy needs the addition. Do not silently invent a `family_id` or `industry.id` that is not in the file - the validator rejects unknown ids, and an unknown `family_id` renders a bar with no colour.
+
+Always flag the addition or the proposal in `data_quality` with the reasoning for why existing options didn't fit. Precedents already in the taxonomy from a real-world test parse: industry `agriculture_food_manufacturing` (multi-industry agroholding - agriculture, meat processing, FMCG wholesale; none of `industrial_iot`/`retail`/others fit) and job_type `consumer_retail_sales` under the `sales` family (entry-level auto dealership sales; none of `enterprise_sales`/`account_management`/`business_development` fit).
 
 ### Professional spheres - roll-up from per-role weights to candidate ranking
 
@@ -211,6 +218,8 @@ The per-role `family_tags` array describes the **role's** professional sphere co
       "work_authorization": "null unless source resume states it"
     },
     "summary": "verbatim summary paragraph from resume if present",
+    "headline": "verbatim LinkedIn headline if present; captured, never rendered",
+    "top_skills": ["captured from a LinkedIn export; never rendered by default"],
     "career_synthesis": "composed 3-4 sentence narrative of the whole career, or null",
     "areas_of_expertise": ["..."],
     "education": [
@@ -250,6 +259,8 @@ The per-role `family_tags` array describes the **role's** professional sphere co
         "Another verbatim bullet..."
       ],
       "narrative_source_note": "Optional; captures LinkedIn-augmented bullets etc.",
+      "role_synthesis": "Composed 2-3 sentence TL;DR. Write it for roles with 8+ bullets; rendered as the AI SYNTHESIS panel.",
+      "boomerang_note": "Optional. Overrides the auto-detected 'Second engagement - previously ...' line.",
 
       "strata": {
         "code": "M5",
@@ -298,6 +309,16 @@ The per-role `family_tags` array describes the **role's** professional sphere co
   ],
 
   "internships": [ /* same shape as roles, optional */ ],
+
+  "render_options": {
+    "_comment": "Optional. Only ever populated from an explicit user request; see reference/viewer-contract.md.",
+    "bar_style": "solid | striped",
+    "as_of": "today | YYYY-MM",
+    "show_tech_stack": true,
+    "tech_stack_labels": { "domain_specific": "HR / TA platforms" },
+    "extra_sections": ["languages"],
+    "show_attribution_banner": true
+  },
 
   "aggregates": {
     "career_start": "YYYY-MM",
@@ -349,7 +370,11 @@ The per-role `family_tags` array describes the **role's** professional sphere co
 4. **Summary paragraph** captured verbatim if present. The renderer does NOT render this - it's kept in JSON for downstream consumers (job-matching, search).
 5. **Section conservatism**: capture Languages, Top Skills, Personal Characteristics, Interests, Driver's License, References in JSON if present, but flag in `data_quality` that they should NOT render by default.
 6. **Audit trail is mandatory** for every borderline strata call. Include the reasoning chain in `strata.reasoning` and a `data_quality` entry if the call was revised or overridden.
-7. **`candidate.career_synthesis` is the one composed field (NEW 2026-09-04, spec v1.7).** Every other narrative field in this schema is verbatim from the source; this one is written by the model. Compose 3-4 sentences covering the arc from first to current role, the shape of the transitions, and the spheres the candidate actually spent time in. Write it from the parsed roles and aggregates rather than from the resume's own summary paragraph, and never let it contradict the leveling calls or the sphere ranking. Keep every claim checkable against the JSON: no praise, no adjectives the bullets do not support, no invented metrics. The field is additive to schema v1.0, so a consumer that does not know it ignores it, and a renderer falls back cleanly when it is null. Phase 2 renders it collapsed by default; see `reference/visualization.md`.
+7. **`candidate.career_synthesis` and `roles[].role_synthesis` are the only composed fields (spec v1.7 and v2.0).** Every other narrative field in this schema is verbatim from the source; this one is written by the model. Compose 3-4 sentences covering the arc from first to current role, the shape of the transitions, and the spheres the candidate actually spent time in. Write it from the parsed roles and aggregates rather than from the resume's own summary paragraph, and never let it contradict the leveling calls or the sphere ranking. Keep every claim checkable against the JSON: no praise, no adjectives the bullets do not support, no invented metrics. The field is additive to schema v1.0, so a consumer that does not know it ignores it, and a renderer falls back cleanly when it is null. Phase 2 renders it collapsed by default; see `reference/visualization.md`.
+
+   **`roles[].role_synthesis` (NEW spec 2.0)** is the per-role equivalent: a composed 2-3 sentence TL;DR, written for every role with **8 or more bullets**, rendered above that role's bullet list in a panel labelled AI SYNTHESIS. Same discipline as `career_synthesis`: every claim checkable against that role's own bullets, no praise, no invented metrics.
+
+   Before 2.0 this text was composed while hand-writing the HTML. The renderer is now a fixed viewer that cannot compose prose, so text that is not in the JSON simply does not appear on the page. The validator warns when a role has 8+ bullets and no `role_synthesis`, and when `career_synthesis` is absent.
 
 ## Edge cases
 
@@ -371,6 +396,19 @@ Two genuinely concurrent roles (e.g. part-time + full-time, or contractor at com
 - **Off-chart** only for genuinely tangential work (e.g. a few months of freelance gigs unrelated to the career arc).
 
 The user makes the final call - surface borderline decisions per the workflow's Step 3, and wait for the answer. Applying the default silently is the documented failure mode here, not the fallback.
+
+### LinkedIn profile PDF as the whole source (NEW spec 2.0)
+
+A "Save to PDF" export of a LinkedIn profile is a common input and differs from a resume in ways that change the parse:
+
+- **Descriptions are prose paragraphs, not bullets.** Capture each paragraph verbatim as one `narrative_bullets` entry, strip LinkedIn's own bullet glyphs where it does use them, and join the line wraps and page breaks the PDF inserts. Set `narrative_source_note` to say the source was a LinkedIn export.
+- **Roles with a title and no description are normal.** Leave `narrative_bullets` empty; the page renders a head with dates and no body, and the validator raises a WARN rather than an ERROR. The level then rests on the title anchor alone - say so in `strata.reasoning` and flag it in `data_quality`.
+- **The profile header carries a headline, a Top Skills list, languages, certifications and honors.** Capture them (`candidate.headline`, `candidate.top_skills`, and the existing fields); the headline and top skills never render, honors and certifications do.
+- **Contact blocks may carry a street address.** Do not capture it. The location line is `candidate.contact.location`.
+- **Company lines may include marketing text** (a legal entity name with a product name or slogan appended). Capture the company name itself and record what the source line said in `data_quality`.
+- **Group headers repeat a total for multi-role employers** (the employer name followed by a combined tenure such as "2 years 8 months"). That is a computed total, not a role; parse the individual roles beneath it.
+- **Dates often share a boundary month** (one role ends the same month the next begins). That is normal and is not an overlap; the renderer treats touching months correctly.
+- **Sub-brands and internal moves**: an internal move that LinkedIn shows as a different company (a parent company and one of its research or product sub-brands) is a same-employer step. Ask the user, and if they agree, use one `company` value and put the sub-brand in `company_history_note` so the staircase draws.
 
 ### Off-chart pre-career roles
 Pre-HR / pre-career roles at companies in different professional families (Sales Support, Receptionist, Event Hostess) → `render_policy.on_chart = false`. They appear in the textual Experience section but not on the ladder chart. The chart axis spans only the **on-chart** career.
@@ -411,6 +449,8 @@ python3 scripts/validate_structured_json.py path/to/structured.json
 Exit code 0 means the contract holds; exit 1 means Phase 2 would render incorrectly. Fix every ERROR before rendering and review the WARNs. The validator catches the failure modes that are tedious to eyeball - family weights that do not sum to 1.0, a `strata.code`/`rank` pair that disagrees with the framework, aggregates that drifted after a late strata revision, a dominant family with no ranked sphere entry (a bar with no colour), a dangling `connector.previous_role_id`, and any education date that crept in against the LOCKED content rule.
 
 It is a check on arithmetic and cross-references only. It cannot tell you whether a leveling call is *right* - that still needs the user sign-off described in Step 3.
+
+**Then render, if the user wants the chart**, with `python3 scripts/build_profile.py path/to/structured.json`. It re-runs the validator, refuses to build while any ERROR stands, and writes the career-ladder HTML from the bundled viewer. See `reference/visualization.md`; you do not write HTML.
 
 `reference-data/example-structured.json` is a small synthetic fixture (fabricated candidate, not a real resume) showing a complete, valid document. Consult it when unsure how a field is meant to be populated.
 

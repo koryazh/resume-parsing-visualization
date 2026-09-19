@@ -80,8 +80,8 @@ def mutations(base):
     def bad_role_count(d):
         d["aggregates"]["role_count"] = 99
 
-    def no_bullets(d):
-        d["roles"][0]["narrative_bullets"] = []
+    def bad_bar_style(d):
+        d["render_options"] = {"bar_style": "dotted"}
 
     m("strata rank contradicts framework code", "roles[role_1].strata", set_rank)
     m("family weights do not sum to 1", "roles[role_1].family_tags", bad_weight)
@@ -98,7 +98,7 @@ def mutations(base):
     m("role missing strata", "roles[role_1].strata", no_strata)
     m("rank outside frozen 0-12 contract", "roles[role_1].strata.rank", bad_rank_range)
     m("aggregates.role_count wrong", "aggregates.role_count", bad_role_count)
-    m("role has no bullets", "roles[role_1].narrative_bullets", no_bullets)
+    m("unsupported render_options.bar_style", "render_options.bar_style", bad_bar_style)
     return out
 
 
@@ -119,6 +119,26 @@ def main():
         print("FAIL  unmodified example should validate clean")
     else:
         print("ok    unmodified example validates clean (%d warnings)" % len(rep.warns))
+
+    # Warning-side cases: renderable, but Phase 1 should know about them (spec 2.0).
+    for label, mutate, expected in (
+        ("role has no bullets", lambda d: d["roles"][0].update({"narrative_bullets": []}),
+         "roles[role_1].narrative_bullets"),
+        ("8+ bullets without role_synthesis",
+         lambda d: d["roles"][0].update({"narrative_bullets": d["roles"][0]["narrative_bullets"] * 4}),
+         "roles[role_1].role_synthesis"),
+        ("career_synthesis absent", lambda d: d["candidate"].pop("career_synthesis", None),
+         "candidate.career_synthesis"),
+    ):
+        doc = copy.deepcopy(base)
+        mutate(doc)
+        rep = validate(doc, REF_DIR)
+        if [w for w in rep.warns if w["path"].startswith(expected)] and not rep.errors:
+            print("ok    %s (WARN)" % label)
+        else:
+            print("FAIL  %s -> expected WARN at %r, got warns=%s errors=%s"
+                  % (label, expected, [w["path"] for w in rep.warns], [e["path"] for e in rep.errors]))
+            failures.append(label)
 
     for label, doc, expected in mutations(base):
         rep = validate(doc, REF_DIR)

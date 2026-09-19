@@ -4,6 +4,13 @@ A self-contained specification for building an interactive HTML career-ladder vi
 
 The output is a single self-contained HTML file. No external runtime dependencies except Google Fonts. All chart drawing is inline SVG; all interactivity is plain JS; styling is plain CSS (no framework).
 
+**Since 2.0 there is a reference implementation: `viewer/career-profile.html`.** It implements every rule below for *any* conforming JSON, so inside this skill the rendering phase is a script run (`scripts/build_profile.py`), not a writing task. Read this document to change a rule, to port the design elsewhere, or to understand why something renders as it does - not to re-implement it per candidate. Where this document and the viewer disagree, that is a bug in one of them; `scripts/check_viewer.py` catches the mechanical half of that (levels, palette, version stamp).
+
+**Two rules are now implementation facts rather than instructions**, because the viewer computes them and cannot be talked out of them:
+
+- Everything the tenure header, legend and axis print is derived from the on-chart roles at render time. Stored `aggregates` values for these are ignored (§3, §5.8).
+- Composed prose (`candidate.career_synthesis`, `roles[].role_synthesis`) is read from the JSON. A renderer cannot write it, so text absent from the JSON is absent from the page (§4.2, §4.9).
+
 ---
 
 ## 1. Overview
@@ -217,6 +224,7 @@ The HTML is a single self-contained file. Sections in order from top to bottom:
 - Hero is center-aligned: name, contacts row, and location line all `text-align: center`. Tight padding (~20px top, ~12px bottom reference values); ~6px gap between name and contacts row.
 - Divider lines (`border-bottom`) appear ONLY under the three section headers **Experience**, **Education**, **Tech Stack** (`.section-title`). No divider between individual role articles (whitespace/padding only), none between hero and chart card, none between chart card and Experience.
 - Tenure header (stats row above the chart): center-aligned, both stat lines at the SAME font size (12px reference), bold applied only to the numeric values via `<b>` - not the whole line. Wording: `Career path span <b>X years Y months</b> · <b>N roles</b> · <b>M employers</b>` then `Peak job level · <b>CODE Name</b>` on the next line. Bottom padding on this row is kept near-zero so it reads as directly attached to the chart below it.
+  - **Computed, not read (spec 2.0)**: the span, the counts and the peak come from the on-chart roles themselves, so the header can never contradict the bars beneath it. `aggregates.employer_count` in the JSON stays a whole-document count (every distinct company across all roles, which is what the validator checks); the header shows on-chart employers.
   - **C-Level exception (added spec v1.6)**: `CODE Name` renders as `C-Level C-Level` if built naively, since `strata.code` and `strata.name` are the identical string at that one rank. Render the peak line as just `C-Level` (once) when `peak_strata.code === peak_strata.name`; otherwise `code + " " + name` as normal. Do not apply the axis overlay's `C-Level` → `C` shortening (§5.4) here - the tenure header has room for the full word.
 
 ---
@@ -231,7 +239,9 @@ These rules govern what gets rendered. They protect the candidate from incorrect
 
 ### 4.2 Role-summary panel (AI synthesis)
 
-When a role has **8+ bullets**, compose a 2-3 sentence TL;DR and render it as a gray panel with a 3px left border above the bullet list.
+When a role has **8+ bullets**, a composed 2-3 sentence TL;DR renders as a gray panel with a 3px left border above the bullet list.
+
+**The text comes from `roles[].role_synthesis` in the JSON (spec 2.0).** The parsing phase writes it; the renderer only displays it. A role with 8+ bullets and no `role_synthesis` renders with no panel, and the validator warns. Roles with fewer than 8 bullets never get one, even if the field is populated.
 
 ```html
 <p class="role-summary">Composed summary prose goes here.</p>
@@ -419,8 +429,10 @@ If chart-card max-width or padding changes, recompute `TARGET_VB_TOTAL_WIDTH` to
 **Canonical JS geometry block:**
 
 ```javascript
+// Padding updated in spec 2.0: the pre-2.0 {bottom:56, left:60} predates moving the strata labels out of
+// the SVG into the HTML overlay (§5.4) and leaves dead space left of and below the plot.
 const CHART = {
-  pad: { top: 24, right: 12, bottom: 56, left: 60 },
+  pad: { top: 24, right: 12, bottom: 24, left: 16 },
   BAND_HEIGHT: 25,
   TARGET_VB_TOTAL_WIDTH: 828
 };
@@ -518,6 +530,7 @@ When roles share a `company` value, render a faint gray staircase behind the bar
 - `pointer-events: none` so it doesn't block bar interactions
 - Class: `.same-employer-arc-block`
 - Renders BEFORE bars so bars sit on top
+- **Draw all the rects inside ONE `<g opacity="0.10">` with opaque fills, rather than giving each rect its own 0.10 opacity (spec 2.0).** Per-rect opacity compounds wherever two rects cover the same month, and the doubled shading reads as a dark vertical seam. It happens constantly with LinkedIn dates, which routinely end one role and start the next in the same month, and also wherever two employers meet in one month or a concurrent role runs at the same company. A group opacity composites the union once, so overlaps are invisible.
 
 **Resolved - the gap issue.** Consecutive same-company rects used to show a visible ~1-month notch even for a genuinely seamless promotion, making one continuous employer stint read as two separate ones. Root cause: the x-coordinate formula for an end date reused the "start of month" convention meant for start dates (see §5.2's anti-pattern note), so every rect was quietly drawn about a month short on its trailing edge - the same bug affected the bars themselves, just less visibly since a promotion already moves them to a different band. Fixed by giving end dates their own `endOfMonth` conversion: a role ending in month M now renders through the exact x-coordinate where a role starting in month M+1 begins, so two seamless same-company rects abut with zero gap.
 
@@ -599,6 +612,7 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ## 7. Output
 
+- Produced by `scripts/build_profile.py <structured.json>`, which writes the JSON into the viewer's `<script type="application/json" id="profile-data">` slot (spec 2.0). The viewer also accepts `?data=<url>`, `?data=storage:<key>`, and a file dropped on its loader screen; see `reference/viewer-contract.md`.
 - Single `.html` file, self-contained
 - No external runtime dependencies except Google Fonts CDN (`fonts.googleapis.com`)
 - All CSS inline in `<style>`, all JS inline in `<script>`, all SVG generated by JS at runtime
@@ -608,6 +622,9 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ## 8. Anti-patterns (do NOT do)
 
+- **Writing a career-ladder page by hand, or editing a built one (spec 2.0)**: the reason this version exists. Every hand-written render before 2.0 re-implemented these rules and dropped a different one; §8's entries below are the list of which. A per-candidate fix in a built HTML file cannot be tested, cannot be carried forward, and silently forks the design. Fix the JSON, or fix the viewer for everyone.
+- **Per-rect opacity on the same-employer staircase (§5.5)**: overlapping rects compound into dark seams at shared boundary months. One translucent group, opaque rects.
+- **Reading the tenure header, legend months or peak level from `aggregates` (§3)**: compute them from the on-chart roles so the words and the picture cannot disagree.
 - **Constant pixels-per-year scaling**: produces inconsistent band heights across candidates. Use locked-viewBox-width instead (see §5.2).
 - **`preserveAspectRatio: none`** on the SVG: distorts shapes inside (text glyphs, circles, dotted grids). The locked-viewBox-width fix achieves vertical consistency while preserving aspect ratio properly.
 - **Horizontal scrolling**: rejected. Fit-to-screen is the design. Long careers compress; short careers stretch.
@@ -631,7 +648,7 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ## 9. Version & contract
 
-- Spec version: 1.9
+- Spec version: 2.0
 - JSON schema version this targets: `1.0`
 - Leveling framework version this targets: `3.0` (13 levels, ranks 0-12)
 - Backward-compatible JSON additions (schema v1.1 with new optional fields) should be ignored gracefully by the renderer.
@@ -639,6 +656,7 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ### Changelog
 
+- **2.0 (2026-09-19):** The rendering phase stops being a writing task. The skill now ships `viewer/career-profile.html`, one renderer that reads any conforming JSON and draws it in the browser, plus `scripts/build_profile.py`, which bakes a JSON into it and refuses to build while the validator reports an error. Consequences recorded through this document: (1) the tenure header, legend months, sphere ranking and peak level are computed from the on-chart roles rather than read from `aggregates` (§3, §5.8), which retires the class of bug 1.9 recorded, where the header disagreed with the chart; (2) composed prose must be in the JSON - `candidate.career_synthesis` and the new additive `roles[].role_synthesis` (§4.2) - because a fixed renderer cannot compose, and the validator now warns when either is missing; (3) chart padding becomes `{top:24, right:12, bottom:24, left:16}` (§5.2), matching what the reference page actually rendered, since the old `{bottom:56, left:60}` predates moving the strata labels into the HTML overlay; (4) the same-employer staircase draws as a single translucent group (§5.5) after shared boundary months, ubiquitous in LinkedIn exports, produced dark seams; (5) `render_options` (bar style, as-of month, tech-stack visibility, opt-in sections, banner) carries the user's per-profile choices, and `roles[].boomerang_note` overrides the now auto-detected boomerang line; (6) a title-only role is a WARN rather than an ERROR, since real resumes and LinkedIn exports carry them and the page renders one correctly. Hand-writing or hand-editing a rendered page is now an explicit anti-pattern (§8).
 - **1.9 (2026-09-04):** Three corrections from a second clean-install render, this time of v1.8. (1) The `Save as PDF` control vanished entirely (§4.11): v1.8 added a prominent canonical CSS block while leaving the button and handler as prose, and the clean run copied the block and dropped the control, shipping a page that prints correctly but cannot start a print. Canonical markup and handler blocks added, with a pre-delivery check that `window.print` appears in the output. The general lesson is now an anti-pattern in §8: when a feature spans markup, script and style, whichever part is left as prose is the part that goes missing. (2) Tenure header counts (§3): `N roles` and `M employers` now explicitly mean on-chart counts, after a run printed `9 roles` above a chart drawing 8 bars, with a career span that already excluded the ninth. Added a consistency check that the bar count matches the printed N. (3) Phase 1 Step 3 is now a blocking gate (`reference/parsing.md`): the run excluded the candidate's earliest role from the chart on the documented default without asking, and the user's answer would have been to include it. Every `on_chart = false` decision must now be surfaced and answered, with an explicit instruction that a default is where to land after the question, not a licence to skip it.
 - **1.8 (2026-09-04):** Two corrections after reviewing output generated by a clean install of v1.7, which exposed rules that read fine to an author but did not survive a fresh render. (1) Attribution banner (§4.10): v1.7 described the banner as naming "the copyright holder" without ever stating who, and the holder's name appears in no file the rendering phase reads (`LICENSE` carries it, but rendering never opens it, and `README.md` is not in the distributed package). A clean run defaulted to "© Anthropic" linked to `github.com/anthropics/skills`, misattributing the work. The exact markup, holder, and URL are now locked inline, with an explicit prohibition on attributing the skill to Anthropic. (2) Print stylesheet (§4.11): v1.7 stated the print rules as prose, and a clean run dropped two of them, setting `break-inside: avoid` on `.role` (producing a two-thirds-empty page after a 24-bullet role) and omitting `.role-summary` from the exclusion list (leaving per-role AI synthesis blocks in the PDF with orphaned labels). Added a canonical copy-paste print block, matching how the axis overlay and geometry rules are already specified, and recorded all three failures in §8. No behavioural change to a correct v1.7 implementation; this release makes the existing rules reproducible.
 - **1.7 (2026-09-04):** Three additions from a live design session on a real parse. (1) Full-career synthesis (§4.9): a new additive `candidate.career_synthesis` field composed by Phase 1 and rendered centered between the hero and the sticky chart card, collapsed by default behind an `aria-expanded` disclosure toggle, deliberately not persisted across reloads and deliberately outside the sticky card so an expanded panel does not consume half the viewport on every scroll. (2) Attribution banner (§4.10): a full-bleed top band naming the skill and copyright holder that self-collapses after 7 seconds, documented as a customizable default rather than a locked rule since adopters are expected to adapt or remove it; records the `transitionend` trap, where `prefers-reduced-motion` fires no transition so any cleanup chained to that event never runs. (3) Save as PDF (§4.11): a `window.print()` control plus a print stylesheet excluding the banner, both tiers of AI synthesis panel, and the interactive chrome. Records that silent one-click PDF saving is impossible without a bundled library that would violate §7, that print reveal/hide must be pure CSS rather than DOM mutation, that `print-color-adjust: exact` is required for the chart to keep its colours, that `break-inside: avoid` must not go on a role taller than a page, and that browser-drawn page headers and footers can only be suppressed indirectly via `@page{margin:0}`.

@@ -14,6 +14,10 @@ OUT="$ROOT/dist/${SKILL}-skill-${STAMP}.zip"
 # as the local build record.
 RELEASE_OUT="$ROOT/dist/${SKILL}-skill.zip"
 
+# The viewer must agree with the reference data it was built from before anything ships.
+python3 "$ROOT/scripts/check_viewer.py"
+python3 "$ROOT/scripts/test_validator.py" >/dev/null
+
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
@@ -22,7 +26,7 @@ mkdir -p "$STAGE/$SKILL" "$ROOT/dist"
 # Only the files the skill itself needs, plus LICENSE, which must travel
 # with the zip because the zip is what users download. README, .gitignore,
 # and this script are repo scaffolding and are deliberately left out.
-for item in SKILL.md LICENSE reference reference-data docs scripts; do
+for item in SKILL.md LICENSE reference reference-data docs scripts viewer; do
   cp -R "$ROOT/$item" "$STAGE/$SKILL/"
 done
 
