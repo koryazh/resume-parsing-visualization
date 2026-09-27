@@ -175,7 +175,7 @@ Ranks run **0 through 12 inclusive**. Rank 0 (`P1`) was added in leveling-framew
 
 Codes and names above are copied verbatim from `reference-data/leveling-framework.json` and are the canonical strings that appear in `strata.code` / `strata.name`. Note the top row in particular: the code is `C-Level`, not `C` - that string must never change at the data layer (JSON, `DATA.strata_bands`, any comparison or lookup).
 
-At the axis-label level, though, `C-Level` is the one code that's noticeably wider than the rest of the column (7 characters vs. the 2-3 of every other rank, since it doubles as its own name) - render it shortened to `C` in the `#strata-axis` overlay specifically (§5.4). This is a display-only substitution made at the point the label's `textContent` is set; it must not leak into the data or into any renderer comparison.
+At the axis-label level, the overlay renders the full name next to its code, e.g. `Middle (P3)`, not the bare code (spec 2.1, §5.4) - codes alone read fine to someone who already knows the framework, but not to a first-time viewer. Four labels get a further display-only shortening (`P1`→`Entry`, `M6`→`Sr. Director`, `E7`→`VP`, `E8`→`SVP`) to avoid awkward wrapping or redundancy; `C-Level` has no separate code and renders as the bare word. All of this is a display-only substitution made at the point the label's `textContent` is set; it must not leak into the data or into any renderer comparison, and the peak-level header, tooltips, and this table always use the full unabbreviated name.
 
 The renderer reads `strata.rank` for Y-axis positioning. The codes/names are just labels.
 
@@ -421,7 +421,7 @@ Match the selector names to whatever the page actually uses. What must not chang
 
 **Canonical values:**
 
-- `TARGET_VB_TOTAL_WIDTH: 828` - chosen to match the actual rendered container width (chart-card 880 max-width minus 8px×2 padding minus 36px right reserve for the strata axis overlay). With this value, 1 viewBox unit ≈ 1 CSS pixel.
+- `TARGET_VB_TOTAL_WIDTH: 756` - chosen to match the actual rendered container width (chart-card 880 max-width minus 8px×2 padding minus 108px right reserve for the strata axis overlay). With this value, 1 viewBox unit ≈ 1 CSS pixel. (Was 828 with a 36px reserve before spec 2.1 widened the overlay for expanded level names - see §5.4.)
 - `BAND_HEIGHT: 25` viewBox units → bands render at ~25 CSS px on every candidate.
 
 If chart-card max-width or padding changes, recompute `TARGET_VB_TOTAL_WIDTH` to match.
@@ -434,7 +434,7 @@ If chart-card max-width or padding changes, recompute `TARGET_VB_TOTAL_WIDTH` to
 const CHART = {
   pad: { top: 24, right: 12, bottom: 24, left: 16 },
   BAND_HEIGHT: 25,
-  TARGET_VB_TOTAL_WIDTH: 828
+  TARGET_VB_TOTAL_WIDTH: 756
 };
 
 // Date -> fractional-year conversion. Start dates use "start of month";
@@ -500,14 +500,21 @@ Each band renders as a thin horizontal lane in the chart with a dotted grid back
 
 ### 5.4 Strata axis overlay
 
-- Strata codes (P3, P4, M5, etc.) render as an HTML overlay `#strata-axis` absolutely positioned to the right of `.ladder-frame`, NOT inside the SVG.
-- Labels left-aligned with 6px left margin.
-- Font-size: `clamp(10px, 1.1vw, 13px)` - scales with viewport.
+- Strata labels render as an HTML overlay `#strata-axis` absolutely positioned to the right of `.ladder-frame`, NOT inside the SVG.
+- Labels left-aligned with 6px left margin, wrapping onto two lines when the text does not fit one (`.strata-label{width:100px}`, `white-space` left at its `normal` default, `line-height:1.2`). Vertical centering via `translateY(-50%)` (rule 2 below) centers the whole wrapped block, so a two-line label centers the same way a one-line label does.
+- Font-size: `clamp(9px, 1vw, 11.5px)` - scales with viewport.
 - SVG `pad.right` is 12 (no inline labels - labels live in the overlay column).
-- `.ladder-wrap` has `padding-right: 36px` to reserve space for the overlay so bars never slide under the labels.
-- **`C-Level` shortens to `C` (UPDATED 2026-08-23).** Every other code in the column is 2-3 characters; `C-Level` is 7 and is the one rank where `code` and `name` are identical, so it reads redundantly long next to `P6` or `M4`. Shorten it at the point the label text is assigned: `div.textContent = b.code === "C-Level" ? "C" : b.code;`. `DATA.strata_bands` itself, and the JSON's `strata.code`, keep the full `C-Level` string - this substitution is display-only.
+- `.ladder-wrap` has `padding-right: 108px` and `#strata-axis` is `width: 108px`, reserved for the overlay so bars never slide under the labels. The two must stay equal, and `TARGET_VB_TOTAL_WIDTH` (§5.2) must be recomputed from whatever this value is - see the derivation there.
+- **Label text is `Name (Code)`, not the bare code (UPDATED 2026-09-27).** Codes alone (`P3`, `M5`, `E7`) read fine to someone who already knows the framework, but not to a viewer meeting it for the first time, which is most resume readers. Render the full level name next to its code: `div.textContent = b.code === b.name ? b.name : \`${shortName} (${b.code})\`;` where `shortName` defaults to `b.name` and `b.name` itself is never altered - this is a display-only substitution, same principle as the `C-Level` case below.
+- **A small display-only abbreviation table shortens four labels that would otherwise wrap awkwardly or read as redundant, same pattern as the pre-2.1 `C-Level` → `C` case:**
+  ```javascript
+  const AXIS_SHORT_NAME = { P1: "Entry", M6: "Sr. Director", E7: "VP", E8: "SVP" };
+  ```
+  `P1 Entry Professional` → `Entry (P1)`, `M6 Senior Director` → `Sr. Director (M6)`, `E7 Vice President` → `VP (E7)`, `E8 Senior Vice President` → `SVP (E8)`. `C-Level` has no separate code (`code === name`), so it renders as the bare word `C-Level` with no parenthetical, unchanged from before. `DATA.strata_bands`, the JSON's `strata.code`/`strata.name`, and every other place the level name appears (peak-level header §3, tooltips, this table) keep the full, unabbreviated name - only the axis label text is shortened.
 
 This overlay pattern (rather than SVG-inline labels) makes the labels resolution-independent and easier to style with CSS.
+
+**Hover tooltip shows the level description (ADDED 2026-09-27).** Each `.strata-label` gets `pointer-events: auto` (overriding the `pointer-events: none` on the `#strata-axis` container, which stays `none` so it never blocks bar interactions elsewhere in the column) and `cursor: help`. `mousemove`/`mouseleave` reuse the same `#tooltip` element and positioning math as the bar tooltip (§5.7), with its own render function (`showLevelTooltip`) rather than overloading `showTooltip`, since the content shape differs (a heading plus one description paragraph, no sphere rows). The heading always uses the full name - `Senior Director (M6)`, never the axis's `Sr. Director (M6)` - so the abbreviation is a pure space-saving device on the axis itself and never hides the full term from a reader who asks for it. The description text is `LEVELS[rank].description`, copied verbatim from `reference-data/leveling-framework.json`'s own `description` field for that level (see §9 changelog 2.1); a level with no description renders the heading only.
 
 **Alignment across the two coordinate systems (LOCKED 2026-08-09).** The labels are HTML in CSS-pixel space; the bars are SVG in a viewBox that is scaled to the container width by `width: 100%` + `preserveAspectRatio: xMidYMid meet`. Keeping the two aligned at every viewport width requires that the overlay track the *rendered* SVG, not the viewBox constants. Three rules, each corresponding to a way a real chart shipped misaligned:
 
@@ -648,14 +655,15 @@ Include the Google Fonts CSS in the HTML `<head>`. Both families are free under 
 
 ## 9. Version & contract
 
-- Spec version: 2.0
+- Spec version: 2.1
 - JSON schema version this targets: `1.0`
-- Leveling framework version this targets: `3.0` (13 levels, ranks 0-12)
+- Leveling framework version this targets: `3.1` (13 levels, ranks 0-12)
 - Backward-compatible JSON additions (schema v1.1 with new optional fields) should be ignored gracefully by the renderer.
 - Breaking schema changes (schema v2.0) require synchronized renderer updates.
 
 ### Changelog
 
+- **2.1 (2026-09-27):** The strata axis overlay (§5.4) went from bare codes to self-explanatory labels, after user feedback that the axis was confusing without already knowing the leveling framework. (1) Axis labels now render `Name (Code)` (e.g. `Middle (P3)`) instead of the bare code, with `P1`/`M6`/`E7`/`E8` further shortened to `Entry`/`Sr. Director`/`VP`/`SVP` to avoid awkward wrapping - all display-only, same principle as the pre-existing `C-Level` → `C` case, which is retired now that the wider column no longer needs it (`C-Level` renders as the bare word). (2) Hovering a label shows a new tooltip with the full name and that level's `description`, reusing the bar tooltip's styling and positioning. (3) To fit the longer text, `#strata-axis` / `.ladder-wrap`'s right reserve grew from 36px to 108px, with `TARGET_VB_TOTAL_WIDTH` recomputed from 828 to 756 per the §5.2 formula so band heights are unchanged. (4) `LEVELS` (§5.4/§9) gained a `description` field per level, copied verbatim from `reference-data/leveling-framework.json`; the framework itself moved to 3.1 in the same release, correcting two unfilled template placeholders in the M3 and M4 descriptions (`"[team name]"`, `"[domain]"`) that were harmless while those fields were only read internally but read as bugs once surfaced in a user-facing tooltip. Verified with `check_viewer.py` and a resize-drift check at ~900px and ~480px per §5.4's existing verification method.
 - **2.0 (2026-09-19):** The rendering phase stops being a writing task. The skill now ships `viewer/career-profile.html`, one renderer that reads any conforming JSON and draws it in the browser, plus `scripts/build_profile.py`, which bakes a JSON into it and refuses to build while the validator reports an error. Consequences recorded through this document: (1) the tenure header, legend months, sphere ranking and peak level are computed from the on-chart roles rather than read from `aggregates` (§3, §5.8), which retires the class of bug 1.9 recorded, where the header disagreed with the chart; (2) composed prose must be in the JSON - `candidate.career_synthesis` and the new additive `roles[].role_synthesis` (§4.2) - because a fixed renderer cannot compose, and the validator now warns when either is missing; (3) chart padding becomes `{top:24, right:12, bottom:24, left:16}` (§5.2), matching what the reference page actually rendered, since the old `{bottom:56, left:60}` predates moving the strata labels into the HTML overlay; (4) the same-employer staircase draws as a single translucent group (§5.5) after shared boundary months, ubiquitous in LinkedIn exports, produced dark seams; (5) `render_options` (bar style, as-of month, tech-stack visibility, opt-in sections, banner) carries the user's per-profile choices, and `roles[].boomerang_note` overrides the now auto-detected boomerang line; (6) a title-only role is a WARN rather than an ERROR, since real resumes and LinkedIn exports carry them and the page renders one correctly. Hand-writing or hand-editing a rendered page is now an explicit anti-pattern (§8).
 - **1.9 (2026-09-04):** Three corrections from a second clean-install render, this time of v1.8. (1) The `Save as PDF` control vanished entirely (§4.11): v1.8 added a prominent canonical CSS block while leaving the button and handler as prose, and the clean run copied the block and dropped the control, shipping a page that prints correctly but cannot start a print. Canonical markup and handler blocks added, with a pre-delivery check that `window.print` appears in the output. The general lesson is now an anti-pattern in §8: when a feature spans markup, script and style, whichever part is left as prose is the part that goes missing. (2) Tenure header counts (§3): `N roles` and `M employers` now explicitly mean on-chart counts, after a run printed `9 roles` above a chart drawing 8 bars, with a career span that already excluded the ninth. Added a consistency check that the bar count matches the printed N. (3) Phase 1 Step 3 is now a blocking gate (`reference/parsing.md`): the run excluded the candidate's earliest role from the chart on the documented default without asking, and the user's answer would have been to include it. Every `on_chart = false` decision must now be surfaced and answered, with an explicit instruction that a default is where to land after the question, not a licence to skip it.
 - **1.8 (2026-09-04):** Two corrections after reviewing output generated by a clean install of v1.7, which exposed rules that read fine to an author but did not survive a fresh render. (1) Attribution banner (§4.10): v1.7 described the banner as naming "the copyright holder" without ever stating who, and the holder's name appears in no file the rendering phase reads (`LICENSE` carries it, but rendering never opens it, and `README.md` is not in the distributed package). A clean run defaulted to "© Anthropic" linked to `github.com/anthropics/skills`, misattributing the work. The exact markup, holder, and URL are now locked inline, with an explicit prohibition on attributing the skill to Anthropic. (2) Print stylesheet (§4.11): v1.7 stated the print rules as prose, and a clean run dropped two of them, setting `break-inside: avoid` on `.role` (producing a two-thirds-empty page after a 24-bullet role) and omitting `.role-summary` from the exclusion list (leaving per-role AI synthesis blocks in the PDF with orphaned labels). Added a canonical copy-paste print block, matching how the axis overlay and geometry rules are already specified, and recorded all three failures in §8. No behavioural change to a correct v1.7 implementation; this release makes the existing rules reproducible.

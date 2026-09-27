@@ -5,19 +5,21 @@ description: Turn a resume PDF into a structured JSON career profile with leveli
 
 ## Version
 
-**Skill version 2.0, updated 2026-09-19.**
+**Skill version 2.1, updated 2026-09-27.**
 
-This is the same number as the GitHub release tag (`v2.0`) and the visualization spec, which is the component that moves most often. It is deliberately not a fourth independent version to keep in sync. The components below move on their own schedules:
+This is the same number as the GitHub release tag (`v2.1`) and the visualization spec, which is the component that moves most often. It is deliberately not a fourth independent version to keep in sync. The components below move on their own schedules:
 
 | Component | Version |
 |---|---|
 | JSON schema | 1.0 (plus additive optional fields) |
-| Leveling framework | 3.0 (13 levels, ranks 0-12) |
+| Leveling framework | 3.1 (13 levels, ranks 0-12) |
 | Job family taxonomy | 2.0 (35 families, 30 industries) |
-| Visualization spec | 2.0 |
-| Bundled viewer | 1.0.0 |
+| Visualization spec | 2.1 |
+| Bundled viewer | 1.1.0 |
 
 **Update the line above in the same commit that bumps any component.** A stale version stamp is worse than no version stamp, because it is the first thing a reader trusts and the last thing they re-check.
+
+**What changed in 2.1:** The strata axis overlay went from bare codes (`P3`, `M5`) to self-explanatory labels (`Middle (P3)`, `Director (M5)`), after user feedback that the axis was confusing without already knowing the leveling framework, plus a hover tooltip on each label showing that level's full description. Four labels (`P1`, `M6`, `E7`, `E8`) get a further display-only shortening to avoid awkward wrapping. The leveling framework moved to 3.1 in the same release: the M3 and M4 descriptions had unfilled template placeholders (`"[team name]"`, `"[domain]"`) that were harmless while only read internally but read as bugs once surfaced in the new tooltip, so they were cleaned up. See `docs/visualization-technical-spec.md`'s 2.1 changelog entry for the full rendering-side detail.
 
 **What changed in 2.0:** Phase 2 no longer writes HTML. The skill ships a finished renderer, `viewer/career-profile.html`, that draws any conforming JSON in the browser, and `scripts/build_profile.py` bakes a JSON into it. Every chart is now produced by the same code instead of being re-implemented per candidate, which is what the 1.8 and 1.9 changelog entries were about. The model's remaining output per render is the two composed AI-synthesis texts, which Phase 1 writes into the JSON.
 
@@ -86,7 +88,7 @@ If the environment cannot run Python at all, deliver the JSON plus `viewer/caree
 ## Companion docs
 
 - `reference/viewer-contract.md` - every JSON path the viewer reads, everything it computes for itself, and the additive fields (`role_synthesis`, `boomerang_note`, `render_options`, capture-only fields). Read it when a page is missing something you expected.
-- `docs/visualization-technical-spec.md` - the portable technical spec for the visualization phase, also useful outside this skill system. Current version 2.0.
+- `docs/visualization-technical-spec.md` - the portable technical spec for the visualization phase, also useful outside this skill system. Current version 2.1.
 - `docs/how-visualization-works.md` - reader-facing narrative explaining the rendered chart to someone opening it for the first time (e.g. a hiring manager). Good to point a user at if they ask what the chart means.
 
 ## Attribution (LOCKED)

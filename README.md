@@ -51,6 +51,12 @@ resume PDF or LinkedIn export
 
 `build_profile.py` re-runs the validator and refuses to write the page while any error stands, then prints the role and employer counts the page header will show, so they can be checked against the chart. Both scripts are standard-library Python 3 with no install step.
 
+## New in v2.1
+
+- **Self-explanatory strata axis.** Axis labels now read `Name (Code)` (e.g. `Middle (P3)`, `Director (M5)`) instead of the bare code, so the chart's career-level axis no longer requires already knowing the leveling framework. Four labels (`P1`, `M6`, `E7`, `E8`) get a further display-only shortening (`Entry`, `Sr. Director`, `VP`, `SVP`) to avoid awkward wrapping.
+- **Hover a level for its description.** Each axis label now shows a tooltip with the full level name and its description from the leveling framework, reusing the same tooltip used for the chart bars.
+- **Leveling framework 3.1.** Cleaned up two unfilled template placeholders in the M3 and M4 descriptions that were harmless while read only internally, but read as bugs once surfaced in the new tooltip.
+
 ## New in v2.0
 
 - **The page is rendered, not written.** `viewer/career-profile.html` implements the whole visualization spec once and reads any conforming JSON. Earlier versions had the model write a fresh page per candidate, which is where the drift recorded in the v1.8 and v1.9 spec changelogs came from. Renders are now faster, cheaper, and identical in structure.
@@ -66,7 +72,7 @@ resume PDF or LinkedIn export
 SKILL.md                                    router: which phase to run, versions, contract stability
 reference/parsing.md                        Phase 1 rules: leveling, taxonomy, schema, edge cases
 reference/visualization.md                  Phase 2 rules: validate, build, verify, deliver
-reference-data/leveling-framework.json      13-level career strata framework (v3.0)
+reference-data/leveling-framework.json      13-level career strata framework (v3.1)
 reference-data/job-families-and-industries.json   job family and industry taxonomy (v2.0)
 reference-data/example-structured.json      synthetic reference document, also the validator fixture
 viewer/career-profile.html                  the renderer: draws any conforming JSON in the browser
@@ -86,10 +92,10 @@ docs/how-visualization-works.md             reader-facing explainer for someone 
 | Component | Version | Notes |
 |---|---|---|
 | JSON schema | 1.0 | Contract between the two phases. Additive fields are fine; breaking changes need a bump. |
-| Leveling framework | 3.0 | 13 levels, 7 dimensions each, plus `example_titles` and `title_traps` per level. |
+| Leveling framework | 3.1 | 13 levels, 7 dimensions each, plus `example_titles` and `title_traps` per level. |
 | Job family taxonomy | 2.0 | 35 families anchored on O*NET-SOC major groups, 30 industries. |
-| Visualization spec | 2.0 | Rendering moved from per-candidate HTML to the bundled viewer. Header, legend and sphere ranking computed from the on-chart roles; composed synthesis texts read from the JSON; single translucent same-employer staircase; `render_options` for per-profile choices. Earlier rules (solid dominant-family bars, rank range 0-12, axis-overlay alignment, C-Level label collapse, boomerang notes, attribution banner, Save as PDF and the print stylesheet) are unchanged and now enforced in code. |
-| Bundled viewer | 1.0.0 | `viewer/career-profile.html`. Reads a baked-in profile, `?data=<url>`, browser storage, or a dropped file. |
+| Visualization spec | 2.1 | Strata axis labels expanded to `Name (Code)` with a display-only shortening for four levels and a hover tooltip showing the level description. Rendering moved from per-candidate HTML to the bundled viewer in 2.0. Header, legend and sphere ranking computed from the on-chart roles; composed synthesis texts read from the JSON; single translucent same-employer staircase; `render_options` for per-profile choices. Earlier rules (solid dominant-family bars, rank range 0-12, axis-overlay alignment, boomerang notes, attribution banner, Save as PDF and the print stylesheet) are unchanged and now enforced in code. |
+| Bundled viewer | 1.1.0 | `viewer/career-profile.html`. Reads a baked-in profile, `?data=<url>`, browser storage, or a dropped file. |
 
 Rank contract: P1 sits at rank 0, added in v3.0. Ranks 1 through 12 are stable and must never be renumbered, because every previously generated `structured.json` encodes them.
 
@@ -99,6 +105,7 @@ Newest first. Releases are published from v1.6 onward; earlier versions predate 
 
 | Version | Date | What changed |
 |---|---|---|
+| 2.1 | 2026-09-27 | Strata axis labels expanded to `Name (Code)` with a hover tooltip showing the level description; four labels shortened for display (`Entry`, `Sr. Director`, `VP`, `SVP`); leveling framework 3.1 cleans up two unfilled template placeholders in the M3/M4 descriptions. |
 | 2.0 | 2026-09-19 | The page is drawn by the bundled viewer instead of being written per candidate. Header and legend computed from the on-chart roles; composed summaries carried in the JSON; `render_options` for per-profile choices; LinkedIn exports supported as a source; staircase seam fix. |
 | 1.9 | 2026-09-04 | Save as PDF control restored, tenure-header counts limited to on-chart roles, Phase 1 borderline calls made a blocking gate. |
 | 1.8 | 2026-09-04 | Attribution wording and repository link locked; canonical print stylesheet block added. |

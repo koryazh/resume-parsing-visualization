@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex" />
-<meta name="generator" content="resume-parsing-visualization viewer 1.0.0 (visualization spec 2.0, schema 1.0, leveling 3.0)" />
+<meta name="generator" content="resume-parsing-visualization viewer 1.1.0 (visualization spec 2.1, schema 1.0, leveling 3.1)" />
 <title>Career Profile</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,12 +51,13 @@
   .tenure{text-align:center;font-size:12px;color:var(--ink-2);line-height:1.5;padding-bottom:2px;}
   .tenure b{color:var(--ink);font-variant-numeric:tabular-nums;}
   .ladder-frame{position:relative;}
-  .ladder-wrap{padding-right:36px;}
+  .ladder-wrap{padding-right:108px;}
   .ladder-wrap svg{width:100%;height:auto;display:block;}
   /* NO pixel height on the axis: top/bottom stretch it to the rendered SVG (spec 5.4). */
-  #strata-axis{position:absolute;top:0;bottom:0;right:0;width:36px;pointer-events:none;}
-  .strata-label{position:absolute;left:0;margin-left:6px;transform:translateY(-50%);
-    font-family:'Inter',sans-serif;font-size:clamp(10px,1.1vw,13px);font-weight:600;color:var(--ink-3);}
+  #strata-axis{position:absolute;top:0;bottom:0;right:0;width:108px;pointer-events:none;}
+  .strata-label{position:absolute;left:0;width:100px;margin-left:6px;transform:translateY(-50%);
+    font-family:'Inter',sans-serif;font-size:clamp(9px,1vw,11.5px);font-weight:600;color:var(--ink-3);
+    line-height:1.2;pointer-events:auto;cursor:help;}
   .bar{cursor:pointer;transition:opacity 0.15s;}
   .bar.dim{opacity:0.14 !important;}
   .bar-hatch.dim{opacity:0.14 !important;}
@@ -82,6 +83,7 @@
   #tooltip .tt-sw{height:100%;border-radius:4px;}
   #tooltip .tt-nm{font-size:10.5px;color:var(--ink-2);min-width:0;}
   #tooltip .tt-pct{font-size:10px;color:var(--ink-3);font-variant-numeric:tabular-nums;}
+  #tooltip .tt-desc{font-size:11px;line-height:1.45;color:var(--ink-2);margin-top:6px;}
 
   /* Sections */
   main{padding-top:8px;}
@@ -229,21 +231,21 @@ const svgNS = "http://www.w3.org/2000/svg";
    scripts/check_viewer.py fails if these blocks drift from those files.
    ------------------------------------------------------------------------------------------ */
 
-/* LEVELS:BEGIN leveling-framework.json v3.0 (ranks frozen; P1 is rank 0) */
+/* LEVELS:BEGIN leveling-framework.json v3.1 (ranks frozen; P1 is rank 0) */
 const LEVELS = [
-  { rank: 0,  code: "P1",      name: "Entry Professional" },
-  { rank: 1,  code: "P2",      name: "Junior" },
-  { rank: 2,  code: "P3",      name: "Middle" },
-  { rank: 3,  code: "P4",      name: "Senior" },
-  { rank: 4,  code: "P5",      name: "Lead" },
-  { rank: 5,  code: "P6",      name: "Principal" },
-  { rank: 6,  code: "M3",      name: "Team Lead" },
-  { rank: 7,  code: "M4",      name: "Manager" },
-  { rank: 8,  code: "M5",      name: "Director" },
-  { rank: 9,  code: "M6",      name: "Senior Director" },
-  { rank: 10, code: "E7",      name: "Vice President" },
-  { rank: 11, code: "E8",      name: "Senior Vice President" },
-  { rank: 12, code: "C-Level", name: "C-Level" }
+  { rank: 0,  code: "P1",      name: "Entry Professional",    description: "Individual Contributor (IC) at the start of their professional career with little or no prior experience relevant to the job title, who performs simple, well-defined tasks under close and continuous supervision while building the foundational knowledge, skills, and experience (KSE) the role requires." },
+  { rank: 1,  code: "P2",      name: "Junior",                description: "Individual Contributor (IC) who completes tasks of average/medium complexity, ranging from supervised routine work at the lower end of the band to independent delivery with only occasional guidance at the upper end. Begins taking light project leadership within the team and collaborates cross-functionally, while continuing to build toward the depth of expertise expected at more senior levels." },
+  { rank: 2,  code: "P3",      name: "Middle",                description: "Productive Individual Contributor (IC) with well-formed professional knowledge and skills who independently completes tasks of average/medium complexity and only occasionally needs guidance/supervision. Begins taking light project leadership within the team and collaborates cross-functionally, while continuing to build toward the depth of expertise expected at more senior levels." },
+  { rank: 3,  code: "P4",      name: "Senior",                description: "Fully productive Individual Contributor (IC) with deep subject-matter expertise who completes tasks of high complexity with no guidance/supervision, reliably serves as a source of domain knowledge for more junior ICs, and leads or represents the team in cross-functional and cross-department collaboration." },
+  { rank: 4,  code: "P5",      name: "Lead",                  description: "Senior (and often) long tenured Individual Contributor (IC) who delivers leadership and direction to a team (or multi-team department within one professional domain)." },
+  { rank: 5,  code: "P6",      name: "Principal",             description: "Senior (and often) long tenured Individual Contributor (IC) with recognized expertise who delivers leadership and direction to a team or multi-team department, and is sought out for cross-department collaboration and alignment beyond their immediate domain." },
+  { rank: 6,  code: "M3",      name: "Team Lead",             description: "People leader responsible for a team's delivery, growth, and execution." },
+  { rank: 7,  code: "M4",      name: "Manager",               description: "Organizational leader owning multiple teams or a larger functional area; leads cross-functional projects and begins guiding career development and succession planning within the teams." },
+  { rank: 8,  code: "M5",      name: "Director",              description: "Organizational leader owning multiple teams via other managers, responsible for a department's technical direction, delivery, and budget; collaborates cross-departmentally to align department strategy with broader company priorities." },
+  { rank: 9,  code: "M6",      name: "Senior Director",       description: "Senior organizational leader owning strategic planning and execution for a group of departments or a business unit; drives alignment with company-wide vision and represents the business unit in cross-functional and cross-department leadership." },
+  { rank: 10, code: "E7",      name: "Vice President",        description: "Executive leader who translates company vision into direction for a business unit, managing multiple Directors and Senior Directors across functions." },
+  { rank: 11, code: "E8",      name: "Senior Vice President", description: "Executive leader overseeing multiple business units or functions, setting company-wide vision and goals for those areas." },
+  { rank: 12, code: "C-Level", name: "C-Level",               description: "Executive Officers of the company." }
 ];
 /* LEVELS:END */
 
@@ -257,7 +259,8 @@ const MAX_RANK = 12;
 /* Geometry - spec 5.2. BAND_HEIGHT and TARGET_VB_TOTAL_WIDTH are the locked values. The padding is
    {24,12,24,16} since spec 2.0; the pre-2.0 block's {bottom:56, left:60} predates the move of strata labels into
    the HTML overlay and left empty space left of and below the plot. */
-const CHART_BASE = { pad: { top: 24, right: 12, bottom: 24, left: 16 }, BAND_HEIGHT: 25, TARGET_VB_TOTAL_WIDTH: 828 };
+/* TARGET_VB_TOTAL_WIDTH = 880 (chart-card max-width) - 16 (8px x2 card padding) - 108 (strata axis reserve, #strata-axis width). */
+const CHART_BASE = { pad: { top: 24, right: 12, bottom: 24, left: 16 }, BAND_HEIGHT: 25, TARGET_VB_TOTAL_WIDTH: 756 };
 
 /* Deterministic stand-in for the "tech-adjacent candidate" judgement in section conservatism (spec 4.5).
    Override per profile with render_options.show_tech_stack. Ids from job-families-and-industries.json v2.0. */
@@ -821,15 +824,31 @@ function renderChart(onChart, today, colorOf, opts) {
   function hideTooltip() { tooltip.style.opacity = "0"; }
 
   /* ---- strata axis overlay (spec 5.4, LOCKED alignment rules) ---- */
+  const AXIS_SHORT_NAME = { P1: "Entry", M6: "Sr. Director", E7: "VP", E8: "SVP" };   // display-only shortening, same pattern as C-Level -> C
   strataBands.forEach(b => {
     const center = CHART.pad.top + fromTop(b.rank) * CHART.BAND_HEIGHT + CHART.BAND_HEIGHT / 2;
     const div = document.createElement("div");
     div.className = "strata-label";
     div.style.top = (center / CHART.vh) * 100 + "%";              // pure %, no px term
-    div.textContent = b.code === "C-Level" ? "C" : b.code;           // display-only shortening
-    div.title = b.name;
+    const shortName = AXIS_SHORT_NAME[b.code] || b.name;
+    div.textContent = b.code === b.name ? b.name : `${shortName} (${b.code})`;
+    div.addEventListener("mousemove", ev => showLevelTooltip(ev, b));
+    div.addEventListener("mouseleave", hideTooltip);
     axisEl.appendChild(div);
   });
+
+  function showLevelTooltip(ev, b) {
+    const heading = b.code === b.name ? b.name : `${b.name} (${b.code})`;
+    tooltip.innerHTML = `<div class="tt-title">${esc(heading)}</div>` +
+      (b.description ? `<div class="tt-desc">${esc(b.description)}</div>` : "");
+    const box = card.getBoundingClientRect();
+    let lx = ev.clientX - box.left + 14;
+    const ty = ev.clientY - box.top + 14;
+    if (lx + 300 > box.width) lx = box.width - 306;
+    tooltip.style.left = Math.max(4, lx) + "px";
+    tooltip.style.top = ty + "px";
+    tooltip.style.opacity = "1";
+  }
 }
 
 function jumpTo(id) {

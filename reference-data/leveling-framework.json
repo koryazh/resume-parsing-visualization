@@ -1,8 +1,8 @@
 {
   "$schema_version": "1.0",
   "name": "Career leveling framework",
-  "version": "3.0",
-  "updated": "2026-08-09",
+  "version": "3.1",
+  "updated": "2026-09-27",
   "notes": "13 levels across three tracks (IC / Manager / Executive), each defined against 7 dimensions. Replaces leveling-framework.xlsx (2 sheets, non-R&D + R&D), which defined the 7 dimensions only for P2-P6 and left every M/E level blank below the 'Level description' row. This version defines all 7 dimensions for all 13 levels. R&D-specific dimension text and the per-level readiness / anti-pattern indicator blocks from the xlsx were intentionally not carried over. RANK CONTRACT: P2=1 through C-Level=12 are unchanged from the previous framework; P1 is new and is rank 0 so that no existing structured.json or chart axis is renumbered.",
   "rank_contract": {
     "min_rank": 0,
@@ -318,7 +318,7 @@
       "name": "Team Lead",
       "track": "Manager",
       "rank": 6,
-      "description": "People leader responsible for a [team name] team's delivery, growth, and execution.",
+      "description": "People leader responsible for a team's delivery, growth, and execution.",
       "example_titles": [
         "Team Lead",
         "Supervisor",
@@ -357,7 +357,7 @@
       "name": "Manager",
       "track": "Manager",
       "rank": 7,
-      "description": "Organizational leader owning multiple teams or a larger [domain]; leads cross-functional projects and begins guiding career development and succession planning within the teams.",
+      "description": "Organizational leader owning multiple teams or a larger functional area; leads cross-functional projects and begins guiding career development and succession planning within the teams.",
       "example_titles": [
         "Software Development Manager",
         "SDE Manager (GUI)",

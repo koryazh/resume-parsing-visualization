@@ -36,7 +36,7 @@ P1 is the only level assigned from the title alone: it's reserved for roles expl
 
 Each candidate's chart only shows the bands from their lowest role's level up to their peak plus one band of breathing room. So a candidate whose career runs P3 → P5 sees four bands (P3, P4, P5, P6) rather than the whole 13-level ladder. This keeps the chart focused and the bars readable. The one exception is a candidate who has reached C-Level: there is no band above it, so their chart tops out at C-Level with no empty band above.
 
-The strata codes appear on the right side of the chart as a sticky overlay, not inside the SVG itself. This means the codes stay crisp at any zoom level and take up visual space outside the bar-drawing area.
+The strata labels appear on the right side of the chart as a sticky overlay, not inside the SVG itself. This means the labels stay crisp at any zoom level and take up visual space outside the bar-drawing area. Each label shows the level's name next to its code (`Middle (P3)`, `Director (M5)`), not the bare code, since the code alone only means something to someone who already knows this framework. A few labels are shortened for space (`Entry`, `Sr. Director`, `VP`, `SVP`), and hovering any label shows a short description of what that level means.
 
 ---
 
